@@ -3,13 +3,16 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '@/stores/gameStore'
 import { useGenreStore } from '@/stores/genreStore'
+import { useSummaryStore } from '@/stores/summaryStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
+import SummaryCard from './SummaryCard'
 
 export default function StoryPanel() {
   const messages = useGameStore((s) => s.messages)
   const streamingText = useGameStore((s) => s.streamingText)
   const isStreaming = useGameStore((s) => s.isStreaming)
   const genre = useGenreStore((s) => s.genre)
+  const summaries = useSummaryStore((s) => s.summaries)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const config = genre ? GENRE_CONFIG[genre] : null
@@ -31,6 +34,15 @@ export default function StoryPanel() {
           <p className="text-sm text-center" style={{ color: config?.theme.textMuted ?? '#888' }}>
             故事即将开始…
           </p>
+        </div>
+      )}
+
+      {/* 历史摘要列表（侧边栏预览） */}
+      {summaries.length > 0 && (
+        <div className="space-y-2">
+          {summaries.map((summary) => (
+            <SummaryCard key={summary.id} summary={summary} />
+          ))}
         </div>
       )}
 

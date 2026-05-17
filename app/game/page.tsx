@@ -6,9 +6,9 @@ import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useSaveStore } from '@/stores/saveStore'
+import { useSummaryStore } from '@/stores/summaryStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
-import { upsertSave } from '@/lib/saveManager'
 import { Message } from '@/types/game'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import StoryPanel from '@/components/game/StoryPanel'
@@ -18,6 +18,22 @@ import StatusBar from '@/components/game/StatusBar'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+}
+
+/** 从剧情文本末尾解析 [ENDING]{...} */
+function parseEnding(text: string): {
+  cleanText: string
+  ending?: { type: 'good' | 'bad' | 'true' | 'secret'; title: string }
+} {
+  const match = text.match(/\[ENDING\](\{[^}]+\})\s*$/)
+  if (!match) return { cleanText: text }
+  try {
+    const ending = JSON.parse(match[1])
+    const cleanText = text.slice(0, match.index).trimEnd()
+    return { cleanText, ending }
+  } catch {
+    return { cleanText: text }
+  }
 }
 
 export default function GamePage() {
@@ -35,8 +51,10 @@ export default function GamePage() {
     setStreamingText,
     incrementTurn,
     setStatus,
+    setMessages,
   } = useGameStore()
   const { addOrUpdate } = useSaveStore()
+  const { summaries, addSummary } = useSummaryStore()
 
   if (!genre || !worldConfig.worldName) {
     router.replace('/')
@@ -51,6 +69,42 @@ export default function GamePage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  /** 滚动摘要：每10回合触发一次 */
+  async function triggerSummaryIfNeeded(currentTurn: number, currentMessages: Message[]) {
+    if (currentTurn > 0 && currentTurn % 10 === 0) {
+      try {
+        const res = await fetch('/api/summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ genre, history: currentMessages }),
+        })
+        const { summary } = await res.json()
+        if (summary) {
+          const summaryRecord = {
+            id: uid(),
+            triggerTurn: currentTurn,
+            content: summary,
+            statusAtTrigger: status,
+          }
+          addSummary(summaryRecord)
+
+          // 把摘要作为特殊消息插入对话
+          const summaryMsg: Message = {
+            id: uid(),
+            role: 'summary',
+            content: summary,
+            turn: currentTurn,
+            timestamp: Date.now(),
+          }
+          // 清空旧历史，只保留摘要消息
+          setMessages([summaryMsg])
+        }
+      } catch {
+        // 摘要失败不影响游戏继续
+      }
+    }
+  }
 
   const handleAction = useCallback(
     async (playerAction: string, isOpening = false) => {
@@ -74,6 +128,11 @@ export default function GamePage() {
       let fullText = ''
 
       try {
+        // 构建历史：摘要内容 + 最近消息
+        const summaryContext = summaries.length > 0
+          ? `【历史摘要】\n${summaries.map(s => s.content).join('\n')}\n\n`
+          : ''
+
         const res = await fetch('/api/story/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -81,7 +140,7 @@ export default function GamePage() {
             genre,
             worldConfig,
             history: messages.slice(-10),
-            playerAction,
+            playerAction: summaryContext + playerAction,
             status,
             turn,
           }),
@@ -105,7 +164,10 @@ export default function GamePage() {
         setStreamingText(fullText)
       }
 
-      const { cleanText, delta } = parseStatusDelta(fullText)
+      // 解析状态变化
+      const { cleanText: afterStatus, delta } = parseStatusDelta(fullText)
+      // 解析结局
+      const { cleanText, ending } = parseEnding(afterStatus)
       const newStatus = applyStatusDelta(genre, status, delta)
 
       const narratorMsg: Message = {
@@ -122,23 +184,30 @@ export default function GamePage() {
       setStatus(newStatus)
       incrementTurn()
 
-      try {
-        const choiceRes = await fetch('/api/story/choices', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre,
-            lastNarratorText: cleanText,
-            status: newStatus,
-            turn: turn + 1,
-          }),
-        })
-        const { choices } = await choiceRes.json()
-        setCurrentChoices(choices ?? [])
-      } catch {
-        setCurrentChoices([])
+      // 生成选项（有结局则不生成）
+      if (!ending) {
+        try {
+          const choiceRes = await fetch('/api/story/choices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              genre,
+              lastNarratorText: cleanText,
+              status: newStatus,
+              turn: turn + 1,
+            }),
+          })
+          const { choices } = await choiceRes.json()
+          setCurrentChoices(choices ?? [])
+        } catch {
+          setCurrentChoices([])
+        }
       }
 
+      // 触发滚动摘要
+      await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
+
+      // 存档
       const saveRecord = {
         id: worldConfig.worldName + '-' + genre,
         createdAt: Date.now(),
@@ -151,11 +220,17 @@ export default function GamePage() {
         statusSnapshot: newStatus,
         recentHistory: [...messages.slice(-9), narratorMsg],
         branchHistory: [],
+        ...(ending && {
+          ending: {
+            ...ending,
+            unlockedAt: Date.now(),
+          },
+        }),
       }
       addOrUpdate(saveRecord)
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [genre, worldConfig, messages, status, turn, isStreaming]
+  [genre, worldConfig, messages, status, turn, isStreaming, summaries]
   )
 
   return (
@@ -178,7 +253,13 @@ export default function GamePage() {
               {worldConfig.worldName}
             </span>
           </div>
-          <div className="w-10" />
+          <button
+            onClick={() => router.push('/saves')}
+            className="text-xs transition-opacity hover:opacity-70"
+            style={{ color: config.theme.textMuted }}
+          >
+            存档 →
+          </button>
         </div>
 
         <div className="flex-shrink-0">
