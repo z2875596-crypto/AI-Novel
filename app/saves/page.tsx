@@ -10,6 +10,7 @@ import { useSummaryStore } from '@/stores/summaryStore'
 import { SaveRecord } from '@/types/save'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import SaveCard from '@/components/saves/SaveCard'
+import { exportNovelAsText, downloadText } from '@/lib/exportNovel'
 
 export default function SavesPage() {
   const router = useRouter()
@@ -39,10 +40,15 @@ export default function SavesPage() {
       remove(id)
     }
   }
+  function handleExport(save: SaveRecord) {
+    const content = exportNovelAsText(save)
+    const filename = `${save.worldConfig.worldName}-${save.worldConfig.protagonistName}.txt`
+    downloadText(content, filename)
+  }
 
   return (
     <ThemeProvider>
-      <main className="min-h-screen px-4 py-10 max-w-2xl mx-auto">
+      <main className="min-h-screen px-4 py-10 max-w-2xl mx-auto" style={{ color: 'var(--theme-text)' }}>
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => router.push('/')}
@@ -86,6 +92,7 @@ export default function SavesPage() {
                 save={save}
                 onContinue={handleContinue}
                 onDelete={handleDelete}
+                onExport={handleExport}
               />
             ))}
           </div>
