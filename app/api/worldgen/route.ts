@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     console.log('deepseek response ok')
     const raw = response.choices[0]?.message?.content ?? '{}'
     const cleaned = raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()
+    console.log('raw response:', raw.slice(0, 200))
     const data = JSON.parse(cleaned)
 
     return NextResponse.json(data)
