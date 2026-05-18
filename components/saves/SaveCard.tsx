@@ -7,9 +7,10 @@ interface Props {
   save: SaveRecord
   onContinue: (save: SaveRecord) => void
   onDelete: (id: string) => void
+  onExport: (save: SaveRecord) => void
 }
 
-export default function SaveCard({ save, onContinue, onDelete }: Props) {
+export default function SaveCard({ save, onContinue, onDelete, onExport }: Props) {
   const config = GENRE_CONFIG[save.genre]
   const date = new Date(save.updatedAt).toLocaleDateString('zh-CN', {
     month: 'short',
@@ -59,20 +60,12 @@ export default function SaveCard({ save, onContinue, onDelete }: Props) {
               </span>
             )}
           </div>
-          <div
-            className="text-xs mt-0.5"
-            style={{ color: config.theme.textMuted }}
-          >
+          <div className="text-xs mt-0.5" style={{ color: config.theme.textMuted }}>
             第 {save.chapter} 回 · 第 {save.turn} 回合 · {date}
           </div>
-          {/* 状态栏快照 */}
           <div className="flex gap-3 mt-1.5 flex-wrap">
             {config.bars.map((bar) => (
-              <span
-                key={bar.key}
-                className="text-xs"
-                style={{ color: bar.color }}
-              >
+              <span key={bar.key} className="text-xs" style={{ color: bar.color }}>
                 {bar.label}: {save.statusSnapshot[bar.key] ?? 0}
               </span>
             ))}
@@ -87,6 +80,17 @@ export default function SaveCard({ save, onContinue, onDelete }: Props) {
           style={{ background: config.theme.primary, color: '#fff' }}
         >
           继续
+        </button>
+        <button
+          onClick={() => onExport(save)}
+          className="px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+          style={{
+            background: 'transparent',
+            color: config.theme.textMuted,
+            border: `1px solid ${config.theme.border}`,
+          }}
+        >
+          导出
         </button>
         <button
           onClick={() => onDelete(save.id)}
