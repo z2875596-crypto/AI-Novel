@@ -5,9 +5,8 @@ import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-start px-4 py-12">
+    <main className="min-h-screen flex flex-col items-center justify-start px-4 py-12 relative z-10">
       <div className="w-full max-w-xl">
-
         {/* 右上角存档按钮 */}
         <div className="flex justify-end mb-4 animate-fade-in">
           <Link
@@ -24,7 +23,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Logo + 品牌名 */}
+        {/* Logo */}
         <div className="text-center mb-10 animate-fade-in-up">
           <Logo size={72} showText={true} />
           <p className="text-xs mt-3" style={{ color: 'var(--theme-text-muted)' }}>
