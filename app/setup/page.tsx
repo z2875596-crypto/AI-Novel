@@ -15,9 +15,32 @@ import RandomGenButton from '@/components/setup/RandomGenButton'
 import StyleEditor from '@/components/setup/StyleEditor'
 import TargetEndingEditor from '@/components/setup/TargetEndingEditor'
 import { NPC } from '@/types/world'
+import RomanceBackground from '@/components/home/backgrounds/RomanceBackground'
+import XuanhuanBackground from '@/components/home/backgrounds/XuanhuanBackground'
+import MysteryBackground from '@/components/home/backgrounds/MysteryBackground'
+import AncientBackground from '@/components/home/backgrounds/AncientBackground'
+import MagicBackground from '@/components/home/backgrounds/MagicBackground'
+import UrbanBackground from '@/components/home/backgrounds/UrbanBackground'
+import HorrorBackground from '@/components/home/backgrounds/HorrorBackground'
+import ComedyBackground from '@/components/home/backgrounds/ComedyBackground'
+import RandomBackground from '@/components/home/backgrounds/RandomBackground'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+}
+
+function GenreBackgroundForSetup({ genre }: { genre: string }) {
+  switch (genre) {
+    case 'romance': return <RomanceBackground />
+    case 'xuanhuan': return <XuanhuanBackground />
+    case 'mystery': return <MysteryBackground />
+    case 'ancient': return <AncientBackground />
+    case 'magic': return <MagicBackground />
+    case 'urban': return <UrbanBackground />
+    case 'horror': return <HorrorBackground />
+    case 'comedy': return <ComedyBackground />
+    default: return <RandomBackground />
+  }
 }
 
 export default function SetupPage() {
@@ -29,9 +52,7 @@ export default function SetupPage() {
   const resetStyle = useStyleStore((s) => s.reset)
 
   useEffect(() => {
-    if (!genre) {
-      router.replace('/')
-    }
+    if (!genre) router.replace('/')
   }, [genre, router])
 
   if (!genre) return null
@@ -80,8 +101,18 @@ export default function SetupPage() {
 
   return (
     <ThemeProvider>
-      <main className="min-h-screen flex flex-col items-center px-4 py-10">
-        <div className="w-full max-w-lg">
+      {/* 题材专属背景 */}
+      <GenreBackgroundForSetup genre={genre} />
+
+      <main className="min-h-screen flex flex-col items-center px-4 py-10 relative z-10">
+        <div
+          className="w-full max-w-lg rounded-2xl p-8"
+          style={{
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(12px)',
+            border: `1px solid ${config.theme.border}`,
+          }}
+        >
           {/* 顶部导航 */}
           <div className="flex items-center gap-3 mb-8">
             <button
