@@ -8,6 +8,7 @@ import { useGameStore } from '@/stores/gameStore'
 import { useSaveStore } from '@/stores/saveStore'
 import { useSummaryStore } from '@/stores/summaryStore'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useStyleStore } from '@/stores/styleStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
 import { speak, stop } from '@/lib/tts'
@@ -59,6 +60,7 @@ export default function GamePage() {
   const { addOrUpdate } = useSaveStore()
   const { summaries, addSummary } = useSummaryStore()
   const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore()
+  const { styleConfig } = useStyleStore()
 
   if (!genre || !worldConfig.worldName) {
     router.replace('/')
@@ -71,7 +73,6 @@ export default function GamePage() {
     if (messages.length === 0) {
       handleAction(worldConfig.openingScene, true)
     }
-    // 离开页面时停止朗读
     return () => stop()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -112,7 +113,6 @@ export default function GamePage() {
     async (playerAction: string, isOpening = false) => {
       if (isStreaming) return
 
-      // 停止当前朗读
       stop()
 
       if (!isOpening) {
@@ -147,6 +147,7 @@ export default function GamePage() {
             playerAction: summaryContext + playerAction,
             status,
             turn,
+            styleConfig,
           }),
         })
 
@@ -186,13 +187,8 @@ export default function GamePage() {
       setStatus(newStatus)
       incrementTurn()
 
-      // 朗读剧情
       if (ttsEnabled) {
-        speak(cleanText, {
-          rate: ttsRate,
-          pitch: ttsPitch,
-          volume: ttsVolume,
-        })
+        speak(cleanText, { rate: ttsRate, pitch: ttsPitch, volume: ttsVolume })
       }
 
       if (!ending) {
@@ -229,16 +225,13 @@ export default function GamePage() {
         recentHistory: [...messages.slice(-9), narratorMsg],
         branchHistory: [],
         ...(ending && {
-          ending: {
-            ...ending,
-            unlockedAt: Date.now(),
-          },
+          ending: { ...ending, unlockedAt: Date.now() },
         }),
       }
       addOrUpdate(saveRecord)
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume]
+  [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume, styleConfig]
   )
 
   return (
@@ -247,56 +240,49 @@ export default function GamePage() {
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
       >
-        {/* 顶部导航 */}
-<div className="flex items-center justify-between flex-shrink-0">
-  <button
-    onClick={() => router.push('/')}
-    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-    style={{
-      background: 'rgba(255,255,255,0.06)',
-      color: config.theme.textMuted,
-      border: `1px solid ${config.theme.border}`,
-    }}
-  >
-    ← 主页
-  </button>
+        <div className="flex items-center justify-between flex-shrink-0">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              color: config.theme.textMuted,
+              border: `1px solid ${config.theme.border}`,
+            }}
+          >
+            ← 主页
+          </button>
 
-  <div className="flex items-center gap-2">
-    <span className="text-base">{config.emoji}</span>
-    <span
-      className="text-sm font-semibold"
-      style={{ color: config.theme.primary }}
-    >
-      {worldConfig.worldName}
-    </span>
-  </div>
+          <div className="flex items-center gap-2">
+            <span className="text-base">{config.emoji}</span>
+            <span className="text-sm font-semibold" style={{ color: config.theme.primary }}>
+              {worldConfig.worldName}
+            </span>
+          </div>
 
-  <div className="flex items-center gap-1.5">
-    <BGMController />
-    <TTSToggle />
-    <button
-      onClick={() => router.push('/saves')}
-      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-      style={{
-        background: 'rgba(255,255,255,0.06)',
-        color: config.theme.textMuted,
-        border: `1px solid ${config.theme.border}`,
-      }}
-    >
-      存档
-    </button>
-  </div>
-</div>
+          <div className="flex items-center gap-1.5">
+            <BGMController />
+            <TTSToggle />
+            <button
+              onClick={() => router.push('/saves')}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+            >
+              存档
+            </button>
+          </div>
+        </div>
 
-        {/* 状态栏 */}
         <div className="flex-shrink-0">
           <StatusBar />
         </div>
 
-        {/* 剧情面板 */}
         <StoryPanel />
 
-        {/* 交互区域 */}
         <div className="flex-shrink-0 space-y-2">
           <ChoicesBar onChoice={(c) => handleAction(c)} />
           <FreeInputBox onSubmit={(t) => handleAction(t)} />

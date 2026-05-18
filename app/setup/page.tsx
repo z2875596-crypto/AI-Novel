@@ -1,17 +1,20 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
+import { useStyleStore } from '@/stores/styleStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { getInitialStatus } from '@/lib/statusBar'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import WorldEditor from '@/components/setup/WorldEditor'
 import CharacterEditor from '@/components/setup/CharacterEditor'
 import RandomGenButton from '@/components/setup/RandomGenButton'
+import StyleEditor from '@/components/setup/StyleEditor'
+import TargetEndingEditor from '@/components/setup/TargetEndingEditor'
 import { NPC } from '@/types/world'
-import { useEffect } from 'react'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -23,13 +26,14 @@ export default function SetupPage() {
   const worldConfig = useWorldStore((s) => s.worldConfig)
   const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
   const resetGame = useGameStore((s) => s.resetGame)
+  const resetStyle = useStyleStore((s) => s.reset)
 
   useEffect(() => {
     if (!genre) {
       router.replace('/')
     }
   }, [genre, router])
-  
+
   if (!genre) return null
 
   const config = GENRE_CONFIG[genre]
@@ -55,6 +59,7 @@ export default function SetupPage() {
       protagonistTraits: data.protagonistTraits ?? '',
       openingScene: data.openingScene ?? '',
       npcs,
+      targetEnding: worldConfig.targetEnding,
     })
   }
 
@@ -77,6 +82,7 @@ export default function SetupPage() {
     <ThemeProvider>
       <main className="min-h-screen flex flex-col items-center px-4 py-10">
         <div className="w-full max-w-lg">
+          {/* 顶部导航 */}
           <div className="flex items-center gap-3 mb-8">
             <button
               onClick={() => router.back()}
@@ -96,6 +102,7 @@ export default function SetupPage() {
             </div>
           </div>
 
+          {/* 随机生成 */}
           <div className="mb-6">
             <RandomGenButton genre={genre} onGenerated={handleRandom} />
             <p className="text-xs mt-2" style={{ color: 'var(--theme-text-muted)' }}>
@@ -105,14 +112,33 @@ export default function SetupPage() {
 
           <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
 
+          {/* 世界设定 */}
           <div className="mb-6">
             <WorldEditor />
           </div>
 
-          <div className="mb-8">
+          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+
+          {/* 角色设定 */}
+          <div className="mb-6">
             <CharacterEditor />
           </div>
 
+          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+
+          {/* 目标结局 */}
+          <div className="mb-6">
+            <TargetEndingEditor />
+          </div>
+
+          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+
+          {/* 文笔风格 */}
+          <div className="mb-8">
+            <StyleEditor />
+          </div>
+
+          {/* 开始按钮 */}
           <button
             onClick={handleStart}
             className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:brightness-110 active:scale-[0.98]"

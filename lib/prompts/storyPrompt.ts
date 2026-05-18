@@ -2,6 +2,8 @@ import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
+import { StyleConfig } from '@/stores/styleStore'
+import { buildStyleInstruction } from './stylePrompt'
 
 const GENRE_PERSONA: Record<GenreKey, string> = {
   romance: '你是一位擅长言情小说的作家，文风细腻温柔，善于描写人物心理和情感波动，笔下的爱情故事让人心跳加速。',
@@ -21,10 +23,11 @@ interface BuildStoryPromptParams {
   playerAction: string
   status: Record<string, number>
   turn: number
+  styleConfig?: StyleConfig
 }
 
 export function buildStoryMessages(params: BuildStoryPromptParams) {
-  const { genre, worldConfig, history, playerAction, status, turn } = params
+  const { genre, worldConfig, history, playerAction, status, turn, styleConfig } = params
   const config = GENRE_CONFIG[genre]
 
   const statusText = config.bars
@@ -37,6 +40,14 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
           .map((n) => `【${n.name}】关系：${n.role}，特点：${n.traits}`)
           .join('\n')
       : '暂无配角'
+
+  // 文笔风格指令
+  const styleInstruction = styleConfig ? buildStyleInstruction(styleConfig) : ''
+
+  // 目标结局引导
+  const targetEndingInstruction = worldConfig.targetEnding
+    ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，可以在剧情末尾输出 [ENDING]{"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
+    : ''
 
   const systemPrompt = `${GENRE_PERSONA[genre]}
 
@@ -54,6 +65,7 @@ ${npcText}
 【当前状态栏】
 ${statusText}
 
+${styleInstruction ? styleInstruction + '\n' : ''}${targetEndingInstruction ? targetEndingInstruction + '\n' : ''}
 【写作规则】
 1. 你正在为玩家生成互动小说的下一段剧情，当前是第 ${turn} 回合
 2. 续写剧情时紧密结合玩家的行动选择，让玩家的选择产生明显影响

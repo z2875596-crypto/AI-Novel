@@ -4,6 +4,7 @@ import { buildStoryMessages } from '@/lib/prompts/storyPrompt'
 import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
+import { StyleConfig } from '@/stores/styleStore'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
     playerAction,
     status,
     turn,
+    styleConfig,
   }: {
     genre: GenreKey
     worldConfig: WorldConfig
@@ -21,6 +23,7 @@ export async function POST(req: NextRequest) {
     playerAction: string
     status: Record<string, number>
     turn: number
+    styleConfig?: StyleConfig
   } = body
 
   const { system, messages } = buildStoryMessages({
@@ -30,6 +33,7 @@ export async function POST(req: NextRequest) {
     playerAction,
     status,
     turn,
+    styleConfig,
   })
 
   const encoder = new TextEncoder()
