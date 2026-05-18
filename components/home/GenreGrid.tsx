@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GenreKey } from '@/types/genre'
-import { GENRE_CONFIG, getRandomGenre } from '@/lib/themeConfig'
+import { GENRE_CONFIG, getRandomGenre, applyTheme } from '@/lib/themeConfig'
 import { useGenreStore } from '@/stores/genreStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useWorldStore } from '@/stores/worldStore'
@@ -21,6 +21,32 @@ export default function GenreGrid() {
   const resetGame = useGameStore((s) => s.resetGame)
   const resetWorld = useWorldStore((s) => s.reset)
   const [hoveredGenre, setHoveredGenre] = useState<GenreKey | 'random' | null>(null)
+
+  function handleHover(key: GenreKey | 'random' | null) {
+    setHoveredGenre(key)
+    if (key && key !== 'random') {
+      applyTheme(GENRE_CONFIG[key].theme)
+    } else if (key === 'random') {
+      // 随机按钮悬停时用白色系
+      applyTheme({
+        primary: '#ffffff',
+        secondary: '#cccccc',
+        background: '#0a0a0a',
+        surface: '#1a1a1a',
+        surfaceHover: '#2a2a2a',
+        text: '#ffffff',
+        textMuted: '#888888',
+        border: '#333333',
+        fontFamily: 'default',
+      })
+    } else {
+      // 恢复当前已选题材的主题色
+      const currentGenre = useGenreStore.getState().genre
+      if (currentGenre) {
+        applyTheme(GENRE_CONFIG[currentGenre].theme)
+      }
+    }
+  }
 
   function handleSelect(key: GenreKey) {
     setGenre(key)
@@ -43,8 +69,8 @@ export default function GenreGrid() {
             <button
               key={key}
               onClick={() => handleSelect(key)}
-              onMouseEnter={() => setHoveredGenre(key)}
-              onMouseLeave={() => setHoveredGenre(null)}
+              onMouseEnter={() => handleHover(key)}
+              onMouseLeave={() => handleHover(null)}
               className="group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-5 transition-all duration-300 hover:scale-[1.05] active:scale-[0.96] animate-fade-in-up overflow-hidden"
               style={{
                 background: cfg.theme.surface,
@@ -93,8 +119,8 @@ export default function GenreGrid() {
         {/* 随机按钮 */}
         <button
           onClick={handleRandom}
-          onMouseEnter={() => setHoveredGenre('random')}
-          onMouseLeave={() => setHoveredGenre(null)}
+          onMouseEnter={() => handleHover('random')}
+          onMouseLeave={() => handleHover(null)}
           className="group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-5 transition-all duration-300 hover:scale-[1.05] active:scale-[0.96] animate-fade-in-up overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.03)',
