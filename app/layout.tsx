@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AI 互动小说',
-  description: '由 AI 实时生成剧情的互动小说',
+  title: '鸢叙',
+  description: 'AI 互动小说 · 由 DeepSeek 实时生成剧情',
 }
 
 export default function RootLayout({

@@ -18,6 +18,7 @@ import ChoicesBar from '@/components/game/ChoicesBar'
 import FreeInputBox from '@/components/game/FreeInputBox'
 import StatusBar from '@/components/game/StatusBar'
 import TTSToggle from '@/components/game/TTSToggle'
+import BGMController from '@/components/game/BGMController'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -262,6 +263,7 @@ export default function GamePage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <BGMController />
             <TTSToggle />
             <button
               onClick={() => router.push('/saves')}
