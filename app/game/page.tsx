@@ -248,32 +248,45 @@ export default function GamePage() {
         style={{ color: config.theme.text }}
       >
         {/* 顶部导航 */}
-        <div className="flex items-center justify-between flex-shrink-0">
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm transition-opacity hover:opacity-70"
-            style={{ color: config.theme.textMuted }}
-          >
-            ← 主页
-          </button>
-          <div className="flex items-center gap-2">
-            <span>{config.emoji}</span>
-            <span className="text-sm font-semibold" style={{ color: config.theme.primary }}>
-              {worldConfig.worldName}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <BGMController />
-            <TTSToggle />
-            <button
-              onClick={() => router.push('/saves')}
-              className="text-xs transition-opacity hover:opacity-70"
-              style={{ color: config.theme.textMuted }}
-            >
-              存档 →
-            </button>
-          </div>
-        </div>
+<div className="flex items-center justify-between flex-shrink-0">
+  <button
+    onClick={() => router.push('/')}
+    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+    style={{
+      background: 'rgba(255,255,255,0.06)',
+      color: config.theme.textMuted,
+      border: `1px solid ${config.theme.border}`,
+    }}
+  >
+    ← 主页
+  </button>
+
+  <div className="flex items-center gap-2">
+    <span className="text-base">{config.emoji}</span>
+    <span
+      className="text-sm font-semibold"
+      style={{ color: config.theme.primary }}
+    >
+      {worldConfig.worldName}
+    </span>
+  </div>
+
+  <div className="flex items-center gap-1.5">
+    <BGMController />
+    <TTSToggle />
+    <button
+      onClick={() => router.push('/saves')}
+      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+      style={{
+        background: 'rgba(255,255,255,0.06)',
+        color: config.theme.textMuted,
+        border: `1px solid ${config.theme.border}`,
+      }}
+    >
+      存档
+    </button>
+  </div>
+</div>
 
         {/* 状态栏 */}
         <div className="flex-shrink-0">
