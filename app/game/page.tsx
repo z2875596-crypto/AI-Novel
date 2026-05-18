@@ -7,20 +7,22 @@ import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useSaveStore } from '@/stores/saveStore'
 import { useSummaryStore } from '@/stores/summaryStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
+import { speak, stop } from '@/lib/tts'
 import { Message } from '@/types/game'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import StoryPanel from '@/components/game/StoryPanel'
 import ChoicesBar from '@/components/game/ChoicesBar'
 import FreeInputBox from '@/components/game/FreeInputBox'
 import StatusBar from '@/components/game/StatusBar'
+import TTSToggle from '@/components/game/TTSToggle'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
 }
 
-/** 从剧情文本末尾解析 [ENDING]{...} */
 function parseEnding(text: string): {
   cleanText: string
   ending?: { type: 'good' | 'bad' | 'true' | 'secret'; title: string }
@@ -55,6 +57,7 @@ export default function GamePage() {
   } = useGameStore()
   const { addOrUpdate } = useSaveStore()
   const { summaries, addSummary } = useSummaryStore()
+  const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore()
 
   if (!genre || !worldConfig.worldName) {
     router.replace('/')
@@ -67,10 +70,11 @@ export default function GamePage() {
     if (messages.length === 0) {
       handleAction(worldConfig.openingScene, true)
     }
+    // 离开页面时停止朗读
+    return () => stop()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  /** 滚动摘要：每10回合触发一次 */
   async function triggerSummaryIfNeeded(currentTurn: number, currentMessages: Message[]) {
     if (currentTurn > 0 && currentTurn % 10 === 0) {
       try {
@@ -88,8 +92,6 @@ export default function GamePage() {
             statusAtTrigger: status,
           }
           addSummary(summaryRecord)
-
-          // 把摘要作为特殊消息插入对话
           const summaryMsg: Message = {
             id: uid(),
             role: 'summary',
@@ -97,7 +99,6 @@ export default function GamePage() {
             turn: currentTurn,
             timestamp: Date.now(),
           }
-          // 清空旧历史，只保留摘要消息
           setMessages([summaryMsg])
         }
       } catch {
@@ -109,6 +110,9 @@ export default function GamePage() {
   const handleAction = useCallback(
     async (playerAction: string, isOpening = false) => {
       if (isStreaming) return
+
+      // 停止当前朗读
+      stop()
 
       if (!isOpening) {
         const playerMsg: Message = {
@@ -128,7 +132,6 @@ export default function GamePage() {
       let fullText = ''
 
       try {
-        // 构建历史：摘要内容 + 最近消息
         const summaryContext = summaries.length > 0
           ? `【历史摘要】\n${summaries.map(s => s.content).join('\n')}\n\n`
           : ''
@@ -164,9 +167,7 @@ export default function GamePage() {
         setStreamingText(fullText)
       }
 
-      // 解析状态变化
       const { cleanText: afterStatus, delta } = parseStatusDelta(fullText)
-      // 解析结局
       const { cleanText, ending } = parseEnding(afterStatus)
       const newStatus = applyStatusDelta(genre, status, delta)
 
@@ -184,7 +185,15 @@ export default function GamePage() {
       setStatus(newStatus)
       incrementTurn()
 
-      // 生成选项（有结局则不生成）
+      // 朗读剧情
+      if (ttsEnabled) {
+        speak(cleanText, {
+          rate: ttsRate,
+          pitch: ttsPitch,
+          volume: ttsVolume,
+        })
+      }
+
       if (!ending) {
         try {
           const choiceRes = await fetch('/api/story/choices', {
@@ -204,10 +213,8 @@ export default function GamePage() {
         }
       }
 
-      // 触发滚动摘要
       await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
 
-      // 存档
       const saveRecord = {
         id: worldConfig.worldName + '-' + genre,
         createdAt: Date.now(),
@@ -230,7 +237,7 @@ export default function GamePage() {
       addOrUpdate(saveRecord)
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [genre, worldConfig, messages, status, turn, isStreaming, summaries]
+  [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume]
   )
 
   return (
@@ -239,6 +246,7 @@ export default function GamePage() {
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
       >
+        {/* 顶部导航 */}
         <div className="flex items-center justify-between flex-shrink-0">
           <button
             onClick={() => router.push('/')}
@@ -253,21 +261,27 @@ export default function GamePage() {
               {worldConfig.worldName}
             </span>
           </div>
-          <button
-            onClick={() => router.push('/saves')}
-            className="text-xs transition-opacity hover:opacity-70"
-            style={{ color: config.theme.textMuted }}
-          >
-            存档 →
-          </button>
+          <div className="flex items-center gap-2">
+            <TTSToggle />
+            <button
+              onClick={() => router.push('/saves')}
+              className="text-xs transition-opacity hover:opacity-70"
+              style={{ color: config.theme.textMuted }}
+            >
+              存档 →
+            </button>
+          </div>
         </div>
 
+        {/* 状态栏 */}
         <div className="flex-shrink-0">
           <StatusBar />
         </div>
 
+        {/* 剧情面板 */}
         <StoryPanel />
 
+        {/* 交互区域 */}
         <div className="flex-shrink-0 space-y-2">
           <ChoicesBar onChoice={(c) => handleAction(c)} />
           <FreeInputBox onSubmit={(t) => handleAction(t)} />
