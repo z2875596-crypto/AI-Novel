@@ -4,6 +4,7 @@ import { Message } from '@/types/game'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { StyleConfig } from '@/stores/styleStore'
 import { buildStyleInstruction } from './stylePrompt'
+import { getStatusTriggerInstructions } from '@/lib/statusTriggers'
 
 const GENRE_PERSONA: Record<GenreKey, string> = {
   romance: '你是一位擅长言情小说的作家，文风细腻温柔，善于描写人物心理和情感波动，笔下的爱情故事让人心跳加速。',
@@ -41,10 +42,9 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
           .join('\n')
       : '暂无配角'
 
-  // 文笔风格指令
   const styleInstruction = styleConfig ? buildStyleInstruction(styleConfig) : ''
+  const triggerInstruction = getStatusTriggerInstructions(genre, status)
 
-  // 目标结局引导
   const targetEndingInstruction = worldConfig.targetEnding
     ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，可以在剧情末尾输出 [ENDING]{"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
     : ''
@@ -64,18 +64,20 @@ ${npcText}
 
 【当前状态栏】
 ${statusText}
+${triggerInstruction}
+${styleInstruction ? '\n' + styleInstruction : ''}${targetEndingInstruction ? '\n' + targetEndingInstruction : ''}
 
-${styleInstruction ? styleInstruction + '\n' : ''}${targetEndingInstruction ? targetEndingInstruction + '\n' : ''}
 【写作规则】
 1. 你正在为玩家生成互动小说的下一段剧情，当前是第 ${turn} 回合
 2. 续写剧情时紧密结合玩家的行动选择，让玩家的选择产生明显影响
-3. 剧情控制在 150-220 字之间，文风符合 ${config.label} 题材
-4. 在正文末尾，必须输出一行状态变化，格式严格如下（不要换行，不要解释）：
+3. 如果有【状态触发事件】，必须在本段剧情中体现对应的场景变化
+4. 剧情控制在 150-220 字之间，文风符合 ${config.label} 题材
+5. 在正文末尾，必须输出一行状态变化，格式严格如下（不要换行，不要解释）：
    [STATUS_DELTA]{"key1":数值变化,"key2":数值变化}
    例如：[STATUS_DELTA]{"affection":5,"heartbeat":-3}
-5. 可用的状态栏 key：${config.bars.map((b) => b.key).join('，')}
-6. 数值变化范围：-15 到 +15，合理反映玩家行动的后果
-7. 不要主动提示玩家"你要怎么做"，剧情自然结束即可`
+6. 可用的状态栏 key：${config.bars.map((b) => b.key).join('，')}
+7. 数值变化范围：-15 到 +15，合理反映玩家行动的后果
+8. 不要主动提示玩家"你要怎么做"，剧情自然结束即可`
 
   const historyMessages: { role: 'user' | 'assistant'; content: string }[] =
     history.map((msg) => ({

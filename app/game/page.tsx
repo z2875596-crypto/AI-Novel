@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
@@ -20,6 +20,7 @@ import FreeInputBox from '@/components/game/FreeInputBox'
 import StatusBar from '@/components/game/StatusBar'
 import TTSToggle from '@/components/game/TTSToggle'
 import BGMController from '@/components/game/BGMController'
+import StatusDeltaToast from '@/components/game/StatusDeltaToast'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -61,6 +62,7 @@ export default function GamePage() {
   const { summaries, addSummary } = useSummaryStore()
   const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore()
   const { styleConfig } = useStyleStore()
+  const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
 
   if (!genre || !worldConfig.worldName) {
     router.replace('/')
@@ -185,6 +187,7 @@ export default function GamePage() {
       setStreamingText('')
       setIsStreaming(false)
       setStatus(newStatus)
+      setLastDelta(delta)
       incrementTurn()
 
       if (ttsEnabled) {
@@ -236,6 +239,7 @@ export default function GamePage() {
 
   return (
     <ThemeProvider>
+      <StatusDeltaToast delta={lastDelta} />
       <main
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
