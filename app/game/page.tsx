@@ -9,8 +9,10 @@ import { useSaveStore } from '@/stores/saveStore'
 import { useSummaryStore } from '@/stores/summaryStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useStyleStore } from '@/stores/styleStore'
+import { useClueStore } from '@/stores/clueStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
+import { parseClues } from '@/lib/prompts/cluePrompt'
 import { speak, stop } from '@/lib/tts'
 import { Message } from '@/types/game'
 import ThemeProvider from '@/components/shared/ThemeProvider'
@@ -62,9 +64,10 @@ export default function GamePage() {
   const { summaries, addSummary } = useSummaryStore()
   const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore()
   const { styleConfig } = useStyleStore()
+  const { addClue } = useClueStore()
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
+  const [newClueFound, setNewClueFound] = useState(false)
 
-  // 必须在所有 hooks 之后才能做条件判断
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
       router.replace('/')
@@ -132,6 +135,7 @@ export default function GamePage() {
 
       setIsStreaming(true)
       setStreamingText('')
+      setNewClueFound(false)
 
       let fullText = ''
 
@@ -172,7 +176,26 @@ export default function GamePage() {
         setStreamingText(fullText)
       }
 
-      const { cleanText: afterStatus, delta } = parseStatusDelta(fullText)
+      // 解析线索（仅悬疑题材）
+      let processedText = fullText
+      if (genre === 'mystery') {
+        const { cleanText: afterClues, clues } = parseClues(processedText)
+        processedText = afterClues
+        if (clues.length > 0) {
+          setNewClueFound(true)
+          clues.forEach((clue) => {
+            addClue({
+              ...clue,
+              foundAt: turn,
+              timestamp: Date.now(),
+              revealed: !!clue.revelation,
+            })
+          })
+          setTimeout(() => setNewClueFound(false), 3000)
+        }
+      }
+
+      const { cleanText: afterStatus, delta } = parseStatusDelta(processedText)
       const { cleanText, ending } = parseEnding(afterStatus)
       const newStatus = applyStatusDelta(genre!, status, delta)
 
@@ -245,6 +268,22 @@ export default function GamePage() {
   return (
     <ThemeProvider>
       <StatusDeltaToast delta={lastDelta} />
+
+      {/* 发现新线索提示 */}
+      {newClueFound && genre === 'mystery' && (
+        <div
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
+          style={{
+            background: 'rgba(184,150,12,0.2)',
+            border: '1px solid rgba(184,150,12,0.6)',
+            color: '#B8960C',
+            boxShadow: '0 0 20px rgba(184,150,12,0.3)',
+          }}
+        >
+          🔍 发现新线索！
+        </div>
+      )}
+
       <main
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
@@ -272,6 +311,20 @@ export default function GamePage() {
           <div className="flex items-center gap-1.5">
             <BGMController />
             <TTSToggle />
+            {/* 悬疑题材显示线索库按钮 */}
+            {genre === 'mystery' && (
+              <button
+                onClick={() => router.push('/clues')}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+                style={{
+                  background: 'rgba(184,150,12,0.15)',
+                  color: '#B8960C',
+                  border: '1px solid rgba(184,150,12,0.4)',
+                }}
+              >
+                🔍 线索
+              </button>
+            )}
             <button
               onClick={() => router.push('/saves')}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
