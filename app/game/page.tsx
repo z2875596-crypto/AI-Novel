@@ -64,14 +64,15 @@ export default function GamePage() {
   const { styleConfig } = useStyleStore()
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
 
-  if (!genre || !worldConfig.worldName) {
-    router.replace('/')
-    return null
-  }
-
-  const config = GENRE_CONFIG[genre]
+  // 必须在所有 hooks 之后才能做条件判断
+  useEffect(() => {
+    if (!genre || !worldConfig.worldName) {
+      router.replace('/')
+    }
+  }, [genre, worldConfig.worldName, router])
 
   useEffect(() => {
+    if (!genre || !worldConfig.worldName) return
     if (messages.length === 0) {
       handleAction(worldConfig.openingScene, true)
     }
@@ -173,7 +174,7 @@ export default function GamePage() {
 
       const { cleanText: afterStatus, delta } = parseStatusDelta(fullText)
       const { cleanText, ending } = parseEnding(afterStatus)
-      const newStatus = applyStatusDelta(genre, status, delta)
+      const newStatus = applyStatusDelta(genre!, status, delta)
 
       const narratorMsg: Message = {
         id: uid(),
@@ -220,7 +221,7 @@ export default function GamePage() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         storyTitle: `${worldConfig.worldName} · ${worldConfig.protagonistName}`,
-        genre,
+        genre: genre!,
         chapter: Math.floor((turn + 1) / 10) + 1,
         turn: turn + 1,
         worldConfig,
@@ -236,6 +237,10 @@ export default function GamePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume, styleConfig]
   )
+
+  if (!genre || !worldConfig.worldName) return null
+
+  const config = GENRE_CONFIG[genre]
 
   return (
     <ThemeProvider>

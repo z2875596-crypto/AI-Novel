@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
           messages: [{ role: 'system', content: system }, ...messages],
           stream: true,
           max_tokens: 600,
-          temperature: 0.9,
+          temperature: 0.7,
         })
 
         for await (const chunk of response) {

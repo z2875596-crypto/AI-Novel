@@ -32,6 +32,7 @@ export function parseStatusDelta(text: string): {
   delta: Record<string, number>
 } {
   const match = text.match(/\[STATUS_DELTA\](\{[^}]+\})\s*$/)
+  console.log('STATUS_DELTA match:', match?.[0] ?? '未找到', '| 末尾100字:', text.slice(-100))
   if (!match) return { cleanText: text, delta: {} }
   try {
     const delta = JSON.parse(match[1]) as Record<string, number>

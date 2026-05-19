@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useGenreStore } from '@/stores/genreStore'
 import { useGameStore } from '@/stores/gameStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
+import { getVibe } from '@/lib/statusVibes'
 
 export default function StatusBar() {
   const genre = useGenreStore((s) => s.genre)
@@ -15,7 +16,6 @@ export default function StatusBar() {
   if (!genre) return null
   const config = GENRE_CONFIG[genre]
 
-  // 检测变化的 key，触发高亮
   useEffect(() => {
     const changed = new Set<string>()
     for (const bar of config.bars) {
@@ -25,7 +25,7 @@ export default function StatusBar() {
     }
     if (changed.size > 0) {
       setChangedKeys(changed)
-      setTimeout(() => setChangedKeys(new Set()), 1000)
+      setTimeout(() => setChangedKeys(new Set()), 1500)
     }
     prevStatus.current = { ...status }
   }, [status, config.bars])
@@ -49,50 +49,46 @@ export default function StatusBar() {
 
       <div className="w-px h-4 opacity-30" style={{ background: config.theme.border }} />
 
-      {/* 各状态栏 */}
+      {/* 各状态栏情绪可视化 */}
       {config.bars.map((bar) => {
         const val = status[bar.key] ?? 0
-        const pct = Math.min(100, (val / bar.max) * 100)
+        const vibe = getVibe(genre, bar.key, val)
         const isChanged = changedKeys.has(bar.key)
 
         return (
           <div
             key={bar.key}
-            className="flex items-center gap-2 min-w-[100px] transition-all duration-300"
+            className="flex items-center gap-2 transition-all duration-300"
             style={{
-              filter: isChanged ? `drop-shadow(0 0 6px ${bar.color})` : 'none',
+              filter: isChanged ? `drop-shadow(0 0 8px ${vibe?.color ?? bar.color})` : 'none',
+              transform: isChanged ? 'scale(1.08)' : 'scale(1)',
             }}
           >
+            {/* 图标 */}
             <span
-              className="text-xs flex-shrink-0 transition-colors duration-300"
-              style={{ color: isChanged ? bar.color : config.theme.textMuted }}
-            >
-              {bar.label}
-            </span>
-            <div
-              className="flex-1 h-1.5 rounded-full overflow-hidden"
-              style={{ background: `${bar.color}33` }}
-            >
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${pct}%`,
-                  background: bar.color,
-                  boxShadow: isChanged
-                    ? `0 0 10px ${bar.color}, 0 0 20px ${bar.color}88`
-                    : `0 0 6px ${bar.color}88`,
-                }}
-              />
-            </div>
-            <span
-              className="text-xs tabular-nums flex-shrink-0 font-bold transition-all duration-300"
+              className="text-lg transition-all duration-300"
               style={{
-                color: bar.color,
-                transform: isChanged ? 'scale(1.2)' : 'scale(1)',
+                filter: isChanged ? 'brightness(1.3)' : 'brightness(1)',
               }}
             >
-              {bar.key === 'money' ? val.toLocaleString() : val}
+              {vibe?.icon ?? '❓'}
             </span>
+
+            {/* 标签 */}
+            <div className="flex flex-col leading-none">
+              <span
+                className="text-xs font-medium transition-colors duration-300"
+                style={{ color: vibe?.color ?? config.theme.textMuted }}
+              >
+                {vibe?.label ?? bar.label}
+              </span>
+              <span
+                className="text-xs opacity-60"
+                style={{ color: config.theme.textMuted }}
+              >
+                {bar.label}
+              </span>
+            </div>
           </div>
         )
       })}
