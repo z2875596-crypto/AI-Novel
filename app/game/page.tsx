@@ -15,6 +15,7 @@ import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
 import { parseClues } from '@/lib/prompts/cluePrompt'
 import { speak, stop } from '@/lib/tts'
 import { Message } from '@/types/game'
+import { SaveRecord } from '@/types/save'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import StoryPanel from '@/components/game/StoryPanel'
 import ChoicesBar from '@/components/game/ChoicesBar'
@@ -23,6 +24,7 @@ import StatusBar from '@/components/game/StatusBar'
 import TTSToggle from '@/components/game/TTSToggle'
 import BGMController from '@/components/game/BGMController'
 import StatusDeltaToast from '@/components/game/StatusDeltaToast'
+import SaveAsModal from '@/components/game/SaveAsModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -67,6 +69,8 @@ export default function GamePage() {
   const { addClue } = useClueStore()
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [newClueFound, setNewClueFound] = useState(false)
+  const [showSaveAs, setShowSaveAs] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
@@ -113,6 +117,30 @@ export default function GamePage() {
         // 摘要失败不影响游戏继续
       }
     }
+  }
+
+  function buildSaveRecord(customName?: string): SaveRecord {
+    const defaultTitle = `${worldConfig.worldName} · ${worldConfig.protagonistName}`
+    return {
+      id: customName ? uid() : worldConfig.worldName + '-' + genre,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      storyTitle: customName ?? defaultTitle,
+      genre: genre!,
+      chapter: Math.floor(turn / 10) + 1,
+      turn,
+      worldConfig,
+      statusSnapshot: status,
+      recentHistory: messages.slice(-10),
+      branchHistory: [],
+    }
+  }
+
+  function handleSaveAs(name: string) {
+    const record = buildSaveRecord(name)
+    addOrUpdate(record)
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 2000)
   }
 
   const handleAction = useCallback(
@@ -239,7 +267,8 @@ export default function GamePage() {
 
       await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
 
-      const saveRecord = {
+      // 自动存档（覆盖同一个 id）
+      const autoSave: SaveRecord = {
         id: worldConfig.worldName + '-' + genre,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -255,7 +284,7 @@ export default function GamePage() {
           ending: { ...ending, unlockedAt: Date.now() },
         }),
       }
-      addOrUpdate(saveRecord)
+      addOrUpdate(autoSave)
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
   [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume, styleConfig]
@@ -268,6 +297,30 @@ export default function GamePage() {
   return (
     <ThemeProvider>
       <StatusDeltaToast delta={lastDelta} />
+
+      {/* 另存为弹窗 */}
+      {showSaveAs && (
+        <SaveAsModal
+          defaultName={`${worldConfig.worldName} · 第${Math.floor(turn / 10) + 1}章 · 分支`}
+          onSave={handleSaveAs}
+          onClose={() => setShowSaveAs(false)}
+        />
+      )}
+
+      {/* 保存成功提示 */}
+      {saveSuccess && (
+        <div
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
+          style={{
+            background: 'rgba(91,173,94,0.2)',
+            border: '1px solid rgba(91,173,94,0.6)',
+            color: '#5BAD5E',
+            boxShadow: '0 0 20px rgba(91,173,94,0.3)',
+          }}
+        >
+          ✓ 存档已保存
+        </div>
+      )}
 
       {/* 发现新线索提示 */}
       {newClueFound && genre === 'mystery' && (
@@ -311,7 +364,6 @@ export default function GamePage() {
           <div className="flex items-center gap-1.5">
             <BGMController />
             <TTSToggle />
-            {/* 悬疑题材显示线索库按钮 */}
             {genre === 'mystery' && (
               <button
                 onClick={() => router.push('/clues')}
@@ -325,6 +377,18 @@ export default function GamePage() {
                 🔍 线索
               </button>
             )}
+            {/* 另存为按钮 */}
+            <button
+              onClick={() => setShowSaveAs(true)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+            >
+              💾
+            </button>
             <button
               onClick={() => router.push('/saves')}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
