@@ -101,18 +101,10 @@ export default function SetupPage() {
 
   return (
     <ThemeProvider>
-      {/* 题材专属背景 */}
       <GenreBackgroundForSetup genre={genre} />
 
       <main className="min-h-screen flex flex-col items-center px-4 py-10 relative z-10">
-        <div
-          className="w-full max-w-lg rounded-2xl p-8"
-          style={{
-            background: 'rgba(0,0,0,0.55)',
-            backdropFilter: 'blur(12px)',
-            border: `1px solid ${config.theme.border}`,
-          }}
-        >
+        <div className="w-full max-w-lg">
           {/* 顶部导航 */}
           <div className="flex items-center gap-3 mb-8">
             <button
@@ -124,7 +116,13 @@ export default function SetupPage() {
             </button>
             <div className="flex items-center gap-2">
               <span className="text-xl">{config.emoji}</span>
-              <span className="font-semibold" style={{ color: 'var(--theme-primary)' }}>
+              <span
+                className="font-semibold"
+                style={{
+                  color: 'var(--theme-primary)',
+                  textShadow: '0 0 20px var(--theme-primary)',
+                }}
+              >
                 {config.label}
               </span>
               <span className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>
@@ -141,41 +139,29 @@ export default function SetupPage() {
             </p>
           </div>
 
-          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+          <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
-          {/* 世界设定 */}
-          <div className="mb-6">
-            <WorldEditor />
-          </div>
+          <div className="mb-6"><WorldEditor /></div>
 
-          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+          <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
-          {/* 角色设定 */}
-          <div className="mb-6">
-            <CharacterEditor />
-          </div>
+          <div className="mb-6"><CharacterEditor /></div>
 
-          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+          <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
-          {/* 目标结局 */}
-          <div className="mb-6">
-            <TargetEndingEditor />
-          </div>
+          <div className="mb-6"><TargetEndingEditor /></div>
 
-          <div className="border-t mb-6" style={{ borderColor: 'var(--theme-border)' }} />
+          <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
-          {/* 文笔风格 */}
-          <div className="mb-8">
-            <StyleEditor />
-          </div>
+          <div className="mb-8"><StyleEditor /></div>
 
-          {/* 开始按钮 */}
           <button
             onClick={handleStart}
             className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:brightness-110 active:scale-[0.98]"
             style={{
               background: config.theme.primary,
               color: '#fff',
+              boxShadow: `0 0 20px ${config.theme.primary}66`,
             }}
           >
             开始故事 →
