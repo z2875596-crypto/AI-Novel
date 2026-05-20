@@ -84,7 +84,12 @@ ${clueInstruction}
 7. 可用的状态栏 key：${config.bars.map((b) => b.key).join('，')}
 8. 数值变化范围：-15 到 +15，合理反映玩家行动的后果
 9. 不要主动提示玩家"你要怎么做"，剧情自然结束即可
-10. 总输出（正文+线索标记+状态行）必须完整，不能截断`
+10. 总输出（正文+线索标记+状态行）必须完整，不能截断
+11. 【结局触发】当故事发展到自然终点、高潮结束或玩家达成重要目标时，可以在 [STATUS_DELTA] 之后输出结局标记：
+    [ENDING]{"type":"good","title":"结局标题"}
+    type 可选：good（好结局）、bad（坏结局）、true（真结局）、secret（隐藏结局）
+    title 用 4-10 个字概括结局，如「情定终生」「真相大白」「飞升成仙」
+    不要随意触发，只在故事真正到达终点时输出`
 
   const historyMessages: { role: 'user' | 'assistant'; content: string }[] =
     history.map((msg) => ({

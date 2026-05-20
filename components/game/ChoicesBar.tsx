@@ -3,6 +3,7 @@
 import { useGameStore } from '@/stores/gameStore'
 import { useGenreStore } from '@/stores/genreStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
+import { useWorldStore } from '@/stores/worldStore'
 
 interface Props {
   onChoice: (choice: string) => void
@@ -12,6 +13,7 @@ export default function ChoicesBar({ onChoice }: Props) {
   const choices = useGameStore((s) => s.currentChoices)
   const isStreaming = useGameStore((s) => s.isStreaming)
   const genre = useGenreStore((s) => s.genre)
+  const worldConfig = useWorldStore((s) => s.worldConfig)
 
   if (!genre || choices.length === 0 || isStreaming) return null
   const config = GENRE_CONFIG[genre]
@@ -19,7 +21,7 @@ export default function ChoicesBar({ onChoice }: Props) {
   return (
     <div className="space-y-2">
       <p className="text-xs" style={{ color: config.theme.textMuted }}>
-        选择你的行动：
+        选择{worldConfig.protagonistName}的行动：
       </p>
       <div className="grid gap-2">
         {choices.map((choice, i) => (
