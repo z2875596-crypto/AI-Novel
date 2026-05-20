@@ -24,7 +24,7 @@ import StatusBar from '@/components/game/StatusBar'
 import TTSToggle from '@/components/game/TTSToggle'
 import BGMController from '@/components/game/BGMController'
 import StatusDeltaToast from '@/components/game/StatusDeltaToast'
-import SaveAsModal from '@/components/game/SaveAsModal'
+import SaveMenu from '@/components/game/SaveAsModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -69,7 +69,6 @@ export default function GamePage() {
   const { addClue } = useClueStore()
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [newClueFound, setNewClueFound] = useState(false)
-  const [showSaveAs, setShowSaveAs] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
   useEffect(() => {
@@ -88,20 +87,25 @@ export default function GamePage() {
   }, [])
 
   async function triggerSummaryIfNeeded(currentTurn: number, currentMessages: Message[]) {
-    if (currentTurn > 0 && currentTurn % 15 === 0) {
+    if (currentTurn > 0 && currentTurn % 10 === 0) {
       try {
+        const chapterNumber = Math.floor(currentTurn / 10)
         const res = await fetch('/api/summary', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ genre, history: currentMessages }),
+          body: JSON.stringify({
+            genre,
+            history: currentMessages,
+            chapterNumber,
+          }),
         })
-        const { summary } = await res.json()
+        const { summary, chapterTitle } = await res.json()
         if (summary) {
           const summaryRecord = {
             id: uid(),
             triggerTurn: currentTurn,
-            chapterNumber: Math.floor(currentTurn / 10),
-            chapterTitle: '',   // 等会更新 API 后会自动填入
+            chapterNumber,
+            chapterTitle: chapterTitle ?? `第${chapterNumber}章`,
             content: summary,
             statusAtTrigger: status,
           }
@@ -138,6 +142,13 @@ export default function GamePage() {
     }
   }
 
+  function handleQuickSave() {
+    const record = buildSaveRecord()
+    addOrUpdate(record)
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 2000)
+  }
+
   function handleSaveAs(name: string) {
     const record = buildSaveRecord(name)
     addOrUpdate(record)
@@ -148,7 +159,6 @@ export default function GamePage() {
   const handleAction = useCallback(
     async (playerAction: string, isOpening = false) => {
       if (isStreaming) return
-
       stop()
 
       if (!isOpening) {
@@ -269,7 +279,7 @@ export default function GamePage() {
 
       await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
 
-      // 自动存档（覆盖同一个 id）
+      // 自动存档
       const autoSave: SaveRecord = {
         id: worldConfig.worldName + '-' + genre,
         createdAt: Date.now(),
@@ -299,15 +309,6 @@ export default function GamePage() {
   return (
     <ThemeProvider>
       <StatusDeltaToast delta={lastDelta} />
-
-      {/* 另存为弹窗 */}
-      {showSaveAs && (
-        <SaveAsModal
-          defaultName={`${worldConfig.worldName} · 第${Math.floor(turn / 10) + 1}章 · 分支`}
-          onSave={handleSaveAs}
-          onClose={() => setShowSaveAs(false)}
-        />
-      )}
 
       {/* 保存成功提示 */}
       {saveSuccess && (
@@ -343,6 +344,7 @@ export default function GamePage() {
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
       >
+        {/* 顶部导航 - 精简版 */}
         <div className="flex items-center justify-between flex-shrink-0">
           <button
             onClick={() => router.push('/')}
@@ -356,6 +358,7 @@ export default function GamePage() {
             ← 主页
           </button>
 
+          {/* 世界名 */}
           <div className="flex items-center gap-2">
             <span className="text-base">{config.emoji}</span>
             <span className="text-sm font-semibold" style={{ color: config.theme.primary }}>
@@ -363,68 +366,67 @@ export default function GamePage() {
             </span>
           </div>
 
+          {/* 右侧操作区 */}
           <div className="flex items-center gap-1.5">
-            <BGMController />
-            <TTSToggle />
-            <button
-              onClick={() => router.push('/chapters')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                color: config.theme.textMuted,
-                border: `1px solid ${config.theme.border}`,
-              }}
-          >
-            📚
-          </button>
+            {/* 章节目录（有摘要时显示） */}
+            {summaries.length > 0 && (
+              <button
+                onClick={() => router.push('/chapters')}
+                className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  color: config.theme.textMuted,
+                  border: `1px solid ${config.theme.border}`,
+                }}
+                title="章节目录"
+              >
+                📚
+              </button>
+            )}
+
+            {/* 线索库（悬疑题材） */}
             {genre === 'mystery' && (
               <button
                 onClick={() => router.push('/clues')}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+                className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
                 style={{
                   background: 'rgba(184,150,12,0.15)',
                   color: '#B8960C',
                   border: '1px solid rgba(184,150,12,0.4)',
                 }}
+                title="线索库"
               >
-                🔍 线索
+                🔍
               </button>
             )}
-            {/* 另存为按钮 */}
-            <button
-              onClick={() => setShowSaveAs(true)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                color: config.theme.textMuted,
-                border: `1px solid ${config.theme.border}`,
-              }}
-            >
-              💾
-            </button>
-            <button
-              onClick={() => router.push('/saves')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                color: config.theme.textMuted,
-                border: `1px solid ${config.theme.border}`,
-              }}
-            >
-              存档
-            </button>
+
+            {/* 存档菜单 */}
+            <SaveMenu
+              onQuickSave={handleQuickSave}
+              onSaveAs={handleSaveAs}
+              onViewSaves={() => router.push('/saves')}
+            />
           </div>
         </div>
 
+        {/* 状态栏 */}
         <div className="flex-shrink-0">
           <StatusBar />
         </div>
 
+        {/* 剧情面板 */}
         <StoryPanel />
 
+        {/* 底部交互区：选项 + 输入 + BGM/朗读 */}
         <div className="flex-shrink-0 space-y-2">
           <ChoicesBar onChoice={(c) => handleAction(c)} />
-          <FreeInputBox onSubmit={(t) => handleAction(t)} />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <FreeInputBox onSubmit={(t) => handleAction(t)} />
+            </div>
+            <BGMController />
+            <TTSToggle />
+          </div>
         </div>
       </main>
     </ThemeProvider>
