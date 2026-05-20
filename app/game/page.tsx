@@ -88,7 +88,7 @@ export default function GamePage() {
   }, [])
 
   async function triggerSummaryIfNeeded(currentTurn: number, currentMessages: Message[]) {
-    if (currentTurn > 0 && currentTurn % 10 === 0) {
+    if (currentTurn > 0 && currentTurn % 15 === 0) {
       try {
         const res = await fetch('/api/summary', {
           method: 'POST',
@@ -100,6 +100,8 @@ export default function GamePage() {
           const summaryRecord = {
             id: uid(),
             triggerTurn: currentTurn,
+            chapterNumber: Math.floor(currentTurn / 10),
+            chapterTitle: '',   // 等会更新 API 后会自动填入
             content: summary,
             statusAtTrigger: status,
           }
@@ -364,6 +366,17 @@ export default function GamePage() {
           <div className="flex items-center gap-1.5">
             <BGMController />
             <TTSToggle />
+            <button
+              onClick={() => router.push('/chapters')}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+          >
+            📚
+          </button>
             {genre === 'mystery' && (
               <button
                 onClick={() => router.push('/clues')}

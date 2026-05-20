@@ -4,6 +4,8 @@ import { persist } from 'zustand/middleware'
 export interface Summary {
   id: string
   triggerTurn: number
+  chapterNumber: number
+  chapterTitle: string
   content: string
   statusAtTrigger: Record<string, number>
 }
