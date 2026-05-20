@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/stores/gameStore'
 import { useGenreStore } from '@/stores/genreStore'
 import { useSummaryStore } from '@/stores/summaryStore'
@@ -14,12 +14,60 @@ export default function StoryPanel() {
   const genre = useGenreStore((s) => s.genre)
   const summaries = useSummaryStore((s) => s.summaries)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [displayText, setDisplayText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const typeIndexRef = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const config = genre ? GENRE_CONFIG[genre] : null
 
+  // 打字机效果
+  useEffect(() => {
+    if (!streamingText) {
+      setDisplayText('')
+      typeIndexRef.current = 0
+      return
+    }
+
+    // 如果新文本比当前显示的长，继续打字
+    if (streamingText.length > typeIndexRef.current) {
+      setIsTyping(true)
+
+      const typeNext = () => {
+        if (typeIndexRef.current < streamingText.length) {
+          typeIndexRef.current += 1
+          setDisplayText(streamingText.slice(0, typeIndexRef.current))
+          // 标点符号停顿长一点
+          const char = streamingText[typeIndexRef.current - 1]
+          const isPunctuation = ['。', '！', '？', '…', '，', ',', '.', '!', '?'].includes(char)
+          timerRef.current = setTimeout(typeNext, isPunctuation ? 60 : 25)
+        } else {
+          setIsTyping(false)
+        }
+      }
+
+      if (timerRef.current) clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(typeNext, 25)
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [streamingText])
+
+  // 流式结束时确保显示完整
+  useEffect(() => {
+    if (!isStreaming && streamingText === '') {
+      setDisplayText('')
+      typeIndexRef.current = 0
+      setIsTyping(false)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [isStreaming, streamingText])
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, streamingText])
+  }, [messages, displayText])
 
   return (
     <div
@@ -55,7 +103,6 @@ export default function StoryPanel() {
             className="animate-fade-in-up"
             style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}
           >
-            {/* 旁白/剧情 */}
             {msg.role === 'narrator' && (
               <div
                 className="rounded-xl p-4 text-sm leading-relaxed"
@@ -69,7 +116,6 @@ export default function StoryPanel() {
               </div>
             )}
 
-            {/* 玩家选择 */}
             {msg.role === 'player' && (
               <div className="flex justify-end animate-slide-in-right">
                 <div
@@ -86,7 +132,6 @@ export default function StoryPanel() {
               </div>
             )}
 
-            {/* 摘要消息 */}
             {msg.role === 'summary' && (
               <div
                 className="rounded-xl p-4 text-xs leading-relaxed italic"
@@ -108,8 +153,8 @@ export default function StoryPanel() {
           </div>
         ))}
 
-        {/* 流式输出 */}
-        {isStreaming && streamingText && (
+        {/* 打字机流式输出 */}
+        {isStreaming && (
           <div className="animate-fade-in">
             <div
               className="rounded-xl p-4 text-sm leading-relaxed"
@@ -120,12 +165,17 @@ export default function StoryPanel() {
                 boxShadow: `0 0 20px ${config?.theme.primary ?? '#888'}11`,
               }}
             >
-              {streamingText}
+              {displayText}
+              {/* 打字光标 */}
               <span
-                className="inline-block w-0.5 h-4 ml-0.5 align-middle cursor-blink rounded-full"
+                className="inline-block w-0.5 h-4 ml-0.5 align-middle rounded-full"
                 style={{
                   background: config?.theme.primary ?? '#fff',
                   boxShadow: `0 0 6px ${config?.theme.primary ?? '#fff'}`,
+                  animation: isTyping
+                    ? 'none'
+                    : 'blink 1s step-end infinite',
+                  opacity: isTyping ? 1 : undefined,
                 }}
               />
             </div>
