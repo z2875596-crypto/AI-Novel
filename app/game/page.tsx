@@ -25,6 +25,7 @@ import TTSToggle from '@/components/game/TTSToggle'
 import BGMController from '@/components/game/BGMController'
 import StatusDeltaToast from '@/components/game/StatusDeltaToast'
 import SaveMenu from '@/components/game/SaveAsModal'
+import WorldConfigModal from '@/components/game/WorldConfigModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -70,6 +71,7 @@ export default function GamePage() {
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [newClueFound, setNewClueFound] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [showWorldConfig, setShowWorldConfig] = useState(false)
 
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
@@ -93,11 +95,7 @@ export default function GamePage() {
         const res = await fetch('/api/summary', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre,
-            history: currentMessages,
-            chapterNumber,
-          }),
+          body: JSON.stringify({ genre, history: currentMessages, chapterNumber }),
         })
         const { summary, chapterTitle } = await res.json()
         if (summary) {
@@ -216,7 +214,6 @@ export default function GamePage() {
         setStreamingText(fullText)
       }
 
-      // 解析线索（仅悬疑题材）
       let processedText = fullText
       if (genre === 'mystery') {
         const { cleanText: afterClues, clues } = parseClues(processedText)
@@ -279,7 +276,6 @@ export default function GamePage() {
 
       await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
 
-      // 自动存档
       const autoSave: SaveRecord = {
         id: worldConfig.worldName + '-' + genre,
         createdAt: Date.now(),
@@ -309,6 +305,11 @@ export default function GamePage() {
   return (
     <ThemeProvider>
       <StatusDeltaToast delta={lastDelta} />
+
+      {/* 世界设定弹窗 */}
+      {showWorldConfig && (
+        <WorldConfigModal onClose={() => setShowWorldConfig(false)} />
+      )}
 
       {/* 保存成功提示 */}
       {saveSuccess && (
@@ -344,21 +345,34 @@ export default function GamePage() {
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
       >
-        {/* 顶部导航 - 精简版 */}
+        {/* 顶部导航 */}
         <div className="flex items-center justify-between flex-shrink-0">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              color: config.theme.textMuted,
-              border: `1px solid ${config.theme.border}`,
-            }}
-          >
-            ← 主页
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+            >
+              ← 主页
+            </button>
+            <button
+              onClick={() => setShowWorldConfig(true)}
+              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+              title="查看/编辑世界设定"
+            >
+              📋
+            </button>
+          </div>
 
-          {/* 世界名 */}
           <div className="flex items-center gap-2">
             <span className="text-base">{config.emoji}</span>
             <span className="text-sm font-semibold" style={{ color: config.theme.primary }}>
@@ -366,9 +380,7 @@ export default function GamePage() {
             </span>
           </div>
 
-          {/* 右侧操作区 */}
           <div className="flex items-center gap-1.5">
-            {/* 章节目录（有摘要时显示） */}
             {summaries.length > 0 && (
               <button
                 onClick={() => router.push('/chapters')}
@@ -383,8 +395,6 @@ export default function GamePage() {
                 📚
               </button>
             )}
-
-            {/* 线索库（悬疑题材） */}
             {genre === 'mystery' && (
               <button
                 onClick={() => router.push('/clues')}
@@ -399,8 +409,6 @@ export default function GamePage() {
                 🔍
               </button>
             )}
-
-            {/* 存档菜单 */}
             <SaveMenu
               onQuickSave={handleQuickSave}
               onSaveAs={handleSaveAs}
@@ -409,15 +417,12 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* 状态栏 */}
         <div className="flex-shrink-0">
           <StatusBar />
         </div>
 
-        {/* 剧情面板 */}
         <StoryPanel />
 
-        {/* 底部交互区：选项 + 输入 + BGM/朗读 */}
         <div className="flex-shrink-0 space-y-2">
           <ChoicesBar onChoice={(c) => handleAction(c)} />
           <div className="flex items-center gap-2">
