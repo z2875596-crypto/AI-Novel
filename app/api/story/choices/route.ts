@@ -2,17 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
 import { buildChoicesMessages } from '@/lib/prompts/choicesPrompts'
 import { GenreKey } from '@/types/genre'
+import { NarrativePOV } from '@/types/world'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { genre, lastNarratorText, status, turn }: {
+  const { genre, lastNarratorText, status, turn, protagonistName, narrativePOV }: {
     genre: GenreKey
     lastNarratorText: string
     status: Record<string, number>
     turn: number
+    protagonistName: string
+    narrativePOV: NarrativePOV
   } = body
 
-  const { system, messages } = buildChoicesMessages({ genre, lastNarratorText, status, turn })
+  const { system, messages } = buildChoicesMessages({
+    genre,
+    lastNarratorText,
+    status,
+    turn,
+    protagonistName: protagonistName ?? '',
+    narrativePOV: narrativePOV ?? 'second',
+  })
 
   try {
     const response = await deepseek.chat.completions.create({

@@ -1,7 +1,7 @@
 'use client'
 
 import { useWorldStore } from '@/stores/worldStore'
-import { NPC } from '@/types/world'
+import { NPC, NARRATIVE_POV_OPTIONS, NarrativePOV } from '@/types/world'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -34,6 +34,9 @@ export default function CharacterEditor() {
   function removeNPC(id: string) {
     updateField('npcs', worldConfig.npcs.filter((n) => n.id !== id))
   }
+
+  const currentPOV = worldConfig.narrativePOV ?? 'second'
+  const currentPOVOption = NARRATIVE_POV_OPTIONS.find((o) => o.key === currentPOV)
 
   return (
     <div className="space-y-5">
@@ -68,6 +71,56 @@ export default function CharacterEditor() {
               style={inputStyle}
             />
           </div>
+
+          {/* 叙述视角选择 */}
+          <div>
+            <label className="block text-xs mb-2" style={{ color: 'var(--theme-text-muted)' }}>
+              叙述视角 <span style={{ color: 'var(--theme-primary)' }}>*</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {NARRATIVE_POV_OPTIONS.map((opt) => {
+                const selected = currentPOV === opt.key
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => updateField('narrativePOV', opt.key as NarrativePOV)}
+                    className="rounded-lg border px-3 py-2.5 text-left transition-all hover:brightness-110"
+                    style={{
+                      background: selected
+                        ? 'var(--theme-primary)22'
+                        : 'var(--theme-surface)',
+                      borderColor: selected
+                        ? 'var(--theme-primary)'
+                        : 'var(--theme-border)',
+                      color: selected
+                        ? 'var(--theme-primary)'
+                        : 'var(--theme-text)',
+                    }}
+                  >
+                    <p className="text-sm font-semibold">{opt.label}</p>
+                    <p
+                      className="text-xs mt-0.5 leading-tight"
+                      style={{ color: selected ? 'var(--theme-primary)aa' : 'var(--theme-text-muted)' }}
+                    >
+                      {opt.description}
+                    </p>
+                  </button>
+                )
+              })}
+            </div>
+            {/* 示例预览 */}
+            <p
+              className="text-xs mt-2 px-3 py-2 rounded-lg italic"
+              style={{
+                background: 'var(--theme-surface)',
+                color: 'var(--theme-text-muted)',
+                borderLeft: '2px solid var(--theme-primary)44',
+              }}
+            >
+              示例：{currentPOVOption?.example.replace('钎城', worldConfig.protagonistName || '主角')}
+            </p>
+          </div>
+
           <div>
             <label className="block text-xs mb-1.5" style={{ color: 'var(--theme-text-muted)' }}>
               开场场景 <span style={{ color: 'var(--theme-primary)' }}>*</span>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSummaryStore } from '@/stores/summaryStore'
 import { useGenreStore } from '@/stores/genreStore'
@@ -7,6 +8,43 @@ import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import ThemeProvider from '@/components/shared/ThemeProvider'
+import { Message } from '@/types/game'
+
+function MessageBubble({ msg, config }: { msg: Message; config: ReturnType<typeof GENRE_CONFIG[keyof typeof GENRE_CONFIG]> }) {
+  if (msg.role === 'player') {
+    return (
+      <div className="flex justify-end">
+        <div
+          className="max-w-[80%] text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm"
+          style={{
+            background: config.theme.primary + '22',
+            color: config.theme.primary,
+            border: `1px solid ${config.theme.primary}44`,
+          }}
+        >
+          {msg.content}
+        </div>
+      </div>
+    )
+  }
+
+  if (msg.role === 'narrator') {
+    return (
+      <div
+        className="text-sm leading-relaxed rounded-xl px-4 py-3"
+        style={{
+          background: config.theme.surface,
+          color: config.theme.text,
+          borderLeft: `2px solid ${config.theme.primary}44`,
+        }}
+      >
+        {msg.content}
+      </div>
+    )
+  }
+
+  return null
+}
 
 export default function ChaptersPage() {
   const router = useRouter()
@@ -14,6 +52,7 @@ export default function ChaptersPage() {
   const genre = useGenreStore((s) => s.genre)
   const worldConfig = useWorldStore((s) => s.worldConfig)
   const turn = useGameStore((s) => s.turn)
+  const [expandedChapter, setExpandedChapter] = useState<string | null>(null)
 
   if (!genre) {
     router.replace('/')
@@ -21,7 +60,8 @@ export default function ChaptersPage() {
   }
 
   const config = GENRE_CONFIG[genre]
-  const currentChapter = Math.floor(turn / 10) + 1
+  const currentChapter = Math.floor(turn / 20) + 1
+  const currentChapterProgress = turn % 20
 
   return (
     <ThemeProvider>
@@ -48,10 +88,7 @@ export default function ChaptersPage() {
         {/* 书名 */}
         <div
           className="text-center mb-8 p-6 rounded-2xl border"
-          style={{
-            background: config.theme.surface,
-            borderColor: config.theme.border,
-          }}
+          style={{ background: config.theme.surface, borderColor: config.theme.border }}
         >
           <p className="text-xs mb-1" style={{ color: config.theme.textMuted }}>
             {config.emoji} {config.label}
@@ -86,69 +123,104 @@ export default function ChaptersPage() {
           >
             <p className="text-3xl mb-3">📖</p>
             <p className="text-sm">第一章尚未完成</p>
-            <p className="text-xs mt-1 opacity-60">每 10 回合自动生成章节摘要</p>
+            <p className="text-xs mt-1 opacity-60">每 20 回合自动生成章节摘要</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {summaries.map((s, i) => (
-              <div
-                key={s.id}
-                className="rounded-xl border p-5 animate-fade-in-up"
-                style={{
-                  background: config.theme.surface,
-                  borderColor: config.theme.border,
-                  animationDelay: `${i * 0.05}s`,
-                }}
-              >
-                {/* 章节头 */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                    style={{
-                      background: config.theme.primary + '22',
-                      color: config.theme.primary,
-                      border: `1px solid ${config.theme.primary}44`,
-                    }}
+            {summaries.map((s, i) => {
+              const isExpanded = expandedChapter === s.id
+              const hasMessages = s.messages && s.messages.length > 0
+
+              return (
+                <div
+                  key={s.id}
+                  className="rounded-xl border overflow-hidden animate-fade-in-up"
+                  style={{
+                    background: config.theme.surface,
+                    borderColor: isExpanded ? config.theme.primary + '66' : config.theme.border,
+                    animationDelay: `${i * 0.05}s`,
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  {/* 章节头：点击展开/折叠 */}
+                  <button
+                    className="w-full text-left p-5 transition-all hover:brightness-110"
+                    onClick={() => setExpandedChapter(isExpanded ? null : s.id)}
                   >
-                    {s.chapterNumber}
-                  </div>
-                  <div>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                        style={{
+                          background: config.theme.primary + '22',
+                          color: config.theme.primary,
+                          border: `1px solid ${config.theme.primary}44`,
+                        }}
+                      >
+                        {s.chapterNumber}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs" style={{ color: config.theme.textMuted }}>
+                          第 {s.chapterNumber} 章 · 第 {s.triggerTurn - 19}–{s.triggerTurn} 回合
+                        </p>
+                        <p className="text-base font-bold truncate" style={{ color: config.theme.text }}>
+                          {s.chapterTitle || `第${s.chapterNumber}章`}
+                        </p>
+                      </div>
+                      {/* 展开箭头 */}
+                      <span
+                        className="text-xs flex-shrink-0 transition-transform duration-200"
+                        style={{
+                          color: config.theme.textMuted,
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          display: 'inline-block',
+                        }}
+                      >
+                        ▾
+                      </span>
+                    </div>
+
+                    {/* 摘要（始终可见） */}
+                    <div
+                      className="w-full h-px mt-3 mb-3"
+                      style={{ background: config.theme.border }}
+                    />
                     <p
-                      className="text-xs"
+                      className="text-sm leading-relaxed italic"
                       style={{ color: config.theme.textMuted }}
                     >
-                      第 {s.chapterNumber} 章
+                      {s.content}
                     </p>
-                    <p
-                      className="text-base font-bold"
-                      style={{ color: config.theme.text }}
+
+                    {hasMessages && (
+                      <p
+                        className="text-xs mt-2"
+                        style={{ color: config.theme.primary + 'aa' }}
+                      >
+                        {isExpanded ? '收起对话 ↑' : `查看 ${s.messages.length} 条对话 ↓`}
+                      </p>
+                    )}
+                  </button>
+
+                  {/* 展开的对话内容 */}
+                  {isExpanded && hasMessages && (
+                    <div
+                      className="px-5 pb-5 space-y-3 border-t"
+                      style={{ borderColor: config.theme.border }}
                     >
-                      {s.chapterTitle || `第${s.chapterNumber}章`}
-                    </p>
-                  </div>
-                  <div
-                    className="ml-auto text-xs"
-                    style={{ color: config.theme.textMuted }}
-                  >
-                    第 {s.triggerTurn} 回合
-                  </div>
+                      <p
+                        className="text-xs pt-4 mb-3 font-semibold tracking-wider uppercase"
+                        style={{ color: config.theme.primary }}
+                      >
+                        本章对话记录
+                      </p>
+                      {s.messages.map((msg) => (
+                        <MessageBubble key={msg.id} msg={msg} config={config} />
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-                {/* 分割线 */}
-                <div
-                  className="w-full h-px mb-3"
-                  style={{ background: config.theme.border }}
-                />
-
-                {/* 摘要 */}
-                <p
-                  className="text-sm leading-relaxed italic"
-                  style={{ color: config.theme.textMuted }}
-                >
-                  {s.content}
-                </p>
-              </div>
-            ))}
+              )
+            })}
 
             {/* 当前章节（进行中） */}
             <div
@@ -177,11 +249,8 @@ export default function ChaptersPage() {
                     故事继续…
                   </p>
                 </div>
-                <div
-                  className="ml-auto text-xs"
-                  style={{ color: config.theme.textMuted }}
-                >
-                  第 {turn % 10}/10 回合
+                <div className="ml-auto text-xs" style={{ color: config.theme.textMuted }}>
+                  {currentChapterProgress}/20 回合
                 </div>
               </div>
               <div
@@ -191,14 +260,14 @@ export default function ChaptersPage() {
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
-                    width: `${(turn % 10) * 10}%`,
+                    width: `${(currentChapterProgress / 20) * 100}%`,
                     background: config.theme.primary,
                     boxShadow: `0 0 8px ${config.theme.primary}88`,
                   }}
                 />
               </div>
               <p className="text-xs mt-1.5 text-right" style={{ color: config.theme.textMuted }}>
-                再 {10 - (turn % 10)} 回合解锁下一章摘要
+                再 {20 - currentChapterProgress} 回合解锁下一章摘要
               </p>
             </div>
           </div>

@@ -7,63 +7,101 @@ import { useSummaryStore } from '@/stores/summaryStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import SummaryCard from './SummaryCard'
 
+// 标点符号停顿时间（ms）
+const PUNCTUATION_DELAY = 55
+const CHAR_DELAY = 22
+
+const PUNCTUATION_SET = new Set(['。', '！', '？', '…', '，', ',', '.', '!', '?'])
+
 export default function StoryPanel() {
   const messages = useGameStore((s) => s.messages)
   const streamingText = useGameStore((s) => s.streamingText)
   const isStreaming = useGameStore((s) => s.isStreaming)
   const genre = useGenreStore((s) => s.genre)
   const summaries = useSummaryStore((s) => s.summaries)
+
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // 打字机状态全部收进 ref，避免 setState 在高频 timer 里触发多余重渲染
   const [displayText, setDisplayText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const typeIndexRef = useRef(0)
+
+  // 已渲染到的字符位置（不放 state，避免闭包陈旧）
+  const printedRef = useRef(0)
+  // 当前正在追打的目标文本（ref 保证 timer 回调里始终读到最新值）
+  const targetRef = useRef('')
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const config = genre ? GENRE_CONFIG[genre] : null
 
-  // 打字机效果
-  useEffect(() => {
-    if (!streamingText) {
-      setDisplayText('')
-      typeIndexRef.current = 0
+  // ─── 核心修复：只追加新增字符，不重置整段 ──────────────────────────────────
+  //
+  // 旧逻辑问题：
+  //   streamingText 每次更新 → useEffect 触发 → clearTimeout + 重新 setTimeout
+  //   当 DeepSeek 推流速度 > 打字速度时，timer 被反复清除，文字停滞甚至倒退。
+  //
+  // 新逻辑：
+  //   1. targetRef 始终指向最新完整文本
+  //   2. tick() 每次只向前走一个字符，读 targetRef.current 获取最新目标长度
+  //   3. streamingText 更新时只负责"唤醒"一次 tick，如果 tick 已在跑则什么都不做
+  //   4. 流式结束（isStreaming=false & streamingText=''）时强制补全并清理
+  //
+  const tickingRef = useRef(false)
+
+  const tick = () => {
+    const target = targetRef.current
+    if (printedRef.current >= target.length) {
+      // 追上了目标，等待下一批字符到来
+      tickingRef.current = false
+      setIsTyping(false)
       return
     }
 
-    // 如果新文本比当前显示的长，继续打字
-    if (streamingText.length > typeIndexRef.current) {
-      setIsTyping(true)
+    printedRef.current += 1
+    const nextSlice = target.slice(0, printedRef.current)
+    setDisplayText(nextSlice)
 
-      const typeNext = () => {
-        if (typeIndexRef.current < streamingText.length) {
-          typeIndexRef.current += 1
-          setDisplayText(streamingText.slice(0, typeIndexRef.current))
-          // 标点符号停顿长一点
-          const char = streamingText[typeIndexRef.current - 1]
-          const isPunctuation = ['。', '！', '？', '…', '，', ',', '.', '!', '?'].includes(char)
-          timerRef.current = setTimeout(typeNext, isPunctuation ? 60 : 25)
-        } else {
-          setIsTyping(false)
-        }
-      }
+    const char = target[printedRef.current - 1]
+    const delay = PUNCTUATION_SET.has(char) ? PUNCTUATION_DELAY : CHAR_DELAY
+    timerRef.current = setTimeout(tick, delay)
+  }
 
+  useEffect(() => {
+    if (!streamingText) return
+
+    // 更新目标文本
+    targetRef.current = streamingText
+
+    // 如果打字机已经在跑，tick 会自动追上新内容，无需重启
+    if (tickingRef.current) return
+
+    // 首次或重启：开始打字
+    tickingRef.current = true
+    setIsTyping(true)
+    timerRef.current = setTimeout(tick, CHAR_DELAY)
+
+    // 注意：不在这里 return cleanup，cleanup 统一在下面的 unmount effect 处理
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamingText])
+
+  // 流式结束 → 立即补全剩余文字，重置所有状态
+  useEffect(() => {
+    if (!isStreaming && streamingText === '') {
       if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(typeNext, 25)
+      tickingRef.current = false
+      targetRef.current = ''
+      printedRef.current = 0
+      setDisplayText('')
+      setIsTyping(false)
     }
+  }, [isStreaming, streamingText])
 
+  // 组件卸载时清理 timer
+  useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [streamingText])
-
-  // 流式结束时确保显示完整
-  useEffect(() => {
-    if (!isStreaming && streamingText === '') {
-      setDisplayText('')
-      typeIndexRef.current = 0
-      setIsTyping(false)
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [isStreaming, streamingText])
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -87,7 +125,6 @@ export default function StoryPanel() {
         </div>
       )}
 
-      {/* 历史摘要 */}
       {summaries.length > 0 && (
         <div className="space-y-2 mb-4">
           {summaries.map((summary) => (
@@ -166,15 +203,13 @@ export default function StoryPanel() {
               }}
             >
               {displayText}
-              {/* 打字光标 */}
+              {/* 打字光标：打字中常亮，等待时闪烁 */}
               <span
                 className="inline-block w-0.5 h-4 ml-0.5 align-middle rounded-full"
                 style={{
                   background: config?.theme.primary ?? '#fff',
                   boxShadow: `0 0 6px ${config?.theme.primary ?? '#fff'}`,
-                  animation: isTyping
-                    ? 'none'
-                    : 'blink 1s step-end infinite',
+                  animation: isTyping ? 'none' : 'blink 1s step-end infinite',
                   opacity: isTyping ? 1 : undefined,
                 }}
               />

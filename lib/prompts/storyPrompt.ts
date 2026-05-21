@@ -1,5 +1,5 @@
 import { GenreKey } from '@/types/genre'
-import { WorldConfig } from '@/types/world'
+import { WorldConfig, NarrativePOV } from '@/types/world'
 import { Message } from '@/types/game'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { StyleConfig } from '@/stores/styleStore'
@@ -18,6 +18,26 @@ const GENRE_PERSONA: Record<GenreKey, string> = {
   comedy: '你是一位喜剧小说作家，脑洞清奇，对话幽默，善于制造意想不到的搞笑反转，让读者忍俊不禁。',
 }
 
+// 根据视角生成叙述规则说明
+function buildPOVInstruction(pov: NarrativePOV, protagonistName: string): string {
+  switch (pov) {
+    case 'first':
+      return `【叙述视角 — 第一人称】
+全程以"我"指代主角「${protagonistName}」进行叙述，禁止在叙述中使用"你"或主角姓名指代主角。
+示例：我握住剑柄，心跳加速……（✓）／你握住剑柄……（✗）／${protagonistName}握住剑柄……（✗）`
+
+    case 'second':
+      return `【叙述视角 — 第二人称】
+全程以"你"指代主角「${protagonistName}」进行叙述，禁止在叙述中使用"我"或主角姓名指代主角。
+示例：你握住剑柄，心跳加速……（✓）／我握住剑柄……（✗）／${protagonistName}握住剑柄……（✗）`
+
+    case 'third':
+      return `【叙述视角 — 第三人称】
+全程以主角姓名「${protagonistName}」或"他/她"指代主角进行叙述，禁止使用"你"或"我"指代主角。
+示例：${protagonistName}握住剑柄，心跳加速……（✓）／你握住剑柄……（✗）／我握住剑柄……（✗）`
+  }
+}
+
 interface BuildStoryPromptParams {
   genre: GenreKey
   worldConfig: WorldConfig
@@ -31,6 +51,8 @@ interface BuildStoryPromptParams {
 export function buildStoryMessages(params: BuildStoryPromptParams) {
   const { genre, worldConfig, history, playerAction, status, turn, styleConfig } = params
   const config = GENRE_CONFIG[genre]
+
+  const pov: NarrativePOV = worldConfig.narrativePOV ?? 'second'
 
   const statusText = config.bars
     .map((b) => `${b.label}：${status[b.key] ?? 0}/${b.max}`)
@@ -46,6 +68,7 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
   const styleInstruction = styleConfig ? buildStyleInstruction(styleConfig) : ''
   const triggerInstruction = getStatusTriggerInstructions(genre, status)
   const clueInstruction = genre === 'mystery' ? CLUE_EXTRACTION_INSTRUCTION : ''
+  const povInstruction = buildPOVInstruction(pov, worldConfig.protagonistName)
 
   const targetEndingInstruction = worldConfig.targetEnding
     ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，可以在剧情末尾输出 [ENDING]{"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
@@ -70,6 +93,8 @@ ${triggerInstruction}
 ${styleInstruction ? '\n' + styleInstruction : ''}
 ${targetEndingInstruction ? '\n' + targetEndingInstruction : ''}
 ${clueInstruction}
+
+${povInstruction}
 
 【写作规则】
 1. 你正在为玩家生成互动小说的下一段剧情，当前是第 ${turn} 回合

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
@@ -48,13 +48,15 @@ function parseEnding(text: string): {
 
 export default function GamePage() {
   const router = useRouter()
+
+  // ─── 仅用于渲染的响应式状态（驱动 UI 更新）───────────────────────────────
   const genre = useGenreStore((s) => s.genre)
   const worldConfig = useWorldStore((s) => s.worldConfig)
+  const isStreaming = useGameStore((s) => s.isStreaming)
+  const summariesForUI = useSummaryStore((s) => s.summaries)
+
+  // ─── Setters（Zustand action 引用永远稳定，无需放入依赖数组）──────────────
   const {
-    turn,
-    status,
-    messages,
-    isStreaming,
     setIsStreaming,
     setCurrentChoices,
     addMessage,
@@ -64,10 +66,9 @@ export default function GamePage() {
     setMessages,
   } = useGameStore()
   const { addOrUpdate } = useSaveStore()
-  const { summaries, addSummary } = useSummaryStore()
-  const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore()
-  const { styleConfig } = useStyleStore()
+  const { addSummary } = useSummaryStore()
   const { addClue } = useClueStore()
+
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [newClueFound, setNewClueFound] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -79,23 +80,199 @@ export default function GamePage() {
     }
   }, [genre, worldConfig.worldName, router])
 
+  // ─── handleAction：用 ref 包裹，始终读最新状态，永不产生陈旧闭包 ──────────
+  //
+  //  核心原则：
+  //  1. 所有"需要在异步流程中保持最新"的状态 → useXxxStore.getState() 按需读取
+  //  2. 纯粹的 UI 渲染状态（isStreaming 按钮 disable）→ 仍从 hook 读，驱动重渲染
+  //  3. handleActionRef.current 始终指向最新函数，useEffect 里调用不再有闭包风险
+  //
+  const handleActionRef = useRef<(playerAction: string, isOpening?: boolean) => Promise<void>>(
+    async () => {}
+  )
+
+  handleActionRef.current = async (playerAction: string, isOpening = false) => {
+    // 直接读最新状态，不依赖闭包捕获
+    const { isStreaming: streaming, turn, status, messages } = useGameStore.getState()
+    const { genre: currentGenre } = useGenreStore.getState()
+    const { worldConfig: currentWorld } = useWorldStore.getState()
+    const { summaries } = useSummaryStore.getState()
+    const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore.getState()
+    const { styleConfig } = useStyleStore.getState()
+
+    if (streaming) return
+    stop()
+
+    if (!isOpening) {
+      const playerMsg: Message = {
+        id: uid(),
+        role: 'player',
+        content: playerAction,
+        turn,
+        timestamp: Date.now(),
+      }
+      addMessage(playerMsg)
+      setCurrentChoices([])
+    }
+
+    setIsStreaming(true)
+    setStreamingText('')
+    setNewClueFound(false)
+
+    let fullText = ''
+
+    try {
+      const summaryContext = summaries.length > 0
+        ? `【历史摘要】\n${summaries.map(s => s.content).join('\n')}\n\n`
+        : ''
+
+      const res = await fetch('/api/story/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          genre: currentGenre,
+          worldConfig: currentWorld,
+          history: messages.slice(-10),
+          playerAction: summaryContext + playerAction,
+          status,
+          turn,
+          styleConfig,
+        }),
+      })
+
+      if (!res.body) throw new Error('No response body')
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value, { stream: true })
+        fullText += chunk
+        const { cleanText } = parseStatusDelta(fullText)
+        setStreamingText(cleanText)
+      }
+    } catch (err) {
+      fullText = `[生成出错：${err instanceof Error ? err.message : '未知错误'}]`
+      setStreamingText(fullText)
+    }
+
+    let processedText = fullText
+    if (currentGenre === 'mystery') {
+      const { cleanText: afterClues, clues } = parseClues(processedText)
+      processedText = afterClues
+      if (clues.length > 0) {
+        setNewClueFound(true)
+        clues.forEach((clue) => {
+          addClue({
+            ...clue,
+            foundAt: turn,
+            timestamp: Date.now(),
+            revealed: !!clue.revelation,
+          })
+        })
+        setTimeout(() => setNewClueFound(false), 3000)
+      }
+    }
+
+    const { cleanText: afterStatus, delta } = parseStatusDelta(processedText)
+    const { cleanText, ending } = parseEnding(afterStatus)
+    const newStatus = applyStatusDelta(currentGenre!, status, delta)
+
+    const narratorMsg: Message = {
+      id: uid(),
+      role: 'narrator',
+      content: cleanText,
+      turn,
+      statusDelta: delta,
+      timestamp: Date.now(),
+    }
+    addMessage(narratorMsg)
+    setStreamingText('')
+    setIsStreaming(false)
+    setStatus(newStatus)
+    setLastDelta(delta)
+    incrementTurn()
+
+    if (ttsEnabled) {
+      speak(cleanText, { rate: ttsRate, pitch: ttsPitch, volume: ttsVolume })
+    }
+
+    if (!ending) {
+      try {
+        const choiceRes = await fetch('/api/story/choices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            genre: currentGenre,
+            lastNarratorText: cleanText,
+            status: newStatus,
+            turn: turn + 1,
+            protagonistName: currentWorld.protagonistName,
+            narrativePOV: currentWorld.narrativePOV ?? 'second',
+          }),
+        })
+        const { choices } = await choiceRes.json()
+        setCurrentChoices(choices ?? [])
+      } catch {
+        setCurrentChoices([])
+      }
+    }
+
+    // 摘要：读最新 messages（含刚加入的 narratorMsg）
+    await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg], currentGenre)
+
+    const autoSave: SaveRecord = {
+      id: currentWorld.worldName + '-' + currentGenre,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      storyTitle: `${currentWorld.worldName} · ${currentWorld.protagonistName}`,
+      genre: currentGenre!,
+      chapter: Math.floor((turn + 1) / 20) + 1,
+      turn: turn + 1,
+      worldConfig: currentWorld,
+      statusSnapshot: newStatus,
+      recentHistory: [...messages.slice(-9), narratorMsg],
+      branchHistory: [],
+      ...(ending && {
+        ending: { ...ending, unlockedAt: Date.now() },
+      }),
+    }
+    addOrUpdate(autoSave)
+  }
+
+  // 稳定的触发函数，供 JSX 事件和 useEffect 调用
+  const handleAction = (playerAction: string, isOpening = false) =>
+    handleActionRef.current(playerAction, isOpening)
+
   useEffect(() => {
-    if (!genre || !worldConfig.worldName) return
-    if (messages.length === 0) {
-      handleAction(worldConfig.openingScene, true)
+    const { genre: g, } = useGenreStore.getState()
+    const { worldConfig: wc } = useWorldStore.getState()
+    if (!g || !wc.worldName) return
+    const { messages: msgs } = useGameStore.getState()
+    if (msgs.length === 0) {
+      handleActionRef.current(wc.openingScene, true)
     }
     return () => stop()
+  // 只在组件挂载时执行一次，通过 ref 调用保证拿到最新状态
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function triggerSummaryIfNeeded(currentTurn: number, currentMessages: Message[]) {
-    if (currentTurn > 0 && currentTurn % 10 === 0) {
+  async function triggerSummaryIfNeeded(
+    currentTurn: number,
+    currentMessages: Message[],
+    currentGenre: string | null,
+  ) {
+    // 每 20 回合触发一次章节摘要
+    if (currentTurn > 0 && currentTurn % 20 === 0) {
       try {
-        const chapterNumber = Math.floor(currentTurn / 10)
+        const chapterNumber = Math.floor(currentTurn / 20)
+        const { status } = useGameStore.getState()
         const res = await fetch('/api/summary', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ genre, history: currentMessages, chapterNumber }),
+          body: JSON.stringify({ genre: currentGenre, history: currentMessages, chapterNumber }),
         })
         const { summary, chapterTitle } = await res.json()
         if (summary) {
@@ -106,16 +283,12 @@ export default function GamePage() {
             chapterTitle: chapterTitle ?? `第${chapterNumber}章`,
             content: summary,
             statusAtTrigger: status,
+            messages: currentMessages,  // 保存本章完整 20 条对话
           }
           addSummary(summaryRecord)
-          const summaryMsg: Message = {
-            id: uid(),
-            role: 'summary',
-            content: summary,
-            turn: currentTurn,
-            timestamp: Date.now(),
-          }
-          setMessages([summaryMsg])
+          // 清空消息列表，开始新章节，不再往里塞 summaryMsg
+          // （SummaryCard 已经在 StoryPanel 顶部展示摘要，无需重复）
+          setMessages([])
         }
       } catch {
         // 摘要失败不影响游戏继续
@@ -124,16 +297,20 @@ export default function GamePage() {
   }
 
   function buildSaveRecord(customName?: string): SaveRecord {
-    const defaultTitle = `${worldConfig.worldName} · ${worldConfig.protagonistName}`
+    // 手动存档时也用 getState，确保拿到当前数据而非渲染快照
+    const { turn, status, messages } = useGameStore.getState()
+    const { worldConfig: wc } = useWorldStore.getState()
+    const { genre: g } = useGenreStore.getState()
+    const defaultTitle = `${wc.worldName} · ${wc.protagonistName}`
     return {
-      id: customName ? uid() : worldConfig.worldName + '-' + genre,
+      id: customName ? uid() : wc.worldName + '-' + g,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       storyTitle: customName ?? defaultTitle,
-      genre: genre!,
-      chapter: Math.floor(turn / 10) + 1,
+      genre: g!,
+      chapter: Math.floor(turn / 20) + 1,
       turn,
-      worldConfig,
+      worldConfig: wc,
       statusSnapshot: status,
       recentHistory: messages.slice(-10),
       branchHistory: [],
@@ -154,150 +331,6 @@ export default function GamePage() {
     setTimeout(() => setSaveSuccess(false), 2000)
   }
 
-  const handleAction = useCallback(
-    async (playerAction: string, isOpening = false) => {
-      if (isStreaming) return
-      stop()
-
-      if (!isOpening) {
-        const playerMsg: Message = {
-          id: uid(),
-          role: 'player',
-          content: playerAction,
-          turn,
-          timestamp: Date.now(),
-        }
-        addMessage(playerMsg)
-        setCurrentChoices([])
-      }
-
-      setIsStreaming(true)
-      setStreamingText('')
-      setNewClueFound(false)
-
-      let fullText = ''
-
-      try {
-        const summaryContext = summaries.length > 0
-          ? `【历史摘要】\n${summaries.map(s => s.content).join('\n')}\n\n`
-          : ''
-
-        const res = await fetch('/api/story/stream', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre,
-            worldConfig,
-            history: messages.slice(-10),
-            playerAction: summaryContext + playerAction,
-            status,
-            turn,
-            styleConfig,
-          }),
-        })
-
-        if (!res.body) throw new Error('No response body')
-
-        const reader = res.body.getReader()
-        const decoder = new TextDecoder()
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          const chunk = decoder.decode(value, { stream: true })
-          fullText += chunk
-          const { cleanText } = parseStatusDelta(fullText)
-          setStreamingText(cleanText)
-        }
-      } catch (err) {
-        fullText = `[生成出错：${err instanceof Error ? err.message : '未知错误'}]`
-        setStreamingText(fullText)
-      }
-
-      let processedText = fullText
-      if (genre === 'mystery') {
-        const { cleanText: afterClues, clues } = parseClues(processedText)
-        processedText = afterClues
-        if (clues.length > 0) {
-          setNewClueFound(true)
-          clues.forEach((clue) => {
-            addClue({
-              ...clue,
-              foundAt: turn,
-              timestamp: Date.now(),
-              revealed: !!clue.revelation,
-            })
-          })
-          setTimeout(() => setNewClueFound(false), 3000)
-        }
-      }
-
-      const { cleanText: afterStatus, delta } = parseStatusDelta(processedText)
-      const { cleanText, ending } = parseEnding(afterStatus)
-      const newStatus = applyStatusDelta(genre!, status, delta)
-
-      const narratorMsg: Message = {
-        id: uid(),
-        role: 'narrator',
-        content: cleanText,
-        turn,
-        statusDelta: delta,
-        timestamp: Date.now(),
-      }
-      addMessage(narratorMsg)
-      setStreamingText('')
-      setIsStreaming(false)
-      setStatus(newStatus)
-      setLastDelta(delta)
-      incrementTurn()
-
-      if (ttsEnabled) {
-        speak(cleanText, { rate: ttsRate, pitch: ttsPitch, volume: ttsVolume })
-      }
-
-      if (!ending) {
-        try {
-          const choiceRes = await fetch('/api/story/choices', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              genre,
-              lastNarratorText: cleanText,
-              status: newStatus,
-              turn: turn + 1,
-            }),
-          })
-          const { choices } = await choiceRes.json()
-          setCurrentChoices(choices ?? [])
-        } catch {
-          setCurrentChoices([])
-        }
-      }
-
-      await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg])
-
-      const autoSave: SaveRecord = {
-        id: worldConfig.worldName + '-' + genre,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        storyTitle: `${worldConfig.worldName} · ${worldConfig.protagonistName}`,
-        genre: genre!,
-        chapter: Math.floor((turn + 1) / 10) + 1,
-        turn: turn + 1,
-        worldConfig,
-        statusSnapshot: newStatus,
-        recentHistory: [...messages.slice(-9), narratorMsg],
-        branchHistory: [],
-        ...(ending && {
-          ending: { ...ending, unlockedAt: Date.now() },
-        }),
-      }
-      addOrUpdate(autoSave)
-    },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [genre, worldConfig, messages, status, turn, isStreaming, summaries, ttsEnabled, ttsRate, ttsPitch, ttsVolume, styleConfig]
-  )
-
   if (!genre || !worldConfig.worldName) return null
 
   const config = GENRE_CONFIG[genre]
@@ -306,12 +339,10 @@ export default function GamePage() {
     <ThemeProvider>
       <StatusDeltaToast delta={lastDelta} />
 
-      {/* 世界设定弹窗 */}
       {showWorldConfig && (
         <WorldConfigModal onClose={() => setShowWorldConfig(false)} />
       )}
 
-      {/* 保存成功提示 */}
       {saveSuccess && (
         <div
           className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
@@ -326,7 +357,6 @@ export default function GamePage() {
         </div>
       )}
 
-      {/* 发现新线索提示 */}
       {newClueFound && genre === 'mystery' && (
         <div
           className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
@@ -345,7 +375,6 @@ export default function GamePage() {
         className="h-screen flex flex-col px-4 py-4 max-w-2xl mx-auto gap-3"
         style={{ color: config.theme.text }}
       >
-        {/* 顶部导航 */}
         <div className="flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-1.5">
             <button
@@ -381,7 +410,7 @@ export default function GamePage() {
           </div>
 
           <div className="flex items-center gap-1.5">
-            {summaries.length > 0 && (
+            {summariesForUI.length > 0 && (
               <button
                 onClick={() => router.push('/chapters')}
                 className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
