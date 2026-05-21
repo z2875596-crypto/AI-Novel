@@ -247,10 +247,17 @@ export default function GamePage() {
     handleActionRef.current(playerAction, isOpening)
 
   useEffect(() => {
-    const { genre: g, } = useGenreStore.getState()
+    const { genre: g } = useGenreStore.getState()
     const { worldConfig: wc } = useWorldStore.getState()
     if (!g || !wc.worldName) return
-    const { messages: msgs } = useGameStore.getState()
+
+    const { messages: msgs, isStreaming } = useGameStore.getState()
+
+    // 如果刷新时恰好中断了流式输出，清理残留状态
+    if (isStreaming) {
+      useGameStore.setState({ isStreaming: false, streamingText: '', currentChoices: [] })
+    }
+
     if (msgs.length === 0) {
       handleActionRef.current(wc.openingScene, true)
     }

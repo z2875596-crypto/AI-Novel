@@ -28,10 +28,26 @@ export default function SavesPage() {
   function handleContinue(save: SaveRecord) {
     setGenre(save.genre)
     setWorldConfig(save.worldConfig)
-    resetGame(save.statusSnapshot)
-    setMessages(save.recentHistory)
     resetSummaries()
-    useGameStore.setState({ turn: save.turn, status: save.statusSnapshot })
+
+    // gameStore 已有 persist，直接恢复完整进度
+    useGameStore.setState({
+      turn: save.turn,
+      status: save.statusSnapshot,
+      // 优先用 gameStore 里已持久化的完整 messages（同设备刷新场景）
+      // 若 id 不同（跨设备/换存档）则降级用存档里的 recentHistory
+      messages: (() => {
+        const persisted = useGameStore.getState()
+        const isSameGame =
+          persisted.turn === save.turn &&
+          persisted.messages.length > 0
+        return isSameGame ? persisted.messages : save.recentHistory
+      })(),
+      isStreaming: false,
+      streamingText: '',
+      currentChoices: [],
+    })
+
     router.push('/game')
   }
 

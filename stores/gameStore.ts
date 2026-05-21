@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { Message } from '@/types/game'
 
 interface GameStore {
@@ -19,28 +20,42 @@ interface GameStore {
   setMessages: (messages: Message[]) => void
 }
 
-export const useGameStore = create<GameStore>()((set) => ({
-  turn: 0,
-  status: {},
-  isStreaming: false,
-  currentChoices: [],
-  messages: [],
-  streamingText: '',
-
-  setStatus: (status) => set({ status }),
-  setIsStreaming: (v) => set({ isStreaming: v }),
-  setCurrentChoices: (choices) => set({ currentChoices: choices }),
-  addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
-  setStreamingText: (text) => set({ streamingText: text }),
-  incrementTurn: () => set((s) => ({ turn: s.turn + 1 })),
-  resetGame: (initialStatus) =>
-    set({
+export const useGameStore = create<GameStore>()(
+  persist(
+    (set) => ({
       turn: 0,
-      status: initialStatus,
+      status: {},
       isStreaming: false,
       currentChoices: [],
       messages: [],
       streamingText: '',
+
+      setStatus: (status) => set({ status }),
+      setIsStreaming: (v) => set({ isStreaming: v }),
+      setCurrentChoices: (choices) => set({ currentChoices: choices }),
+      addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
+      setStreamingText: (text) => set({ streamingText: text }),
+      incrementTurn: () => set((s) => ({ turn: s.turn + 1 })),
+      resetGame: (initialStatus) =>
+        set({
+          turn: 0,
+          status: initialStatus,
+          isStreaming: false,
+          currentChoices: [],
+          messages: [],
+          streamingText: '',
+        }),
+      setMessages: (messages) => set({ messages }),
     }),
-  setMessages: (messages) => set({ messages }),
-}))
+    {
+      name: 'game-store',
+      // 只持久化游戏进度，排除运行时状态
+      partialize: (state) => ({
+        turn: state.turn,
+        status: state.status,
+        messages: state.messages,
+        currentChoices: state.currentChoices,
+      }),
+    }
+  )
+)
