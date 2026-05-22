@@ -28,6 +28,8 @@ import SaveMenu from '@/components/game/SaveAsModal'
 import WorldConfigModal from '@/components/game/WorldConfigModal'
 import StyleSwitchPanel from '@/components/game/StyleSwitchPanel'
 import { useRelationshipStore } from '@/stores/relationshipStore'
+import MoreMenu from '@/components/game/MoreMenu'
+import RewindModal from '@/components/game/RewindModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -78,6 +80,7 @@ export default function GamePage() {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [showWorldConfig, setShowWorldConfig] = useState(false)
   const [showStylePanel, setShowStylePanel] = useState(false)
+  const [showRewind, setShowRewind] = useState(false)
 
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
@@ -125,6 +128,7 @@ export default function GamePage() {
     setNewClueFound(false)
 
     let fullText = ''
+    let choicesFetchPromise: Promise<Response | null> | null = null
 
     try {
       const summaryContext = summaries.length > 0
@@ -158,6 +162,22 @@ export default function GamePage() {
         const { cleanText } = parseStatusDelta(fullText)
         setStreamingText(cleanText)
       }
+
+      // 流读取结束，立刻并行发起选项请求
+      // ending 此时还没解析，始终发起请求，后面拿到 ending 再决定是否使用
+      const { cleanText: previewText } = parseStatusDelta(fullText)
+      choicesFetchPromise = fetch('/api/story/choices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          genre: currentGenre,
+          lastNarratorText: previewText,
+          status,
+          turn: turn + 1,
+          protagonistName: currentWorld.protagonistName,
+          narrativePOV: currentWorld.narrativePOV ?? 'second',
+        }),
+      }).catch(() => null)
     } catch (err) {
       fullText = `[生成出错：${err instanceof Error ? err.message : '未知错误'}]`
       setStreamingText(fullText)
@@ -206,20 +226,14 @@ export default function GamePage() {
 
     if (!ending) {
       try {
-        const choiceRes = await fetch('/api/story/choices', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre: currentGenre,
-            lastNarratorText: cleanText,
-            status: newStatus,
-            turn: turn + 1,
-            protagonistName: currentWorld.protagonistName,
-            narrativePOV: currentWorld.narrativePOV ?? 'second',
-          }),
-        })
-        const { choices } = await choiceRes.json()
-        setCurrentChoices(choices ?? [])
+        // 直接 await 已经并行发出的请求，通常此时已完成或接近完成
+        const choiceRes = choicesFetchPromise ? await choicesFetchPromise : null
+        if (choiceRes?.ok) {
+          const { choices } = await choiceRes.json()
+          setCurrentChoices(choices ?? [])
+        } else {
+          setCurrentChoices([])
+        }
       } catch {
         setCurrentChoices([])
       }
@@ -334,6 +348,71 @@ export default function GamePage() {
     }
   }
 
+  function handleRewind(rewindTurn: number, messagesUpToHere: Message[]) {
+    const { worldConfig: wc } = useWorldStore.getState()
+    const { genre: g } = useGenreStore.getState()
+    const { status } = useGameStore.getState()
+
+    // 1. 保存当前主线为自动存档（防止误操作丢失）
+    const mainSave = buildSaveRecord()
+    addOrUpdate(mainSave)
+
+    // 2. 创建分支存档（独立 id，不覆盖主线）
+    const branchSave: SaveRecord = {
+      id: uid(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      storyTitle: `${wc.worldName} · 分支·第${rewindTurn}回合`,
+      genre: g!,
+      chapter: Math.floor(rewindTurn / 20) + 1,
+      turn: rewindTurn,
+      worldConfig: wc,
+      statusSnapshot: status,
+      recentHistory: messagesUpToHere.slice(-10),
+      branchHistory: [],
+      isBranch: true,
+      branchFromTurn: rewindTurn,
+      branchLabel: `分支·第${rewindTurn}回合`,
+      parentId: mainSave.id,
+    }
+    addOrUpdate(branchSave)
+
+    // 3. 把游戏状态回滚到选定回合
+    useGameStore.setState({
+      turn: rewindTurn,
+      messages: messagesUpToHere,
+      currentChoices: [],
+      isStreaming: false,
+      streamingText: '',
+    })
+
+    setShowRewind(false)
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 2000)
+
+    // 4. 触发新一轮 AI 生成选项
+    setTimeout(() => {
+      const lastNarrator = messagesUpToHere.filter((m) => m.role === 'narrator').slice(-1)[0]
+      if (lastNarrator) {
+        fetch('/api/story/choices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            genre: g,
+            lastNarratorText: lastNarrator.content,
+            status,
+            turn: rewindTurn + 1,
+            protagonistName: wc.protagonistName,
+            narrativePOV: wc.narrativePOV ?? 'second',
+          }),
+        })
+          .then((r) => r.json())
+          .then(({ choices }) => useGameStore.setState({ currentChoices: choices ?? [] }))
+          .catch(() => {})
+      }
+    }, 100)
+  }
+
   function buildSaveRecord(customName?: string): SaveRecord {
     // 手动存档时也用 getState，确保拿到当前数据而非渲染快照
     const { turn, status, messages } = useGameStore.getState()
@@ -385,6 +464,15 @@ export default function GamePage() {
         <StyleSwitchPanel onClose={() => setShowStylePanel(false)} />
       )}
 
+      {showRewind && (
+        <RewindModal
+          messages={useGameStore.getState().messages}
+          currentTurn={useGameStore.getState().turn}
+          onRewind={handleRewind}
+          onClose={() => setShowRewind(false)}
+        />
+      )}
+
       {saveSuccess && (
         <div
           className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
@@ -418,6 +506,7 @@ export default function GamePage() {
         style={{ color: config.theme.text }}
       >
         <div className="flex items-center justify-between flex-shrink-0">
+          {/* 左：返回 + 更多菜单 */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => router.push('/')}
@@ -430,38 +519,17 @@ export default function GamePage() {
             >
               ← 主页
             </button>
-            <button
-              onClick={() => setShowWorldConfig(true)}
-              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                color: config.theme.textMuted,
-                border: `1px solid ${config.theme.border}`,
-              }}
-              title="查看/编辑世界设定"
-            >
-              📋
-            </button>
-            <button
-              onClick={() => setShowStylePanel(true)}
-              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: styleConfig.preset || styleConfig.analyzedStyle
-                  ? config.theme.primary + '22'
-                  : 'rgba(255,255,255,0.06)',
-                color: styleConfig.preset || styleConfig.analyzedStyle
-                  ? config.theme.primary
-                  : config.theme.textMuted,
-                border: `1px solid ${styleConfig.preset || styleConfig.analyzedStyle
-                  ? config.theme.primary + '66'
-                  : config.theme.border}`,
-              }}
-              title="切换文笔风格"
-            >
-              ✍️
-            </button>
+            <MoreMenu
+              onWorldConfig={() => setShowWorldConfig(true)}
+              onStylePanel={() => setShowStylePanel(true)}
+              onChapters={() => router.push('/chapters')}
+              onRelationships={() => router.push('/relationships')}
+              onClues={() => router.push('/clues')}
+              onRewind={() => setShowRewind(true)}
+            />
           </div>
 
+          {/* 中：世界名 */}
           <div className="flex items-center gap-2">
             <span className="text-base">{config.emoji}</span>
             <span className="text-sm font-semibold" style={{ color: config.theme.primary }}>
@@ -469,53 +537,12 @@ export default function GamePage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {summariesForUI.length > 0 && (
-              <button
-                onClick={() => router.push('/chapters')}
-                className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  color: config.theme.textMuted,
-                  border: `1px solid ${config.theme.border}`,
-                }}
-                title="章节目录"
-              >
-                📚
-              </button>
-            )}
-            <button
-              onClick={() => router.push('/relationships')}
-              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                color: config.theme.textMuted,
-                border: `1px solid ${config.theme.border}`,
-              }}
-              title="角色关系图谱"
-            >
-              🕸️
-            </button>
-            {genre === 'mystery' && (
-              <button
-                onClick={() => router.push('/clues')}
-                className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
-                style={{
-                  background: 'rgba(184,150,12,0.15)',
-                  color: '#B8960C',
-                  border: '1px solid rgba(184,150,12,0.4)',
-                }}
-                title="线索库"
-              >
-                🔍
-              </button>
-            )}
-            <SaveMenu
-              onQuickSave={handleQuickSave}
-              onSaveAs={handleSaveAs}
-              onViewSaves={() => router.push('/saves')}
-            />
-          </div>
+          {/* 右：存档 */}
+          <SaveMenu
+            onQuickSave={handleQuickSave}
+            onSaveAs={handleSaveAs}
+            onViewSaves={() => router.push('/saves')}
+          />
         </div>
 
         <div className="flex-shrink-0">

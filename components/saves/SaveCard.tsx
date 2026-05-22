@@ -46,6 +46,18 @@ export default function SaveCard({ save, onContinue, onDelete, onExport }: Props
             >
               {config.label}
             </span>
+            {save.isBranch && (
+              <span
+                className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{
+                  background: '#7B68EE33',
+                  color: '#9B8EFF',
+                  border: '1px solid #7B68EE44',
+                }}
+              >
+                ↩️ 分支
+              </span>
+            )}
             {save.ending && (
               <span
                 className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"

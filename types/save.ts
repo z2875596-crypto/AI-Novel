@@ -21,6 +21,11 @@ export interface SaveRecord {
   statusSnapshot: Record<string, number>
   recentHistory: Message[]
   branchHistory: BranchNode[]
+  // 分支标记
+  isBranch?: boolean           // 是否为分支存档
+  branchFromTurn?: number      // 从哪个回合分叉
+  branchLabel?: string         // 分支名称，如"分支·第8回合"
+  parentId?: string            // 主线存档 id
   ending?: {
     type: 'good' | 'bad' | 'true' | 'secret'
     title: string

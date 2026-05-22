@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await deepseek.chat.completions.create({
-      model: DEEPSEEK_MODEL,
+      model: 'deepseek-chat',   // 选项用快速模型，叙述质量不受影响
       messages: [{ role: 'system', content: system }, ...messages],
       stream: false,
-      max_tokens: 200,
+      max_tokens: 150,          // 3个短选项够用，从200压到150
       temperature: 0.85,
     })
 

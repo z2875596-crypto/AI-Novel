@@ -47,7 +47,7 @@ ${narratorText}
 
   try {
     const response = await deepseek.chat.completions.create({
-      model: DEEPSEEK_MODEL,
+      model: 'deepseek-chat',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
