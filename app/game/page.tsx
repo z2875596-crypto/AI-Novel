@@ -26,6 +26,7 @@ import BGMController from '@/components/game/BGMController'
 import StatusDeltaToast from '@/components/game/StatusDeltaToast'
 import SaveMenu from '@/components/game/SaveAsModal'
 import WorldConfigModal from '@/components/game/WorldConfigModal'
+import StyleSwitchPanel from '@/components/game/StyleSwitchPanel'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -54,6 +55,7 @@ export default function GamePage() {
   const worldConfig = useWorldStore((s) => s.worldConfig)
   const isStreaming = useGameStore((s) => s.isStreaming)
   const summariesForUI = useSummaryStore((s) => s.summaries)
+  const { styleConfig } = useStyleStore()
 
   // ─── Setters（Zustand action 引用永远稳定，无需放入依赖数组）──────────────
   const {
@@ -73,6 +75,7 @@ export default function GamePage() {
   const [newClueFound, setNewClueFound] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [showWorldConfig, setShowWorldConfig] = useState(false)
+  const [showStylePanel, setShowStylePanel] = useState(false)
 
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
@@ -350,6 +353,10 @@ export default function GamePage() {
         <WorldConfigModal onClose={() => setShowWorldConfig(false)} />
       )}
 
+      {showStylePanel && (
+        <StyleSwitchPanel onClose={() => setShowStylePanel(false)} />
+      )}
+
       {saveSuccess && (
         <div
           className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-sm font-bold animate-fade-in-up"
@@ -406,6 +413,24 @@ export default function GamePage() {
               title="查看/编辑世界设定"
             >
               📋
+            </button>
+            <button
+              onClick={() => setShowStylePanel(true)}
+              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: styleConfig.preset || styleConfig.analyzedStyle
+                  ? config.theme.primary + '22'
+                  : 'rgba(255,255,255,0.06)',
+                color: styleConfig.preset || styleConfig.analyzedStyle
+                  ? config.theme.primary
+                  : config.theme.textMuted,
+                border: `1px solid ${styleConfig.preset || styleConfig.analyzedStyle
+                  ? config.theme.primary + '66'
+                  : config.theme.border}`,
+              }}
+              title="切换文笔风格"
+            >
+              ✍️
             </button>
           </div>
 

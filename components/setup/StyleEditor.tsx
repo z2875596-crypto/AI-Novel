@@ -52,40 +52,45 @@ export default function StyleEditor() {
       {/* 预设风格 */}
       <div>
         <label className="block text-xs mb-2" style={{ color: 'var(--theme-text-muted)' }}>
-          预设风格
+          预设风格（进入游戏后也可随时切换）
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          {PRESET_STYLE_OPTIONS.map((option) => (
-            <button
-              key={option.key}
-              onClick={() =>
-                setPreset(styleConfig.preset === option.key ? null : option.key as PresetStyle)
-              }
-              className="text-left px-3 py-2.5 rounded-lg border text-xs transition-all hover:brightness-110"
-              style={{
-                background:
-                  styleConfig.preset === option.key
-                    ? 'var(--theme-primary)22'
-                    : 'var(--theme-surface)',
-                borderColor:
-                  styleConfig.preset === option.key
-                    ? 'var(--theme-primary)'
-                    : 'var(--theme-border)',
-                color:
-                  styleConfig.preset === option.key
-                    ? 'var(--theme-primary)'
-                    : 'var(--theme-text)',
-              }}
-            >
-              <div className="font-medium">{option.label}</div>
-              <div
-                className="text-xs mt-0.5 opacity-70"
-                style={{ color: 'var(--theme-text-muted)' }}
+        <div className="grid grid-cols-1 gap-2">
+          {PRESET_STYLE_OPTIONS.map((option) => {
+            const selected = styleConfig.preset === option.key
+            return (
+              <button
+                key={option.key}
+                onClick={() =>
+                  setPreset(selected ? null : option.key as PresetStyle)
+                }
+                className="text-left px-3 py-2.5 rounded-xl border text-xs transition-all hover:brightness-110"
+                style={{
+                  background: selected ? 'var(--theme-primary)22' : 'var(--theme-surface)',
+                  borderColor: selected ? 'var(--theme-primary)' : 'var(--theme-border)',
+                  color: selected ? 'var(--theme-primary)' : 'var(--theme-text)',
+                }}
               >
-                {option.description}
-              </div>
-            </button>
-          ))}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium">{option.emoji} {option.label}</span>
+                    <span
+                      className="ml-2 opacity-70"
+                      style={{ color: 'var(--theme-text-muted)' }}
+                    >
+                      {option.description}
+                    </span>
+                  </div>
+                  {selected && <span style={{ color: 'var(--theme-primary)' }}>✓</span>}
+                </div>
+                <p
+                  className="text-xs mt-1 italic opacity-60"
+                  style={{ color: selected ? 'var(--theme-primary)' : 'var(--theme-text-muted)' }}
+                >
+                  「{option.example}」
+                </p>
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -113,7 +118,6 @@ export default function StyleEditor() {
           className="rounded-xl border p-3 space-y-2"
           style={{ borderColor: 'var(--theme-border)', background: 'rgba(255,255,255,0.02)' }}
         >
-          {/* 文件上传 */}
           <div className="flex items-center gap-2">
             <label
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-all hover:brightness-110"
@@ -138,7 +142,6 @@ export default function StyleEditor() {
             )}
           </div>
 
-          {/* 粘贴文本 */}
           <textarea
             rows={3}
             placeholder="或者直接粘贴文章内容…"
@@ -157,7 +160,6 @@ export default function StyleEditor() {
             {analyzing ? '分析中…' : '🔍 AI 分析文笔风格'}
           </button>
 
-          {/* 分析结果 */}
           {styleConfig.analyzedStyle && (
             <div
               className="rounded-lg p-2.5 text-xs leading-relaxed animate-fade-in-up"
@@ -167,10 +169,7 @@ export default function StyleEditor() {
                 color: 'var(--theme-text-muted)',
               }}
             >
-              <span
-                className="font-semibold block mb-1"
-                style={{ color: 'var(--theme-primary)' }}
-              >
+              <span className="font-semibold block mb-1" style={{ color: 'var(--theme-primary)' }}>
                 ✨ 分析结果
               </span>
               {styleConfig.analyzedStyle}
