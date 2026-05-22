@@ -27,6 +27,7 @@ import StatusDeltaToast from '@/components/game/StatusDeltaToast'
 import SaveMenu from '@/components/game/SaveAsModal'
 import WorldConfigModal from '@/components/game/WorldConfigModal'
 import StyleSwitchPanel from '@/components/game/StyleSwitchPanel'
+import { useRelationshipStore } from '@/stores/relationshipStore'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -70,6 +71,7 @@ export default function GamePage() {
   const { addOrUpdate } = useSaveStore()
   const { addSummary } = useSummaryStore()
   const { addClue } = useClueStore()
+  const { initFromNPCs, applyUpdate: applyRelationshipUpdate } = useRelationshipStore()
 
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [newClueFound, setNewClueFound] = useState(false)
@@ -226,6 +228,27 @@ export default function GamePage() {
     // 摘要：读最新 messages（含刚加入的 narratorMsg）
     await triggerSummaryIfNeeded(turn + 1, [...messages, narratorMsg], currentGenre)
 
+    // 关系图谱：异步提取，不阻塞主流程
+    if (currentWorld.npcs.length > 0) {
+      fetch('/api/relationship', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          narratorText: cleanText,
+          npcs: currentWorld.npcs,
+          protagonistName: currentWorld.protagonistName,
+          turn: turn + 1,
+        }),
+      })
+        .then((r) => r.json())
+        .then(({ updates }) => {
+          updates?.forEach((u: Parameters<typeof applyRelationshipUpdate>[0]) =>
+            applyRelationshipUpdate(u)
+          )
+        })
+        .catch(() => {})  // 关系提取失败不影响游戏
+    }
+
     const autoSave: SaveRecord = {
       id: currentWorld.worldName + '-' + currentGenre,
       createdAt: Date.now(),
@@ -259,6 +282,11 @@ export default function GamePage() {
     // 如果刷新时恰好中断了流式输出，清理残留状态
     if (isStreaming) {
       useGameStore.setState({ isStreaming: false, streamingText: '', currentChoices: [] })
+    }
+
+    // 初始化 NPC 关系（已有的不会覆盖）
+    if (wc.npcs.length > 0) {
+      initFromNPCs(wc.npcs)
     }
 
     if (msgs.length === 0) {
@@ -456,6 +484,18 @@ export default function GamePage() {
                 📚
               </button>
             )}
+            <button
+              onClick={() => router.push('/relationships')}
+              className="px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+              title="角色关系图谱"
+            >
+              🕸️
+            </button>
             {genre === 'mystery' && (
               <button
                 onClick={() => router.push('/clues')}
