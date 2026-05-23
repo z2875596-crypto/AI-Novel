@@ -81,6 +81,7 @@ export default function SetupPage() {
       openingScene: data.openingScene ?? '',
       npcs,
       targetEnding: worldConfig.targetEnding,
+      narrativePOV: worldConfig.narrativePOV ?? 'second',
     })
   }
 
