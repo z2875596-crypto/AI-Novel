@@ -9,8 +9,9 @@ import { useGameStore } from '@/stores/gameStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import { Message } from '@/types/game'
+import { GenreConfig } from '@/types/genre'
 
-function MessageBubble({ msg, config }: { msg: Message; config: ReturnType<typeof GENRE_CONFIG[keyof typeof GENRE_CONFIG]> }) {
+function MessageBubble({ msg, config }: { msg: Message; config: GenreConfig }) {
   if (msg.role === 'player') {
     return (
       <div className="flex justify-end">
