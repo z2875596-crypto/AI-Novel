@@ -1,36 +1,176 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 鸢叙 · AI 互动小说
 
-## Getting Started
+> 由 AI 驱动的沉浸式互动小说平台，每一个选择都将改写故事的走向。
 
-First, run the development server:
+---
+
+## ✨ 项目简介
+
+**鸢叙**是一款基于大语言模型的互动小说应用。玩家可以自由选择题材、设定世界观与主角，然后通过选择或自由输入驱动剧情发展，体验专属于自己的故事。
+
+---
+
+## 🎭 支持题材
+
+| 题材 | 特色状态栏 |
+|------|-----------|
+| 🌹 言情 | 好感度、心动值 |
+| ⚡ 玄幻 | 灵力、境界 |
+| 🔍 悬疑 | 线索数、理智值 |
+| 🏯 古装 | 声望、势力 |
+| ✨ 魔法 | 灵力、境界 |
+| 🌃 都市 | 人脉、金钱 |
+| 🩸 恐怖 | 恐惧值、理智值 |
+| 😂 搞笑 | 抓马程度 |
+
+---
+
+## 🚀 核心功能
+
+**剧情生成**
+- 流式输出，打字机效果实时呈现
+- 每回合自动生成 3 个差异化选项，支持自由输入
+- 选项并行生成，等待时间大幅缩短
+
+**世界构建**
+- 自定义世界观、主角、配角
+- AI 一键随机生成完整世界设定
+- 三种叙述视角：第一人称 / 第二人称 / 第三人称
+
+**章节系统**
+- 每 20 回合自动生成章节摘要与标题
+- 章节目录支持展开查看完整对话记录
+- 进度条显示当前章节进度
+
+**角色关系图谱**
+- AI 自动追踪主角与 NPC 的关系变化
+- SVG 可视化图谱，连线颜色对应关系类型
+- 支持好感度历史、关键事件记录
+
+**回溯改写**
+- 点击历史叙述节点，从任意位置开启新分支
+- 原主线存档完整保留，支持多条并行故事线
+- 分支存档在存档列表中独立标注
+
+**文笔风格**
+- 9 种预设风格：简练克制、抒情细腻、武侠文言、轻小说、纯文学等
+- 支持自定义文字描述风格
+- AI 分析上传文本，提取文笔特征并应用
+
+**存档系统**
+- 自动存档 + 手动多槽存档
+- 刷新页面进度完整保留（localStorage 持久化）
+- 存档支持预览回合数、章节、状态快照
+
+**悬疑专属**
+- AI 自动提取线索，结构化存入线索库
+- 线索分类（人物 / 物品 / 地点 / 事件）与重要程度标注
+- 线索库支持浏览与关联查看
+
+**其他**
+- BGM 背景音乐控制
+- TTS 文字转语音朗读
+- 多结局系统（好结局 / 坏结局 / 真结局 / 隐藏结局）
+
+---
+
+## 🛠️ 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 框架 | Next.js 16 (App Router) |
+| 语言 | TypeScript |
+| 状态管理 | Zustand + persist |
+| 样式 | Tailwind CSS v4 |
+| AI | DeepSeek API（兼容 OpenAI SDK）|
+| 运行时 | React 19 |
+
+---
+
+## 📦 快速开始
+
+**1. 克隆项目**
+
+```bash
+git clone https://github.com/z2875596-crypto/AI-Novel.git
+cd AI-Novel
+```
+
+**2. 安装依赖**
+
+```bash
+npm install
+```
+
+**3. 配置环境变量**
+
+在项目根目录新建 `.env.local`：
+
+```env
+DEEPSEEK_API_KEY=你的 DeepSeek API Key
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
+```
+
+> 叙述生成建议使用 `deepseek-reasoner` 或 `deepseek-v3` 以获得更好的故事质量；选项生成、关系提取等辅助功能已自动使用 `deepseek-chat` 以提升速度。
+
+**4. 启动开发服务器**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 [http://localhost:3000](http://localhost:3000) 即可开始体验。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 项目结构
 
-## Learn More
+```
+ai-novel/
+├── app/
+│   ├── api/                  # 后端 API 路由
+│   │   ├── story/            # 剧情生成（流式）& 选项生成
+│   │   ├── worldgen/         # 世界观随机生成
+│   │   ├── summary/          # 章节摘要生成
+│   │   ├── relationship/     # 角色关系提取
+│   │   └── analyze-style/    # 文笔风格分析
+│   ├── game/                 # 游戏主页面
+│   ├── setup/                # 世界观配置页
+│   ├── saves/                # 存档管理页
+│   ├── chapters/             # 章节目录页
+│   ├── relationships/        # 角色关系图谱页
+│   └── clues/                # 线索库页（悬疑）
+├── components/
+│   ├── game/                 # 游戏内组件
+│   └── setup/                # 配置页组件
+├── stores/                   # Zustand 状态管理
+│   ├── gameStore.ts          # 游戏核心状态
+│   ├── saveStore.ts          # 存档管理
+│   ├── summaryStore.ts       # 章节摘要
+│   ├── relationshipStore.ts  # 角色关系
+│   ├── styleStore.ts         # 文笔风格
+│   └── ...
+├── lib/
+│   ├── prompts/              # AI Prompt 模板
+│   └── themeConfig.ts        # 题材主题配置
+└── types/                    # TypeScript 类型定义
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎮 使用流程
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+选择题材 → 配置世界观（或 AI 随机生成）→ 设定主角与视角
+    ↓
+进入游戏 → 阅读 AI 叙述 → 选择行动或自由输入
+    ↓
+剧情推进 → 状态变化 → 章节积累 → 触发结局
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License © 2025
