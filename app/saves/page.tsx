@@ -35,16 +35,46 @@ export default function SavesPage() {
       persisted.turn === save.turn &&
       persisted.messages.length > 0
 
+    const restoredMessages = isSameGame ? persisted.messages : save.recentHistory
+    const restoredChoices = isSameGame ? persisted.currentChoices : []
+
     useGameStore.setState({
       turn: save.turn,
       status: save.statusSnapshot,
-      // 同设备：用 gameStore 里持久化的完整 messages 和 choices
-      // 跨设备/换存档：降级用存档里的 recentHistory，choices 清空
-      messages: isSameGame ? persisted.messages : save.recentHistory,
-      currentChoices: isSameGame ? persisted.currentChoices : [],
+      messages: restoredMessages,
+      currentChoices: restoredChoices,
       isStreaming: false,
       streamingText: '',
     })
+
+    // 跨设备或换存档时，持久化 choices 为空，重新生成一次
+    if (!isSameGame || restoredChoices.length === 0) {
+      const lastNarrator = restoredMessages
+        .filter((m) => m.role === 'narrator')
+        .slice(-1)[0]
+
+      if (lastNarrator) {
+        fetch('/api/story/choices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            genre: save.genre,
+            lastNarratorText: lastNarrator.content,
+            status: save.statusSnapshot,
+            turn: save.turn + 1,
+            protagonistName: save.worldConfig.protagonistName,
+            narrativePOV: save.worldConfig.narrativePOV ?? 'second',
+          }),
+        })
+          .then((r) => r.json())
+          .then(({ choices }) => {
+            if (choices?.length > 0) {
+              useGameStore.setState({ currentChoices: choices })
+            }
+          })
+          .catch(() => {})
+      }
+    }
 
     router.push('/game')
   }
