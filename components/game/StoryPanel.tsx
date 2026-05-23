@@ -103,9 +103,11 @@ export default function StoryPanel() {
     }
   }, [])
 
+  const currentChoices = useGameStore((s) => s.currentChoices)
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, displayText])
+  }, [messages, displayText, currentChoices])
 
   return (
     <div
