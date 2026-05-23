@@ -53,13 +53,19 @@ export function parseClues(text: string): {
 
     if (parsed && parsed.id && parsed.name) {
       clues.push({
-        id: parsed.id,
-        name: parsed.name,
-        description: parsed.description ?? '',
-        category: parsed.category ?? 'other',
-        importance: parsed.importance ?? 'medium',
-        relatedClues: Array.isArray(parsed.relatedClues) ? parsed.relatedClues : [],
-        revelation: parsed.revelation ?? '',
+        id: String(parsed.id),
+        name: String(parsed.name),
+        description: parsed.description ? String(parsed.description) : '',
+        category: (['person', 'object', 'location', 'event', 'other'].includes(String(parsed.category))
+          ? parsed.category
+          : 'other') as 'person' | 'object' | 'location' | 'event' | 'other',
+        importance: (['low', 'medium', 'high'].includes(String(parsed.importance))
+          ? parsed.importance
+          : 'medium') as 'low' | 'medium' | 'high',
+        relatedClues: Array.isArray(parsed.relatedClues)
+          ? (parsed.relatedClues as unknown[]).map(String)
+          : [],
+        revelation: parsed.revelation ? String(parsed.revelation) : '',
       })
     }
   }
