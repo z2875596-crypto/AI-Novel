@@ -1,6 +1,7 @@
 'use client'
 
 import { useWorldStore } from '@/stores/worldStore'
+import PolishButton from './PolishButton'
 
 export default function WorldEditor() {
   const worldConfig = useWorldStore((s) => s.worldConfig)
@@ -35,9 +36,16 @@ export default function WorldEditor() {
       </div>
 
       <div>
-        <label className="block text-xs mb-1.5" style={{ color: 'var(--theme-text-muted)' }}>
-          世界背景 <span style={{ color: 'var(--theme-primary)' }}>*</span>
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+            世界背景 <span style={{ color: 'var(--theme-primary)' }}>*</span>
+          </label>
+          <PolishButton
+            content={worldConfig.worldSetting}
+            target="worldSetting"
+            onPolished={(result) => updateField('worldSetting', result)}
+          />
+        </div>
         <textarea
           rows={3}
           placeholder="描述这个世界的背景、规则、氛围…"

@@ -2,6 +2,7 @@
 
 import { useWorldStore } from '@/stores/worldStore'
 import { NPC, NARRATIVE_POV_OPTIONS, NarrativePOV } from '@/types/world'
+import PolishButton from './PolishButton'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -58,10 +59,18 @@ export default function CharacterEditor() {
               style={inputStyle}
             />
           </div>
+
           <div>
-            <label className="block text-xs mb-1.5" style={{ color: 'var(--theme-text-muted)' }}>
-              性格与外貌 <span style={{ color: 'var(--theme-primary)' }}>*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                性格与外貌 <span style={{ color: 'var(--theme-primary)' }}>*</span>
+              </label>
+              <PolishButton
+                content={worldConfig.protagonistTraits}
+                target="protagonistTraits"
+                onPolished={(result) => updateField('protagonistTraits', result)}
+              />
+            </div>
             <textarea
               rows={2}
               placeholder="描述主角的性格特征、外貌特点…"
@@ -72,7 +81,7 @@ export default function CharacterEditor() {
             />
           </div>
 
-          {/* 叙述视角选择 */}
+          {/* 叙述视角 */}
           <div>
             <label className="block text-xs mb-2" style={{ color: 'var(--theme-text-muted)' }}>
               叙述视角 <span style={{ color: 'var(--theme-primary)' }}>*</span>
@@ -86,15 +95,9 @@ export default function CharacterEditor() {
                     onClick={() => updateField('narrativePOV', opt.key as NarrativePOV)}
                     className="rounded-lg border px-3 py-2.5 text-left transition-all hover:brightness-110"
                     style={{
-                      background: selected
-                        ? 'var(--theme-primary)22'
-                        : 'var(--theme-surface)',
-                      borderColor: selected
-                        ? 'var(--theme-primary)'
-                        : 'var(--theme-border)',
-                      color: selected
-                        ? 'var(--theme-primary)'
-                        : 'var(--theme-text)',
+                      background: selected ? 'var(--theme-primary)22' : 'var(--theme-surface)',
+                      borderColor: selected ? 'var(--theme-primary)' : 'var(--theme-border)',
+                      color: selected ? 'var(--theme-primary)' : 'var(--theme-text)',
                     }}
                   >
                     <p className="text-sm font-semibold">{opt.label}</p>
@@ -108,7 +111,6 @@ export default function CharacterEditor() {
                 )
               })}
             </div>
-            {/* 示例预览 */}
             <p
               className="text-xs mt-2 px-3 py-2 rounded-lg italic"
               style={{
@@ -122,9 +124,16 @@ export default function CharacterEditor() {
           </div>
 
           <div>
-            <label className="block text-xs mb-1.5" style={{ color: 'var(--theme-text-muted)' }}>
-              开场场景 <span style={{ color: 'var(--theme-primary)' }}>*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                开场场景 <span style={{ color: 'var(--theme-primary)' }}>*</span>
+              </label>
+              <PolishButton
+                content={worldConfig.openingScene}
+                target="openingScene"
+                onPolished={(result) => updateField('openingScene', result)}
+              />
+            </div>
             <textarea
               rows={2}
               placeholder="故事从哪里开始？主角当下的处境是什么？"
@@ -137,6 +146,7 @@ export default function CharacterEditor() {
         </div>
       </div>
 
+      {/* 配角 */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold" style={{ color: 'var(--theme-primary)' }}>
@@ -145,10 +155,7 @@ export default function CharacterEditor() {
           <button
             onClick={addNPC}
             className="text-xs px-3 py-1.5 rounded-lg border transition-all hover:brightness-110"
-            style={{
-              borderColor: 'var(--theme-primary)',
-              color: 'var(--theme-primary)',
-            }}
+            style={{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }}
           >
             + 添加配角
           </button>
@@ -165,10 +172,7 @@ export default function CharacterEditor() {
             <div
               key={npc.id}
               className="rounded-xl border p-3 space-y-2"
-              style={{
-                borderColor: 'var(--theme-border)',
-                background: 'rgba(255,255,255,0.03)',
-              }}
+              style={{ borderColor: 'var(--theme-border)', background: 'rgba(255,255,255,0.03)' }}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium" style={{ color: 'var(--theme-text-muted)' }}>
@@ -200,14 +204,21 @@ export default function CharacterEditor() {
                   style={inputStyle}
                 />
               </div>
-              <input
-                type="text"
-                placeholder="性格外貌特点"
-                value={npc.traits}
-                onChange={(e) => updateNPC(npc.id, 'traits', e.target.value)}
-                className={inputClass}
-                style={inputStyle}
-              />
+              <div className="flex items-start gap-2">
+                <textarea
+                  rows={1}
+                  placeholder="性格外貌特点"
+                  value={npc.traits}
+                  onChange={(e) => updateNPC(npc.id, 'traits', e.target.value)}
+                  className={`${inputClass} resize-none flex-1`}
+                  style={inputStyle}
+                />
+                <PolishButton
+                  content={npc.traits}
+                  target="npcTraits"
+                  onPolished={(result) => updateNPC(npc.id, 'traits', result)}
+                />
+              </div>
             </div>
           ))}
         </div>
