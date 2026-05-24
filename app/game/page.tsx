@@ -311,6 +311,45 @@ export default function GamePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ─── 键盘快捷键 ───────────────────────────────────────────────────────────
+  // A/B/C/D → 选择对应选项
+  // / 或 F → 聚焦自由输入框
+  useEffect(() => {
+    const inputRef = document.querySelector<HTMLInputElement>('input[placeholder*="自由输入"]')
+
+    function handleKeyDown(e: KeyboardEvent) {
+      // 如果焦点在输入框里，不触发快捷键
+      const active = document.activeElement
+      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return
+
+      const { isStreaming, currentChoices } = useGameStore.getState()
+      if (isStreaming) return
+
+      const key = e.key.toUpperCase()
+
+      // A/B/C/D 选择选项
+      if (['A', 'B', 'C', 'D'].includes(key)) {
+        const idx = ['A', 'B', 'C', 'D'].indexOf(key)
+        if (currentChoices[idx]) {
+          e.preventDefault()
+          handleActionRef.current(currentChoices[idx])
+        }
+        return
+      }
+
+      // / 或 F 聚焦输入框
+      if (key === '/' || key === 'F') {
+        e.preventDefault()
+        const input = document.querySelector<HTMLInputElement>('input[placeholder*="自由输入"]')
+        input?.focus()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function triggerSummaryIfNeeded(
     currentTurn: number,
     currentMessages: Message[],
