@@ -5,6 +5,8 @@ export type GenreKey =
   | 'magic'
   | 'mystery'
   | 'horror'
+  | 'scifi'
+  | 'apocalypse'
 
 export interface StatusBarItem {
   key: string

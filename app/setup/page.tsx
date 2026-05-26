@@ -22,6 +22,8 @@ import AncientBackground from '@/components/home/backgrounds/AncientBackground'
 import MagicBackground from '@/components/home/backgrounds/MagicBackground'
 import UrbanBackground from '@/components/home/backgrounds/UrbanBackground'
 import HorrorBackground from '@/components/home/backgrounds/HorrorBackground'
+import ScifiBackground from '@/components/home/backgrounds/ScifiBackground'
+import ApocalypseBackground from '@/components/home/backgrounds/ApocalypseBackground'
 import RandomBackground from '@/components/home/backgrounds/RandomBackground'
 
 function uid() {
@@ -36,6 +38,8 @@ function GenreBackgroundForSetup({ genre }: { genre: string }) {
     case 'magic': return <MagicBackground />
     case 'urban': return <UrbanBackground />
     case 'horror': return <HorrorBackground />
+    case 'scifi': return <ScifiBackground />
+    case 'apocalypse': return <ApocalypseBackground />
     default: return <RandomBackground />
   }
 }

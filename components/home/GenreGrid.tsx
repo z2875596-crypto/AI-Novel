@@ -14,6 +14,7 @@ import GenreBackground from './GenreBackground'
 const DISPLAY_GENRES: GenreKey[] = [
   'urban', 'ancient', 'xuanhuan',
   'magic', 'mystery', 'horror',
+  'scifi', 'apocalypse',
 ]
 
 export default function GenreGrid() {
@@ -105,6 +106,8 @@ export default function GenreGrid() {
                 style={{
                   background: cfg.theme.surface,
                   border: `1px solid ${cfg.theme.border}`,
+                  ...(key === 'scifi' && { boxShadow: '0 0 15px #00BFFF22' }),
+                  ...(key === 'apocalypse' && { border: '1px solid #FF6B3544' }),
                   animationDelay: `${i * 0.06}s`,
                   animationFillMode: 'backwards',
                 }}
@@ -242,7 +245,7 @@ export default function GenreGrid() {
             随机
           </span>
           <span className="text-xs text-center relative z-10 opacity-50 group-hover:opacity-80 transition-opacity">
-            随机抽一种题材
+            随机抽一种题材开始冒险
           </span>
         </button>
       </div>

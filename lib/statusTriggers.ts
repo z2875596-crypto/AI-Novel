@@ -194,6 +194,68 @@ export const STATUS_TRIGGERS: Record<GenreKey, StatusTrigger[]> = {
       instruction: '【理智值极高】主角保持着难得的清醒，可以触发发现其他人没有注意到的关键细节，或者冷静制定逃脱计划的场景。',
     },
   ],
+
+  scifi: [
+    {
+      key: 'tech',
+      condition: 'gte',
+      threshold: 80,
+      level: 'high',
+      instruction: '【科技值极高】主角掌握了尖端科技或接触到了高等文明，可以触发重大科技突破、AI觉醒或星际探索的关键场景。',
+    },
+    {
+      key: 'tech',
+      condition: 'lte',
+      threshold: 20,
+      level: 'low',
+      instruction: '【科技值极低】主角的技术设备严重落后或损坏，陷入技术困境，可以触发被迫寻找替代方案或遭遇技术封锁的场景。',
+    },
+    {
+      key: 'trust',
+      condition: 'gte',
+      threshold: 80,
+      level: 'high',
+      instruction: '【信任度极高】主角获得了关键盟友的完全信赖，可以触发联合行动、共享机密情报或组建联盟的场景。',
+    },
+    {
+      key: 'trust',
+      condition: 'lte',
+      threshold: 20,
+      level: 'low',
+      instruction: '【信任度极低】主角被孤立或背叛，在科技世界中孤立无援，可以触发被组织抛弃、遭遇AI背叛或被迫独自行动的场景。',
+    },
+  ],
+
+  apocalypse: [
+    {
+      key: 'survival',
+      condition: 'gte',
+      threshold: 80,
+      level: 'high',
+      instruction: '【生存值极高】主角建立了稳固的生存据点，资源充足，可以触发扩张领地、招募幸存者或主动出击对抗威胁的场景。',
+    },
+    {
+      key: 'survival',
+      condition: 'lte',
+      threshold: 20,
+      level: 'low',
+      instruction: '【生存值极低】主角物资耗尽、身负重伤，处于生死一线，可以触发绝境求生、铤而走险或发现隐藏资源的场景。',
+    },
+    {
+      key: 'sanity',
+      condition: 'lte',
+      threshold: 20,
+      level: 'low',
+      instruction: '【理智极低】主角精神濒临崩溃，末世的重压让他/她做出非理性决定，可以触发幻觉、对人性的怀疑或与同伴产生严重分歧的场景。',
+    },
+    {
+      key: 'sanity',
+      condition: 'gte',
+      threshold: 85,
+      level: 'high',
+      instruction: '【理智极高】主角在绝境中保持清醒和领导力，成为幸存者中的明灯，可以触发制定关键策略、鼓舞士气或发现希望的场景。',
+    },
+  ],
 }
 
 /** 根据当前状态检查触发条件，返回需要注入的额外指令 */

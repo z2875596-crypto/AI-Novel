@@ -150,6 +150,28 @@ const BGM_GENERATORS: Record<GenreKey, (ctx: AudioContext) => void> = {
     const drone = createTone(ctx, 29.14, 0.06, 'triangle')
     createVibrato(ctx, drone, 0.1, 2)
   },
+
+  scifi: (ctx) => {
+    // 科幻：合成器感的高频泛音 + 低频脉冲
+    const freqs = [261.63, 392.0, 523.25, 783.99]
+    freqs.forEach((f, i) => {
+      const osc = createTone(ctx, f, 0.025, 'sawtooth')
+      createVibrato(ctx, osc, 0.5 + i * 0.3, 3)
+    })
+    createTone(ctx, 32.7, 0.06, 'sine')
+    createTone(ctx, 65.41, 0.03, 'triangle')
+    createNoise(ctx, 0.01)
+  },
+
+  apocalypse: (ctx) => {
+    // 末世：低沉轰鸣 + 不协和工业感
+    createTone(ctx, 27.5, 0.1, 'sine')
+    createTone(ctx, 55, 0.06, 'sawtooth')
+    createTone(ctx, 41.2, 0.04, 'square')
+    createNoise(ctx, 0.03)
+    const drone = createTone(ctx, 20.6, 0.08, 'triangle')
+    createVibrato(ctx, drone, 0.08, 3)
+  },
 }
 
 /** 启动题材 BGM */

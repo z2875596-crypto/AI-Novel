@@ -8,6 +8,8 @@ import AncientBackground from './backgrounds/AncientBackground'
 import MagicBackground from './backgrounds/MagicBackground'
 import UrbanBackground from './backgrounds/UrbanBackground'
 import HorrorBackground from './backgrounds/HorrorBackground'
+import ScifiBackground from './backgrounds/ScifiBackground'
+import ApocalypseBackground from './backgrounds/ApocalypseBackground'
 import RandomBackground from './backgrounds/RandomBackground'
 
 interface Props {
@@ -26,6 +28,8 @@ export default function GenreBackground({ hoveredGenre }: Props) {
       {hoveredGenre === 'magic' && <MagicBackground />}
       {hoveredGenre === 'urban' && <UrbanBackground />}
       {hoveredGenre === 'horror' && <HorrorBackground />}
+      {hoveredGenre === 'scifi' && <ScifiBackground />}
+      {hoveredGenre === 'apocalypse' && <ApocalypseBackground />}
       {hoveredGenre === 'random' && <RandomBackground />}
     </div>
   )

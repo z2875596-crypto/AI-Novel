@@ -127,6 +127,48 @@ export const GENRE_CONFIG: Record<GenreKey, GenreConfig> = {
       fontFamily: 'horror',
     },
   },
+  scifi: {
+    key: 'scifi',
+    label: '科幻未来',
+    emoji: '🚀',
+    description: '星际文明，赛博朋克与AI觉醒',
+    bars: [
+      { key: 'tech', label: '科技值', max: 100, color: '#00BFFF' },
+      { key: 'trust', label: '信任度', max: 100, color: '#7EC8E3' },
+    ],
+    theme: {
+      primary: '#00BFFF',
+      secondary: '#009FCF',
+      background: '#050a10',
+      surface: '#0c2e48',
+      surfaceHover: '#143e58',
+      text: '#E8FAFF',
+      textMuted: '#90D0E0',
+      border: '#1a5070',
+      fontFamily: 'scifi',
+    },
+  },
+  apocalypse: {
+    key: 'apocalypse',
+    label: '末世求生',
+    emoji: '☢️',
+    description: '文明崩塌，绝境中的人性考验',
+    bars: [
+      { key: 'survival', label: '生存值', max: 100, color: '#FF6B35' },
+      { key: 'sanity', label: '理智', max: 100, color: '#FFAA55' },
+    ],
+    theme: {
+      primary: '#FF6B35',
+      secondary: '#CC5522',
+      background: '#0c0505',
+      surface: '#2c1408',
+      surfaceHover: '#402010',
+      text: '#FFE8D8',
+      textMuted: '#D8A090',
+      border: '#4a2820',
+      fontFamily: 'apocalypse',
+    },
+  },
 }
 
 export const ALL_GENRE_KEYS = Object.keys(GENRE_CONFIG) as GenreKey[]

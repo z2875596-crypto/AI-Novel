@@ -105,6 +105,38 @@ export const STATUS_VIBES: Record<GenreKey, Record<string, VibeLevel[]>> = {
       { min: 81, max: 100, icon: '🔦', label: '洞若观火', color: '#00AA00' },
     ],
   },
+  scifi: {
+    tech: [
+      { min: 0,  max: 20,  icon: '🔧', label: '原始工具', color: '#666666' },
+      { min: 21, max: 40,  icon: '💻', label: '基础科技', color: '#5BA0CF' },
+      { min: 41, max: 60,  icon: '🤖', label: 'AI辅助', color: '#00A0DF' },
+      { min: 61, max: 80,  icon: '🛸', label: '星际航行', color: '#00BFFF' },
+      { min: 81, max: 100, icon: '🌌', label: '文明巅峰', color: '#7EC8E3' },
+    ],
+    trust: [
+      { min: 0,  max: 20,  icon: '🚫', label: '被孤立', color: '#CC2222' },
+      { min: 21, max: 40,  icon: '🤨', label: '存疑', color: '#888888' },
+      { min: 41, max: 60,  icon: '🤝', label: '合作中', color: '#5BA0CF' },
+      { min: 61, max: 80,  icon: '✅', label: '信任', color: '#00BFFF' },
+      { min: 81, max: 100, icon: '🌟', label: '无条件信赖', color: '#7EC8E3' },
+    ],
+  },
+  apocalypse: {
+    survival: [
+      { min: 0,  max: 20,  icon: '💀', label: '濒死边缘', color: '#CC0000' },
+      { min: 21, max: 40,  icon: '🩹', label: '勉强支撑', color: '#FF4444' },
+      { min: 41, max: 60,  icon: '🏕️', label: '基本生存', color: '#FF6B35' },
+      { min: 61, max: 80,  icon: '🏰', label: '据点稳固', color: '#FF8C55' },
+      { min: 81, max: 100, icon: '🌟', label: '领袖崛起', color: '#FFAA55' },
+    ],
+    sanity: [
+      { min: 0,  max: 20,  icon: '🌀', label: '精神崩溃', color: '#CC0000' },
+      { min: 21, max: 40,  icon: '😰', label: '崩溃边缘', color: '#FF4444' },
+      { min: 41, max: 60,  icon: '😐', label: '咬牙坚持', color: '#FF6B35' },
+      { min: 61, max: 80,  icon: '💪', label: '意志坚定', color: '#FF8C55' },
+      { min: 81, max: 100, icon: '🔥', label: '不屈意志', color: '#FFAA55' },
+    ],
+  },
 }
 
 export function getVibe(
