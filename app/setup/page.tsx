@@ -16,14 +16,12 @@ import StyleEditor from '@/components/setup/StyleEditor'
 import TargetEndingEditor from '@/components/setup/TargetEndingEditor'
 import PlotBeatsEditor from '@/components/setup/PlotBeatsEditor'
 import { NPC } from '@/types/world'
-import RomanceBackground from '@/components/home/backgrounds/RomanceBackground'
 import XuanhuanBackground from '@/components/home/backgrounds/XuanhuanBackground'
 import MysteryBackground from '@/components/home/backgrounds/MysteryBackground'
 import AncientBackground from '@/components/home/backgrounds/AncientBackground'
 import MagicBackground from '@/components/home/backgrounds/MagicBackground'
 import UrbanBackground from '@/components/home/backgrounds/UrbanBackground'
 import HorrorBackground from '@/components/home/backgrounds/HorrorBackground'
-import ComedyBackground from '@/components/home/backgrounds/ComedyBackground'
 import RandomBackground from '@/components/home/backgrounds/RandomBackground'
 
 function uid() {
@@ -32,14 +30,12 @@ function uid() {
 
 function GenreBackgroundForSetup({ genre }: { genre: string }) {
   switch (genre) {
-    case 'romance': return <RomanceBackground />
     case 'xuanhuan': return <XuanhuanBackground />
     case 'mystery': return <MysteryBackground />
     case 'ancient': return <AncientBackground />
     case 'magic': return <MagicBackground />
     case 'urban': return <UrbanBackground />
     case 'horror': return <HorrorBackground />
-    case 'comedy': return <ComedyBackground />
     default: return <RandomBackground />
   }
 }

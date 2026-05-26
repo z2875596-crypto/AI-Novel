@@ -9,22 +9,6 @@ export interface VibeLevel {
 }
 
 export const STATUS_VIBES: Record<GenreKey, Record<string, VibeLevel[]>> = {
-  romance: {
-    affection: [
-      { min: 0,  max: 20,  icon: '💔', label: '疏远',   color: '#888888' },
-      { min: 21, max: 40,  icon: '🌸', label: '好感',   color: '#FFB7C5' },
-      { min: 41, max: 60,  icon: '💕', label: '心动',   color: '#FF8FAB' },
-      { min: 61, max: 80,  icon: '❤️', label: '深情',   color: '#E8607A' },
-      { min: 81, max: 100, icon: '💗', label: '热恋',   color: '#FF1744' },
-    ],
-    heartbeat: [
-      { min: 0,  max: 20,  icon: '😶', label: '平静',   color: '#888888' },
-      { min: 21, max: 40,  icon: '😊', label: '微动',   color: '#FFB7C5' },
-      { min: 41, max: 60,  icon: '😍', label: '心跳',   color: '#FF8FAB' },
-      { min: 61, max: 80,  icon: '🥰', label: '沦陷',   color: '#E8607A' },
-      { min: 81, max: 100, icon: '💘', label: '无法自拔', color: '#FF1744' },
-    ],
-  },
   mystery: {
     clues: [
       { min: 0,  max: 3,   icon: '🌫️', label: '毫无头绪', color: '#888888' },
@@ -119,15 +103,6 @@ export const STATUS_VIBES: Record<GenreKey, Record<string, VibeLevel[]>> = {
       { min: 41, max: 60,  icon: '😶', label: '尚能坚持', color: '#556B2F' },
       { min: 61, max: 80,  icon: '🧠', label: '头脑清醒', color: '#4A7C4E' },
       { min: 81, max: 100, icon: '🔦', label: '洞若观火', color: '#00AA00' },
-    ],
-  },
-  comedy: {
-    drama: [
-      { min: 0,  max: 20,  icon: '😴', label: '平淡如水', color: '#666666' },
-      { min: 21, max: 40,  icon: '😄', label: '小有笑点', color: '#7BC67E' },
-      { min: 41, max: 60,  icon: '🤣', label: '笑料百出', color: '#5BAD5E' },
-      { min: 61, max: 80,  icon: '🎭', label: '抓马现场', color: '#4A9B4D' },
-      { min: 81, max: 100, icon: '🌋', label: '史诗级抓马', color: '#FF6B35' },
     ],
   },
 }

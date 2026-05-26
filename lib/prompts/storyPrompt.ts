@@ -3,19 +3,19 @@ import { WorldConfig, NarrativePOV } from '@/types/world'
 import { Message } from '@/types/game'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { StyleConfig } from '@/stores/styleStore'
+import { SubplotKey } from '@/types/subplot'
+import { SUBPLOT_OPTIONS } from '@/types/subplot'
 import { buildStyleInstruction } from './stylePrompt'
 import { getStatusTriggerInstructions } from '@/lib/statusTriggers'
 import { CLUE_EXTRACTION_INSTRUCTION } from './cluePrompt'
 
 const GENRE_PERSONA: Record<GenreKey, string> = {
-  romance: '你是一位擅长言情小说的作家，文风细腻温柔，善于描写人物心理和情感波动，笔下的爱情故事让人心跳加速。',
-  xuanhuan: '你是一位玄幻小说大师，世界观宏大，修炼体系严谨，文风大气磅礴，善于描写激烈的战斗和修炼突破的震撼感。',
-  mystery: '你是一位悬疑推理作家，逻辑缜密，善于布置线索和反转，文风简练克制，每一句话都可能是关键伏笔。',
-  ancient: '你是一位古装宫廷小说作家，精通历史典故，善写权谋博弈与江湖恩怨，文风典雅，古意盎然。',
-  magic: '你是一位奇幻魔法小说作家，想象力丰富，魔法体系独特而有趣，文风充满奇幻色彩，让人沉浸在神奇的魔法世界中。',
-  urban: '你是一位都市小说作家，贴近现代生活，善写职场、商战与人际关系，文风干练，节奏明快。',
-  horror: '你是一位恐怖小说作家，善于营造压抑恐惧的氛围，文字充满张力，细节描写让人毛骨悚然，但始终保持叙事逻辑。',
-  comedy: '你是一位喜剧小说作家，脑洞清奇，对话幽默，善于制造意想不到的搞笑反转，让读者忍俊不禁。',
+  urban: '你是一位都市小说作家，贴近现代生活，善写职场商战、人际博弈与城市众生相，文风干练，节奏明快，细节真实。',
+  ancient: '你是一位古装历史小说作家，精通朝堂权谋与江湖恩怨，善用典故，文风典雅古意，人物有血有肉，局势错综复杂。',
+  xuanhuan: '你是一位玄幻修仙小说作家，世界观宏大，修炼体系严谨，文风大气磅礴，善写战斗突破的震撼与修炼路上的艰辛。',
+  magic: '你是一位西幻魔法小说作家，想象力丰富，魔法体系独特，善写奇异生物与魔法世界的奇观，充满探险与奇遇的气息。',
+  mystery: '你是一位悬疑推理作家，逻辑缜密，善于布置线索和反转，文风简练克制，每一个细节都可能是关键伏笔。',
+  horror: '你是一位恐怖惊悚小说作家，善于营造压抑恐惧的氛围，文字充满张力，用克制的笔触让读者毛骨悚然。',
 }
 
 // ─── ① 题材动态参数 ────────────────────────────────────────────────────────
@@ -28,26 +28,12 @@ interface GenreWritingParams {
 }
 
 const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
-  romance: {
-    minWords: 150,
-    maxWords: 220,
-    pace: '节奏舒缓，留有回味空间',
-    focus: '人物内心活动、微表情、肢体语言、情感暗流',
-    sentenceStyle: '长短句交替，多用细腻的感官描写，情感饱满',
-  },
-  xuanhuan: {
-    minWords: 130,
-    maxWords: 200,
-    pace: '战斗场面节奏紧凑，平静段落可适当舒缓',
-    focus: '功法描写、战斗动作、气势渲染、境界突破的震撼感',
-    sentenceStyle: '短促有力，多排比，气势磅礴',
-  },
-  mystery: {
-    minWords: 80,
-    maxWords: 130,
-    pace: '克制紧绷，信息密度高，每句话都有意义',
-    focus: '细节观察、异常之处、人物反应、环境氛围',
-    sentenceStyle: '短句为主，精准克制，留白丰富，不过度解释',
+  urban: {
+    minWords: 100,
+    maxWords: 160,
+    pace: '节奏明快，贴近现代生活',
+    focus: '对话、职场细节、人际博弈、城市氛围',
+    sentenceStyle: '口语化，干练利落，对话占比可适当提高',
   },
   ancient: {
     minWords: 130,
@@ -56,6 +42,13 @@ const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
     focus: '礼仪细节、权谋暗语、场景氛围、人物仪态',
     sentenceStyle: '文白夹杂，多四字短语，典雅而不晦涩',
   },
+  xuanhuan: {
+    minWords: 130,
+    maxWords: 200,
+    pace: '战斗场面节奏紧凑，平静段落可适当舒缓',
+    focus: '功法描写、战斗动作、气势渲染、境界突破的震撼感',
+    sentenceStyle: '短促有力，多排比，气势磅礴',
+  },
   magic: {
     minWords: 130,
     maxWords: 200,
@@ -63,12 +56,12 @@ const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
     focus: '魔法效果的视觉呈现、奇异生物、魔法世界的独特规则',
     sentenceStyle: '富有想象力，善用比喻，色彩感强',
   },
-  urban: {
-    minWords: 100,
-    maxWords: 160,
-    pace: '节奏明快，贴近现代生活',
-    focus: '对话、职场细节、人际博弈、现实质感',
-    sentenceStyle: '口语化，干练利落，对话占比可适当提高',
+  mystery: {
+    minWords: 80,
+    maxWords: 130,
+    pace: '克制紧绷，信息密度高，每句话都有意义',
+    focus: '细节观察、异常之处、人物反应、环境氛围',
+    sentenceStyle: '短句为主，精准克制，留白丰富，不过度解释',
   },
   horror: {
     minWords: 60,
@@ -76,13 +69,6 @@ const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
     pace: '极度克制，越简短越恐怖',
     focus: '感官异常、环境细节、不合理之处、心理恐惧',
     sentenceStyle: '极简短句，不过度描述，留白制造恐惧，禁止过度血腥',
-  },
-  comedy: {
-    minWords: 100,
-    maxWords: 170,
-    pace: '节奏轻快，反转频繁',
-    focus: '荒诞对比、意外反转、夸张表情动作、幽默对话',
-    sentenceStyle: '活泼口语化，善用夸张和反差，对话风趣',
   },
 }
 
@@ -159,10 +145,11 @@ interface BuildStoryPromptParams {
   turn: number
   styleConfig?: StyleConfig
   plotHint?: string
+  subplots?: SubplotKey[]
 }
 
 export function buildStoryMessages(params: BuildStoryPromptParams) {
-  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint } = params
+  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint, subplots } = params
   const config = GENRE_CONFIG[genre]
   const writingParams = GENRE_WRITING_PARAMS[genre]
   const pov: NarrativePOV = worldConfig.narrativePOV ?? 'second'
@@ -205,6 +192,19 @@ ${pendingBeats.map((b) => `- ${b.description}`).join('\n')}`
 ${plotHint}`
     : ''
 
+  const subplotInstruction = subplots && subplots.length > 0
+    ? `【副线风格要求】
+本故事包含以下副线，请在主线剧情推进的同时自然融入：
+${subplots
+  .map((key) => {
+    const opt = SUBPLOT_OPTIONS.find((o) => o.key === key)
+    return opt ? `- ${opt.emoji}${opt.label}：${opt.promptInstruction}` : ''
+  })
+  .filter(Boolean)
+  .join('\n')}
+注意：副线服务于主线，不能喧宾夺主。`
+    : ''
+
   const systemPrompt = `${GENRE_PERSONA[genre]}
 
 【世界设定】
@@ -229,7 +229,7 @@ ${plotHintInstruction ? '\n' + plotHintInstruction : ''}
 ${clueInstruction}
 
 ${povInstruction}
-
+${subplotInstruction ? '\n' + subplotInstruction + '\n' : ''}
 【写作规则】
 1. 你正在为玩家生成互动小说的下一段剧情，当前是第 ${turn} 回合
 2. 续写剧情时紧密结合玩家的行动选择，让玩家的选择产生明显影响

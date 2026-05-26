@@ -5,6 +5,7 @@ import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
 import { StyleConfig } from '@/stores/styleStore'
+import { SubplotKey } from '@/types/subplot'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
     turn,
     styleConfig,
     plotHint,
+    subplots,
   }: {
     genre: GenreKey
     worldConfig: WorldConfig
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
     turn: number
     styleConfig?: StyleConfig
     plotHint?: string
+    subplots?: SubplotKey[]
   } = body
 
   const { system, messages } = buildStoryMessages({
@@ -37,6 +40,7 @@ export async function POST(req: NextRequest) {
     turn,
     styleConfig,
     plotHint,
+    subplots,
   })
 
   const encoder = new TextEncoder()

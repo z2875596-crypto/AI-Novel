@@ -1,12 +1,10 @@
 export type GenreKey =
-  | 'romance'
-  | 'xuanhuan'
-  | 'mystery'
-  | 'ancient'
-  | 'magic'
   | 'urban'
+  | 'ancient'
+  | 'xuanhuan'
+  | 'magic'
+  | 'mystery'
   | 'horror'
-  | 'comedy'
 
 export interface StatusBarItem {
   key: string

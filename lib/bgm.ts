@@ -89,18 +89,6 @@ function createNoise(ctx: AudioContext, gain: number): AudioBufferSourceNode {
 
 /** 各题材 BGM 生成函数 */
 const BGM_GENERATORS: Record<GenreKey, (ctx: AudioContext) => void> = {
-  romance: (ctx) => {
-    // 温柔的和弦：C大调
-    const freqs = [261.63, 329.63, 392.0, 523.25]
-    freqs.forEach((f, i) => {
-      const osc = createTone(ctx, f, 0.06, 'sine')
-      createVibrato(ctx, osc, 0.3 + i * 0.1, 1.5)
-    })
-    // 高音旋律
-    const melody = createTone(ctx, 784.0, 0.03, 'sine')
-    createVibrato(ctx, melody, 0.5, 3)
-  },
-
   xuanhuan: (ctx) => {
     // 空灵的五声音阶：宫商角徵羽
     const freqs = [220, 246.94, 293.66, 349.23, 392.0]
@@ -161,16 +149,6 @@ const BGM_GENERATORS: Record<GenreKey, (ctx: AudioContext) => void> = {
     createNoise(ctx, 0.04)
     const drone = createTone(ctx, 29.14, 0.06, 'triangle')
     createVibrato(ctx, drone, 0.1, 2)
-  },
-
-  comedy: (ctx) => {
-    // 轻快：大调跳跃音型
-    const freqs = [392, 440, 523.25, 587.33, 659.25]
-    freqs.forEach((f, i) => {
-      const osc = createTone(ctx, f, 0.03, 'triangle')
-      createVibrato(ctx, osc, 1 + i * 0.3, 3)
-    })
-    createTone(ctx, 196, 0.04, 'sine')
   },
 }
 

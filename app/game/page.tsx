@@ -103,7 +103,7 @@ export default function GamePage() {
   handleActionRef.current = async (playerAction: string, isOpening = false) => {
     // 直接读最新状态，不依赖闭包捕获
     const { isStreaming: streaming, turn, status, messages, plotHint } = useGameStore.getState()
-    const { genre: currentGenre } = useGenreStore.getState()
+    const { genre: currentGenre, subplots } = useGenreStore.getState()
     const { worldConfig: currentWorld } = useWorldStore.getState()
     const { summaries } = useSummaryStore.getState()
     const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore.getState()
@@ -148,6 +148,7 @@ export default function GamePage() {
           turn,
           styleConfig,
           plotHint: plotHint || undefined,
+          subplots: subplots.length > 0 ? subplots : undefined,
         }),
       })
 

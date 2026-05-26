@@ -9,37 +9,6 @@ export interface StatusTrigger {
 }
 
 export const STATUS_TRIGGERS: Record<GenreKey, StatusTrigger[]> = {
-  romance: [
-    {
-      key: 'affection',
-      condition: 'gte',
-      threshold: 80,
-      level: 'high',
-      instruction: '【好感度极高】主角与对方的感情已经非常深厚，此时可以自然推进感情，触发表白、牵手或更亲密的场景，情感描写要细腻动人。',
-    },
-    {
-      key: 'affection',
-      condition: 'lte',
-      threshold: 20,
-      level: 'low',
-      instruction: '【好感度极低】对方对主角已经产生明显的冷淡或误解，此时应制造矛盾冲突，可能出现争吵、误会加深或短暂分离的场景。',
-    },
-    {
-      key: 'heartbeat',
-      condition: 'gte',
-      threshold: 85,
-      level: 'high',
-      instruction: '【心动值极高】主角内心已经无法自控地喜欢对方，心跳加速、脸红耳热，可以触发主角主动靠近或内心独白爆发的场景。',
-    },
-    {
-      key: 'heartbeat',
-      condition: 'lte',
-      threshold: 15,
-      level: 'low',
-      instruction: '【心动值极低】主角对感情感到迷茫或麻木，可以触发主角质疑自己感情的内心独白，或者与对方产生疏离感。',
-    },
-  ],
-
   mystery: [
     {
       key: 'clues',
@@ -223,23 +192,6 @@ export const STATUS_TRIGGERS: Record<GenreKey, StatusTrigger[]> = {
       threshold: 90,
       level: 'high',
       instruction: '【理智值极高】主角保持着难得的清醒，可以触发发现其他人没有注意到的关键细节，或者冷静制定逃脱计划的场景。',
-    },
-  ],
-
-  comedy: [
-    {
-      key: 'drama',
-      condition: 'gte',
-      threshold: 90,
-      level: 'high',
-      instruction: '【抓马程度爆表】局面已经抓马到极致，各种意想不到的事情同时发生，此时应触发一个让所有人目瞪口呆的终极搞笑反转，越离谱越好！',
-    },
-    {
-      key: 'drama',
-      condition: 'lte',
-      threshold: 20,
-      level: 'low',
-      instruction: '【抓马程度极低】剧情太平淡了，需要立刻制造一个突如其来的搞笑意外，打破平静，让局面迅速变得混乱有趣。',
     },
   ],
 }
