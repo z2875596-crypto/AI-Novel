@@ -1,6 +1,7 @@
 import { GenreKey } from './genre'
 import { WorldConfig } from './world'
 import { Message } from './game'
+import { Summary } from '@/stores/summaryStore'
 
 export interface BranchNode {
   turn: number
@@ -26,6 +27,7 @@ export interface SaveRecord {
   branchFromTurn?: number      // 从哪个回合分叉
   branchLabel?: string         // 分支名称，如"分支·第8回合"
   parentId?: string            // 主线存档 id
+  summaries?: Summary[]
   ending?: {
     type: 'good' | 'bad' | 'true' | 'secret'
     title: string

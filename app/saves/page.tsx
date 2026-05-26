@@ -19,7 +19,7 @@ export default function SavesPage() {
   const setMessages = useGameStore((s) => s.setMessages)
   const setGenre = useGenreStore((s) => s.setGenre)
   const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
-  const resetSummaries = useSummaryStore((s) => s.reset)
+  const { reset: resetSummaries, loadForGame } = useSummaryStore()
 
   useEffect(() => {
     loadFromStorage()
@@ -28,7 +28,13 @@ export default function SavesPage() {
   function handleContinue(save: SaveRecord) {
     setGenre(save.genre)
     setWorldConfig(save.worldConfig)
-    resetSummaries()
+
+    if (save.summaries && save.summaries.length > 0) {
+      const gameId = save.worldConfig.worldName + '-' + save.genre
+      loadForGame(gameId, save.summaries)
+    } else {
+      resetSummaries()
+    }
 
     const persisted = useGameStore.getState()
     const isSameGame =

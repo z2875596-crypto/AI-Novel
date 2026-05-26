@@ -287,8 +287,9 @@ export default function GamePage() {
         .catch(() => {})  // 关系提取失败不影响游戏
     }
 
+    const gameId = currentWorld.worldName + '-' + currentGenre
     const autoSave: SaveRecord = {
-      id: currentWorld.worldName + '-' + currentGenre,
+      id: gameId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       storyTitle: `${currentWorld.worldName} · ${currentWorld.protagonistName}`,
@@ -299,6 +300,7 @@ export default function GamePage() {
       statusSnapshot: newStatus,
       recentHistory: [...messages.slice(-9), narratorMsg],
       branchHistory: [],
+      summaries: useSummaryStore.getState().summaries.filter((s) => s.gameId === gameId),
       ...(ending && {
         ending: { ...ending, unlockedAt: Date.now() },
       }),
@@ -391,14 +393,16 @@ export default function GamePage() {
         })
         const { summary, chapterTitle } = await res.json()
         if (summary) {
+          const { worldConfig: wc } = useWorldStore.getState()
           const summaryRecord = {
             id: uid(),
+            gameId: wc.worldName + '-' + currentGenre,
             triggerTurn: currentTurn,
             chapterNumber,
             chapterTitle: chapterTitle ?? `第${chapterNumber}章`,
             content: summary,
             statusAtTrigger: status,
-            messages: currentMessages,  // 保存本章完整 20 条对话
+            messages: currentMessages,
           }
           addSummary(summaryRecord)
           // 清空消息列表，开始新章节，不再往里塞 summaryMsg
@@ -486,9 +490,10 @@ export default function GamePage() {
     const { turn, status, messages } = useGameStore.getState()
     const { worldConfig: wc } = useWorldStore.getState()
     const { genre: g } = useGenreStore.getState()
+    const gameId = wc.worldName + '-' + g
     const defaultTitle = `${wc.worldName} · ${wc.protagonistName}`
     return {
-      id: customName ? uid() : wc.worldName + '-' + g,
+      id: customName ? uid() : gameId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       storyTitle: customName ?? defaultTitle,
@@ -499,6 +504,7 @@ export default function GamePage() {
       statusSnapshot: status,
       recentHistory: messages.slice(-10),
       branchHistory: [],
+      summaries: useSummaryStore.getState().summaries.filter((s) => s.gameId === gameId),
     }
   }
 
