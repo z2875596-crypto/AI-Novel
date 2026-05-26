@@ -6,6 +6,7 @@ import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useStyleStore } from '@/stores/styleStore'
+import { useAuthStore } from '@/stores/authStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { getInitialStatus } from '@/lib/statusBar'
 import ThemeProvider from '@/components/shared/ThemeProvider'
@@ -52,6 +53,14 @@ export default function SetupPage() {
   const resetGame = useGameStore((s) => s.resetGame)
   const resetStyle = useStyleStore((s) => s.reset)
 
+  const { user, isGuest, isLoading } = useAuthStore()
+
+  useEffect(() => {
+    if (!isLoading && !user && !isGuest) {
+      router.replace('/login')
+    }
+  }, [isLoading, user, isGuest, router])
+
   useEffect(() => {
     if (!genre) router.replace('/')
   }, [genre, router])
@@ -81,7 +90,7 @@ export default function SetupPage() {
       protagonistTraits: data.protagonistTraits ?? '',
       openingScene: data.openingScene ?? '',
       npcs,
-      plotBeats: worldConfig.plotBeats,
+      plotBeats: worldConfig.plotBeats ?? [],
       targetEnding: worldConfig.targetEnding,
       narrativePOV: worldConfig.narrativePOV ?? 'second',
     })

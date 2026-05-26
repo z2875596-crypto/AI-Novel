@@ -8,14 +8,14 @@ import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { useGameStore } from '@/stores/gameStore'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
+import { useSummaryStore } from '@/stores/summaryStore'
 
 export default function RecentSaveBanner() {
   const router = useRouter()
   const [save, setSave] = useState<SaveRecord | null>(null)
-  const resetGame = useGameStore((s) => s.resetGame)
-  const setMessages = useGameStore((s) => s.setMessages)
   const setGenre = useGenreStore((s) => s.setGenre)
   const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
+  const resetSummaries = useSummaryStore((s) => s.reset)
 
   useEffect(() => {
     setSave(getLatestSave())
@@ -35,9 +35,53 @@ export default function RecentSaveBanner() {
     if (!save) return
     setGenre(save.genre)
     setWorldConfig(save.worldConfig)
-    resetGame(save.statusSnapshot)
-    setMessages(save.recentHistory)
-    useGameStore.setState({ turn: save.turn, status: save.statusSnapshot })
+    resetSummaries()
+
+    const persisted = useGameStore.getState()
+    const isSameGame =
+      persisted.turn === save.turn &&
+      persisted.messages.length > 0
+
+    const restoredMessages = isSameGame ? persisted.messages : save.recentHistory
+    const restoredChoices = isSameGame ? persisted.currentChoices : []
+
+    useGameStore.setState({
+      turn: save.turn,
+      status: save.statusSnapshot,
+      messages: restoredMessages,
+      currentChoices: restoredChoices,
+      isStreaming: false,
+      streamingText: '',
+    })
+
+    if (!isSameGame || restoredChoices.length === 0) {
+      const lastNarrator = restoredMessages
+        .filter((m) => m.role === 'narrator')
+        .slice(-1)[0]
+
+      if (lastNarrator) {
+        fetch('/api/story/choices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            genre: save.genre,
+            lastNarratorText: lastNarrator.content,
+            status: save.statusSnapshot,
+            turn: save.turn + 1,
+            protagonistName: save.worldConfig.protagonistName,
+            narrativePOV: save.worldConfig.narrativePOV ?? 'second',
+          }),
+        })
+          .then((r) => r.json())
+          .then(({ choices }) => {
+            if (choices?.length > 0) {
+              useGameStore.setState({ currentChoices: choices })
+            }
+          })
+          .catch(() => {})
+      }
+    }
+
     router.push('/game')
   }
 

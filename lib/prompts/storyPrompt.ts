@@ -193,7 +193,7 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
     ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，可以在剧情末尾输出 [ENDING]{"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
     : ''
 
-  const pendingBeats = worldConfig.plotBeats.filter(
+  const pendingBeats = (worldConfig.plotBeats ?? []).filter(
     (b) => !b.triggered && b.triggerTurn >= turn - 2 && b.triggerTurn <= turn + 2
   )
   const plotBeatsInstruction = pendingBeats.length > 0

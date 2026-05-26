@@ -21,18 +21,18 @@ export default function PlotBeatsEditor() {
 
   function addBeat() {
     const beat: PlotBeat = { id: uid(), triggerTurn: 1, description: '', triggered: false }
-    updateField('plotBeats', [...worldConfig.plotBeats, beat])
+    updateField('plotBeats', [...(worldConfig.plotBeats ?? []), beat])
   }
 
   function updateBeat(id: string, field: keyof PlotBeat, value: string | number | boolean) {
     updateField(
       'plotBeats',
-      worldConfig.plotBeats.map((b) => (b.id === id ? { ...b, [field]: value } : b))
+      (worldConfig.plotBeats ?? []).map((b) => (b.id === id ? { ...b, [field]: value } : b))
     )
   }
 
   function removeBeat(id: string) {
-    updateField('plotBeats', worldConfig.plotBeats.filter((b) => b.id !== id))
+    updateField('plotBeats', (worldConfig.plotBeats ?? []).filter((b) => b.id !== id))
   }
 
   return (

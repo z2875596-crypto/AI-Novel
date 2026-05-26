@@ -10,6 +10,7 @@ import { useSummaryStore } from '@/stores/summaryStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useStyleStore } from '@/stores/styleStore'
 import { useClueStore } from '@/stores/clueStore'
+import { useAuthStore } from '@/stores/authStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
 import { parseClues } from '@/lib/prompts/cluePrompt'
@@ -82,6 +83,14 @@ export default function GamePage() {
   const [showWorldConfig, setShowWorldConfig] = useState(false)
   const [showStylePanel, setShowStylePanel] = useState(false)
   const [showRewind, setShowRewind] = useState(false)
+
+  const { user, isGuest, isLoading } = useAuthStore()
+
+  useEffect(() => {
+    if (!isLoading && !user && !isGuest) {
+      router.replace('/login')
+    }
+  }, [isLoading, user, isGuest, router])
 
   useEffect(() => {
     if (!genre || !worldConfig.worldName) {
@@ -234,12 +243,12 @@ export default function GamePage() {
 
     // 标记已触发的剧情节点
     const { worldConfig: latestWorld } = useWorldStore.getState()
-    const triggeredBeats = latestWorld.plotBeats.filter(
+    const triggeredBeats = (latestWorld.plotBeats ?? []).filter(
       (b) => !b.triggered && b.triggerTurn <= turn + 1
     )
     if (triggeredBeats.length > 0) {
       const { updateField } = useWorldStore.getState()
-      const updatedBeats = latestWorld.plotBeats.map((b) =>
+      const updatedBeats = (latestWorld.plotBeats ?? []).map((b) =>
         triggeredBeats.some((tb) => tb.id === b.id) ? { ...b, triggered: true } : b
       )
       updateField('plotBeats', updatedBeats)

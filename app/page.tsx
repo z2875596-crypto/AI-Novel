@@ -1,14 +1,16 @@
 import Logo from '@/components/shared/Logo'
 import GenreGrid from '@/components/home/GenreGrid'
 import RecentSaveBanner from '@/components/home/RecentSaveBanner'
+import UserStatus from '@/components/home/UserStatus'
 import Link from 'next/link'
 
 export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-start px-4 py-12 relative z-10">
       <div className="w-full max-w-xl">
-        {/* 右上角存档按钮 */}
-        <div className="flex justify-end mb-4 animate-fade-in">
+        {/* 右上角：用户状态 + 存档按钮 */}
+        <div className="flex justify-end items-center gap-2 mb-4 animate-fade-in">
+          <UserStatus />
           <Link
             href="/saves"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
