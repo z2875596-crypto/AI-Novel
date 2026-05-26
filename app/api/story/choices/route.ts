@@ -6,13 +6,14 @@ import { NarrativePOV } from '@/types/world'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { genre, lastNarratorText, status, turn, protagonistName, narrativePOV }: {
+  const { genre, lastNarratorText, status, turn, protagonistName, narrativePOV, recentChoices }: {
     genre: GenreKey
     lastNarratorText: string
     status: Record<string, number>
     turn: number
     protagonistName: string
     narrativePOV: NarrativePOV
+    recentChoices: string[]
   } = body
 
   const { system, messages } = buildChoicesMessages({
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
     turn,
     protagonistName: protagonistName ?? '',
     narrativePOV: narrativePOV ?? 'second',
+    recentChoices: recentChoices ?? [],
   })
 
   try {

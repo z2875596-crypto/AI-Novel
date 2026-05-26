@@ -9,6 +9,7 @@ interface BuildChoicesPromptParams {
   turn: number
   protagonistName: string
   narrativePOV: NarrativePOV
+  recentChoices: string[]
 }
 
 // 根据视角生成选项主语说明
@@ -27,7 +28,7 @@ function buildChoicePOVRule(pov: NarrativePOV, protagonistName: string): string 
 }
 
 export function buildChoicesMessages(params: BuildChoicesPromptParams) {
-  const { genre, lastNarratorText, status, turn, protagonistName, narrativePOV } = params
+  const { genre, lastNarratorText, status, turn, protagonistName, narrativePOV, recentChoices } = params
   const config = GENRE_CONFIG[genre]
 
   const statusText = config.bars
@@ -35,6 +36,10 @@ export function buildChoicesMessages(params: BuildChoicesPromptParams) {
     .join('，')
 
   const povRule = buildChoicePOVRule(narrativePOV, protagonistName)
+
+  const recentChoicesText = recentChoices.length > 0
+    ? recentChoices.map((c, i) => `${i + 1}. ${c}`).join('\n')
+    : '（暂无历史选项）'
 
   const systemPrompt = `你是一个互动小说的选项设计师，专门为${config.label}题材的故事生成玩家行动选项。
 
@@ -44,6 +49,11 @@ export function buildChoicesMessages(params: BuildChoicesPromptParams) {
 3. 每个选项控制在 20 字以内，简洁有力
 4. 选项要符合${config.label}题材的风格和逻辑
 5. 当前状态栏：${statusText}，第 ${turn} 回合
+
+【禁止重复规则】
+以下是玩家最近已经选择过或出现过的行动，本次生成的选项绝对不能与这些内容相似：
+${recentChoicesText}
+不能使用相同的动作、相似的意象或同类型的行为，必须提供全新的、有差异化的选项。
 
 【视角与主语规则】
 ${povRule}

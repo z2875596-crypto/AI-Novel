@@ -23,6 +23,7 @@ import FreeInputBox from '@/components/game/FreeInputBox'
 import StatusBar from '@/components/game/StatusBar'
 import TTSToggle from '@/components/game/TTSToggle'
 import BGMController from '@/components/game/BGMController'
+import PlotHintInput from '@/components/game/PlotHintInput'
 import StatusDeltaToast from '@/components/game/StatusDeltaToast'
 import SaveMenu from '@/components/game/SaveAsModal'
 import WorldConfigModal from '@/components/game/WorldConfigModal'
@@ -101,7 +102,7 @@ export default function GamePage() {
 
   handleActionRef.current = async (playerAction: string, isOpening = false) => {
     // 直接读最新状态，不依赖闭包捕获
-    const { isStreaming: streaming, turn, status, messages } = useGameStore.getState()
+    const { isStreaming: streaming, turn, status, messages, plotHint } = useGameStore.getState()
     const { genre: currentGenre } = useGenreStore.getState()
     const { worldConfig: currentWorld } = useWorldStore.getState()
     const { summaries } = useSummaryStore.getState()
@@ -146,8 +147,13 @@ export default function GamePage() {
           status,
           turn,
           styleConfig,
+          plotHint: plotHint || undefined,
         }),
       })
+
+      if (plotHint) {
+        useGameStore.getState().setPlotHint('')
+      }
 
       if (!res.body) throw new Error('No response body')
 
@@ -166,6 +172,10 @@ export default function GamePage() {
       // 流读取结束，立刻并行发起选项请求
       // ending 此时还没解析，始终发起请求，后面拿到 ending 再决定是否使用
       const { cleanText: previewText } = parseStatusDelta(fullText)
+      const recentChoices = useGameStore.getState().messages
+        .filter(m => m.role === 'player')
+        .slice(-5)
+        .map(m => m.content)
       choicesFetchPromise = fetch('/api/story/choices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -176,6 +186,7 @@ export default function GamePage() {
           turn: turn + 1,
           protagonistName: currentWorld.protagonistName,
           narrativePOV: currentWorld.narrativePOV ?? 'second',
+          recentChoices,
         }),
       }).catch(() => null)
     } catch (err) {
@@ -219,6 +230,19 @@ export default function GamePage() {
     setStatus(newStatus)
     setLastDelta(delta)
     incrementTurn()
+
+    // 标记已触发的剧情节点
+    const { worldConfig: latestWorld } = useWorldStore.getState()
+    const triggeredBeats = latestWorld.plotBeats.filter(
+      (b) => !b.triggered && b.triggerTurn <= turn + 1
+    )
+    if (triggeredBeats.length > 0) {
+      const { updateField } = useWorldStore.getState()
+      const updatedBeats = latestWorld.plotBeats.map((b) =>
+        triggeredBeats.some((tb) => tb.id === b.id) ? { ...b, triggered: true } : b
+      )
+      updateField('plotBeats', updatedBeats)
+    }
 
     if (ttsEnabled) {
       speak(cleanText, { rate: ttsRate, pitch: ttsPitch, volume: ttsVolume })
@@ -433,6 +457,10 @@ export default function GamePage() {
     setTimeout(() => {
       const lastNarrator = messagesUpToHere.filter((m) => m.role === 'narrator').slice(-1)[0]
       if (lastNarrator) {
+        const recentChoices = messagesUpToHere
+          .filter((m) => m.role === 'player')
+          .slice(-5)
+          .map((m) => m.content)
         fetch('/api/story/choices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -443,6 +471,7 @@ export default function GamePage() {
             turn: rewindTurn + 1,
             protagonistName: wc.protagonistName,
             narrativePOV: wc.narrativePOV ?? 'second',
+            recentChoices,
           }),
         })
           .then((r) => r.json())
@@ -596,6 +625,7 @@ export default function GamePage() {
             <div className="flex-1">
               <FreeInputBox onSubmit={(t) => handleAction(t)} />
             </div>
+            <PlotHintInput />
             <BGMController />
             <TTSToggle />
           </div>

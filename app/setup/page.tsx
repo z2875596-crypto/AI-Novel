@@ -14,6 +14,7 @@ import CharacterEditor from '@/components/setup/CharacterEditor'
 import RandomGenButton from '@/components/setup/RandomGenButton'
 import StyleEditor from '@/components/setup/StyleEditor'
 import TargetEndingEditor from '@/components/setup/TargetEndingEditor'
+import PlotBeatsEditor from '@/components/setup/PlotBeatsEditor'
 import { NPC } from '@/types/world'
 import RomanceBackground from '@/components/home/backgrounds/RomanceBackground'
 import XuanhuanBackground from '@/components/home/backgrounds/XuanhuanBackground'
@@ -80,6 +81,7 @@ export default function SetupPage() {
       protagonistTraits: data.protagonistTraits ?? '',
       openingScene: data.openingScene ?? '',
       npcs,
+      plotBeats: worldConfig.plotBeats,
       targetEnding: worldConfig.targetEnding,
       narrativePOV: worldConfig.narrativePOV ?? 'second',
     })
@@ -147,6 +149,10 @@ export default function SetupPage() {
           <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
           <div className="mb-6"><CharacterEditor /></div>
+
+          <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
+
+          <div className="mb-6"><PlotBeatsEditor /></div>
 
           <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 

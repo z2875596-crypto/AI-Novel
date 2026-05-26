@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     status,
     turn,
     styleConfig,
+    plotHint,
   }: {
     genre: GenreKey
     worldConfig: WorldConfig
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
     status: Record<string, number>
     turn: number
     styleConfig?: StyleConfig
+    plotHint?: string
   } = body
 
   const { system, messages } = buildStoryMessages({
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
     status,
     turn,
     styleConfig,
+    plotHint,
   })
 
   const encoder = new TextEncoder()
@@ -45,7 +48,7 @@ export async function POST(req: NextRequest) {
           model: DEEPSEEK_MODEL,
           messages: [{ role: 'system', content: system }, ...messages],
           stream: true,
-          max_tokens: 600,
+          max_tokens: 1200,
           temperature: 0.7,
         })
 

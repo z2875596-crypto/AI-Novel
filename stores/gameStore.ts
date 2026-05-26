@@ -9,6 +9,7 @@ interface GameStore {
   currentChoices: string[]
   messages: Message[]
   streamingText: string
+  plotHint: string
 
   setStatus: (status: Record<string, number>) => void
   setIsStreaming: (v: boolean) => void
@@ -18,6 +19,7 @@ interface GameStore {
   incrementTurn: () => void
   resetGame: (initialStatus: Record<string, number>) => void
   setMessages: (messages: Message[]) => void
+  setPlotHint: (hint: string) => void
 }
 
 export const useGameStore = create<GameStore>()(
@@ -29,6 +31,7 @@ export const useGameStore = create<GameStore>()(
       currentChoices: [],
       messages: [],
       streamingText: '',
+      plotHint: '',
 
       setStatus: (status) => set({ status }),
       setIsStreaming: (v) => set({ isStreaming: v }),
@@ -44,8 +47,10 @@ export const useGameStore = create<GameStore>()(
           currentChoices: [],
           messages: [],
           streamingText: '',
+          plotHint: '',
         }),
       setMessages: (messages) => set({ messages }),
+      setPlotHint: (hint) => set({ plotHint: hint }),
     }),
     {
       name: 'game-store',

@@ -28,6 +28,13 @@ export interface NPC {
   traits: string
 }
 
+export interface PlotBeat {
+  id: string
+  triggerTurn: number
+  description: string
+  triggered: boolean
+}
+
 export interface WorldConfig {
   worldName: string
   worldSetting: string
@@ -35,6 +42,7 @@ export interface WorldConfig {
   protagonistTraits: string
   openingScene: string
   npcs: NPC[]
+  plotBeats: PlotBeat[]
   targetEnding?: string
   narrativePOV: NarrativePOV   // 叙述视角
 }
@@ -46,6 +54,7 @@ export const EMPTY_WORLD_CONFIG: WorldConfig = {
   protagonistTraits: '',
   openingScene: '',
   npcs: [],
+  plotBeats: [],
   targetEnding: '',
   narrativePOV: 'second',   // 默认第二人称（原有体验不变）
 }

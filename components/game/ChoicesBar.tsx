@@ -22,6 +22,7 @@ export default function ChoicesBar({ onChoice }: Props) {
     <div className="space-y-2">
       <p className="text-xs" style={{ color: config.theme.textMuted }}>
         选择{worldConfig.protagonistName}的行动：
+        <span className="ml-2 opacity-50">（键盘 A/B/C 快速选择）</span>
       </p>
       <div className="grid gap-2">
         {choices.map((choice, i) => (
