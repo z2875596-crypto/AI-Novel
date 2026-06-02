@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { WorldConfig, EMPTY_WORLD_CONFIG } from '@/types/world'
 
 interface WorldStore {
@@ -20,6 +20,12 @@ export const useWorldStore = create<WorldStore>()(
         })),
       reset: () => set({ worldConfig: EMPTY_WORLD_CONFIG }),
     }),
-    { name: 'world-store' }
+    {
+      name: 'world-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface SettingsStore {
   ttsEnabled: boolean
@@ -24,6 +24,12 @@ export const useSettingsStore = create<SettingsStore>()(
       setTtsPitch: (v) => set({ ttsPitch: v }),
       setTtsVolume: (v) => set({ ttsVolume: v }),
     }),
-    { name: 'settings-store' }
+    {
+      name: 'settings-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

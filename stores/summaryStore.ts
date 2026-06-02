@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { Message } from '@/types/game'
 
 export interface Summary {
@@ -30,6 +30,12 @@ export const useSummaryStore = create<SummaryStore>()(
       loadForGame: (gameId, allSummaries) =>
         set({ summaries: allSummaries.filter((s) => s.gameId === gameId) }),
     }),
-    { name: 'summary-store' }
+    {
+      name: 'summary-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

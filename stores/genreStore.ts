@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { GenreKey } from '@/types/genre'
 import { SubplotKey } from '@/types/subplot'
 import { applyTheme, GENRE_CONFIG } from '@/lib/themeConfig'
@@ -24,6 +24,12 @@ export const useGenreStore = create<GenreStore>()(
       },
       setSubplots: (subplots) => set({ subplots }),
     }),
-    { name: 'genre-store' }
+    {
+      name: 'genre-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

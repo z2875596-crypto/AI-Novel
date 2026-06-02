@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import AuthProvider from '@/components/shared/AuthProvider'
+import ClientAuthProvider from '@/components/shared/ClientAuthProvider'
 
 export const metadata: Metadata = {
   title: '鸢叙',
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <ClientAuthProvider>{children}</ClientAuthProvider>
       </body>
     </html>
   )

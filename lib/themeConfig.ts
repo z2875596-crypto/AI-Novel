@@ -179,6 +179,7 @@ export function getRandomGenre(): GenreKey {
 }
 
 export function applyTheme(theme: GenreConfig['theme']) {
+  if (typeof document === 'undefined') return
   const root = document.documentElement
   root.style.setProperty('--theme-primary', theme.primary)
   root.style.setProperty('--theme-secondary', theme.secondary)

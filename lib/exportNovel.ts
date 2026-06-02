@@ -68,6 +68,7 @@ export function exportNovelAsText(save: SaveRecord): string {
 }
 
 export function downloadText(content: string, filename: string) {
+  if (typeof document === 'undefined') return
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

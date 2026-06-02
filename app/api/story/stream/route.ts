@@ -4,7 +4,7 @@ import { buildStoryMessages } from '@/lib/prompts/storyPrompt'
 import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
-import { StyleConfig } from '@/stores/styleStore'
+import type { StyleConfig } from '@/stores/styleStore'
 import { SubplotKey } from '@/types/subplot'
 
 export async function POST(req: NextRequest) {

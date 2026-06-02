@@ -1,4 +1,5 @@
-import { StyleConfig, PRESET_STYLE_OPTIONS } from '@/stores/styleStore'
+import type { StyleConfig } from '@/stores/styleStore'
+import { PRESET_STYLE_OPTIONS } from '@/stores/styleStore'
 
 export function buildStyleInstruction(styleConfig: StyleConfig): string {
   const parts: string[] = []

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { Clue } from '@/types/clue'
 
 interface ClueStore {
@@ -38,6 +38,12 @@ export const useClueStore = create<ClueStore>()(
         })),
       reset: () => set({ clues: [] }),
     }),
-    { name: 'clue-store' }
+    {
+      name: 'clue-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

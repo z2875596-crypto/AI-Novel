@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type RelationType =
   | 'lover'       // 恋人
@@ -127,6 +127,12 @@ export const useRelationshipStore = create<RelationshipStore>()(
 
       reset: () => set({ relationships: [] }),
     }),
-    { name: 'relationship-store' }
+    {
+      name: 'relationship-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )

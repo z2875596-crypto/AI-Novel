@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { Message } from '@/types/game'
 
 interface GameStore {
@@ -54,7 +54,10 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'game-store',
-      // 只持久化游戏进度，排除运行时状态
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
       partialize: (state) => ({
         turn: state.turn,
         status: state.status,

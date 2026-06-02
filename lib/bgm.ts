@@ -5,7 +5,8 @@ let masterGain: GainNode | null = null
 let currentNodes: AudioNode[] = []
 let isPlaying = false
 
-function getCtx(): AudioContext {
+function getCtx(): AudioContext | null {
+  if (typeof window === 'undefined') return null
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
     masterGain = audioCtx.createGain()
@@ -180,6 +181,7 @@ export function playBGM(genre: GenreKey) {
   stopAll()
   try {
     const ctx = getCtx()
+    if (!ctx) return
     if (ctx.state === 'suspended') ctx.resume()
     BGM_GENERATORS[genre]?.(ctx)
     isPlaying = true

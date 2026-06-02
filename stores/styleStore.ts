@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type PresetStyle =
   | 'concise'       // 简练克制
@@ -119,6 +119,12 @@ export const useStyleStore = create<StyleStore>()(
         set((s) => ({ styleConfig: { ...s.styleConfig, analyzedStyle, sourceText } })),
       reset: () => set({ styleConfig: DEFAULT_CONFIG }),
     }),
-    { name: 'style-store' }
+    {
+      name: 'style-store',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      skipHydration: true,
+    }
   )
 )
