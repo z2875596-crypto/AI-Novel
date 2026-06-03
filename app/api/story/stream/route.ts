@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
 import { buildStoryMessages } from '@/lib/prompts/storyPrompt'
+import { parseNarrativeResponse } from '@/lib/parseNarrative'
 import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
@@ -55,20 +56,29 @@ export async function POST(req: NextRequest) {
         const response = await deepseek.chat.completions.create({
           model: DEEPSEEK_MODEL,
           messages: [{ role: 'system', content: system }, ...messages],
-          stream: true,
+          stream: false,
           max_tokens: 1200,
           temperature: 0.7,
         })
 
-        for await (const chunk of response) {
-          const text = chunk.choices[0]?.delta?.content ?? ''
-          if (text) {
-            controller.enqueue(encoder.encode(text))
-          }
+        const raw = response.choices[0]?.message?.content ?? ''
+        const parsed = parseNarrativeResponse(raw)
+
+        for (const char of parsed.narrative) {
+          controller.enqueue(encoder.encode(char))
         }
+
+        controller.enqueue(
+          encoder.encode(`[PARSED_DATA]${JSON.stringify({
+            statusDelta: parsed.statusDelta,
+            ending: parsed.ending,
+            clues: parsed.clues,
+            memoryHint: parsed.memoryHint,
+          })}`)
+        )
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error'
-        controller.enqueue(encoder.encode(`\n[ERROR]${msg}`))
+        controller.enqueue(encoder.encode(`[ERROR]${msg}`))
       } finally {
         controller.close()
       }
@@ -80,7 +90,6 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'text/plain; charset=utf-8',
       'Transfer-Encoding': 'chunked',
       'Cache-Control': 'no-cache',
-      'X-Accel-Buffering': 'no',
     },
   })
 }

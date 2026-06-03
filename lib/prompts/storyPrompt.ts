@@ -8,7 +8,6 @@ import { SubplotKey } from '@/types/subplot'
 import { SUBPLOT_OPTIONS } from '@/types/subplot'
 import { buildStyleInstruction } from './stylePrompt'
 import { getStatusTriggerInstructions } from '@/lib/statusTriggers'
-import { CLUE_EXTRACTION_INSTRUCTION } from './cluePrompt'
 
 const GENRE_PERSONA: Record<GenreKey, string> = {
   urban: '你是一位都市小说作家，贴近现代生活，善写职场商战、人际博弈与城市众生相，文风干练，节奏明快，细节真实。',
@@ -21,13 +20,12 @@ const GENRE_PERSONA: Record<GenreKey, string> = {
   apocalypse: '你是一位末世小说作家，善于描写文明崩塌后的绝境求生，展现极端环境下的人性光辉与黑暗，文风紧张压抑，每一个决定都生死攸关。',
 }
 
-// ─── ① 题材动态参数 ────────────────────────────────────────────────────────
 interface GenreWritingParams {
-  minWords: number      // 最少字数
-  maxWords: number      // 最多字数
-  pace: string          // 叙述节奏
-  focus: string         // 重点描写方向
-  sentenceStyle: string // 句式风格
+  minWords: number
+  maxWords: number
+  pace: string
+  focus: string
+  sentenceStyle: string
 }
 
 const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
@@ -89,8 +87,6 @@ const GENRE_WRITING_PARAMS: Record<GenreKey, GenreWritingParams> = {
   },
 }
 
-// ─── ② NPC 记忆提取 ────────────────────────────────────────────────────────
-// 从最近的消息历史里，提取每个 NPC 最后一次出现的相关内容
 function buildNPCMemory(
   npcs: WorldConfig['npcs'],
   history: Message[]
@@ -99,21 +95,19 @@ function buildNPCMemory(
 
   const recentNarrator = history
     .filter((m) => m.role === 'narrator')
-    .slice(-6) // 最近 6 条叙述
+    .slice(-6)
 
   const memories: string[] = []
 
   for (const npc of npcs) {
     if (!npc.name) continue
 
-    // 找到最近一条包含该 NPC 名字的叙述
     const lastMention = recentNarrator
       .slice()
       .reverse()
       .find((m) => m.content.includes(npc.name))
 
     if (lastMention) {
-      // 截取包含 NPC 名字的句子（前后各一句）
       const sentences = lastMention.content
         .split(/[。！？…]/)
         .filter((s) => s.includes(npc.name))
@@ -133,7 +127,6 @@ function buildNPCMemory(
 ${memories.join('\n')}`
 }
 
-// ─── 视角指令 ──────────────────────────────────────────────────────────────
 function buildPOVInstruction(pov: NarrativePOV, protagonistName: string): string {
   switch (pov) {
     case 'first':
@@ -183,7 +176,6 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
           .join('\n')
       : '暂无配角'
 
-  // NPC 记忆：从历史消息里提取
   const npcMemory = buildNPCMemory(worldConfig.npcs, history)
 
   const memoryInstruction = memoryEvents && memoryEvents.length > 0
@@ -196,11 +188,13 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
 
   const styleInstruction = styleConfig ? buildStyleInstruction(styleConfig) : ''
   const triggerInstruction = getStatusTriggerInstructions(genre, status)
-  const clueInstruction = genre === 'mystery' ? CLUE_EXTRACTION_INSTRUCTION : ''
+  const clueInstruction = genre === 'mystery'
+    ? '【悬疑线索】本故事为悬疑题材，请在剧情中自然地埋入线索，发现的线索记录在 JSON 的 clues 数组中。'
+    : ''
   const povInstruction = buildPOVInstruction(pov, worldConfig.protagonistName)
 
   const targetEndingInstruction = worldConfig.targetEnding
-    ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，可以在剧情末尾输出 [ENDING]{"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
+    ? `【目标结局引导】玩家希望故事最终走向：「${worldConfig.targetEnding}」。请在剧情中自然地埋下伏笔、创造机会，暗中引导故事朝这个方向发展，但不要让玩家察觉到刻意安排，过程要自然流畅。当故事发展到合适时机时，在 JSON 的 ending 字段输出 {"type":"good","title":"${worldConfig.targetEnding}"} 来触发结局。`
     : ''
 
   const pendingBeats = (worldConfig.plotBeats ?? []).filter(
@@ -267,20 +261,29 @@ ${subplotInstruction ? '\n' + subplotInstruction + '\n' : ''}
 - 重点描写：${writingParams.focus}
 - 句式风格：${writingParams.sentenceStyle}
 
-4. 【完整性要求】必须先写完整的剧情正文，再在正文结束后的新一行输出状态变化，两部分缺一不可
-5. 【强制要求】正文结束后，必须在最后单独一行输出状态变化，绝对不能省略：
-   [STATUS_DELTA]{"key1":数值,"key2":数值}
-   ✓ 正确示例：[STATUS_DELTA]{"affection":5,"heartbeat":3}
-   ✗ 错误示例：省略这一行、放在正文中间、格式不对、输出不完整
-6. 可用的状态栏 key：${config.bars.map((b) => b.key).join('，')}
-7. 数值变化范围：-15 到 +15，合理反映玩家行动的后果
-8. 不要主动提示玩家"你要怎么做"，剧情自然结束即可
-9. 总输出（正文+线索标记+状态行）必须完整，不能截断
-10. 【结局触发】当故事发展到自然终点、高潮结束或玩家达成重要目标时，可以在 [STATUS_DELTA] 之后输出结局标记：
-    [ENDING]{"type":"good","title":"结局标题"}
-    type 可选：good（好结局）、bad（坏结局）、true（真结局）、secret（隐藏结局）
-    title 用 4-10 个字概括结局，如「情定终生」「真相大白」「飞升成仙」
-    不要随意触发，只在故事真正到达终点时输出`
+4. 【输出格式 — 严格遵守】
+你必须且只能输出一个合法的 JSON 对象，不能有任何 JSON 以外的文字。
+格式如下：
+
+{
+  "narrative": "剧情正文（${writingParams.minWords}-${writingParams.maxWords}字）",
+  "statusDelta": {"状态key": 数值变化},
+  "ending": null,
+  "clues": [],
+  "memoryHint": "10字内总结本回合最重要的事"
+}
+
+规则：
+- narrative 是纯剧情文字，不含任何标记或 JSON
+- statusDelta 的 key 必须从以下选择：${config.bars.map((b) => b.key).join('、')}
+- 数值变化范围 -15 到 +15
+- 没有结局时 ending 必须是 null，不能省略
+- 没有线索时 clues 必须是空数组 []
+- 触发结局时 ending 格式：{"type":"good","title":"结局标题"}，type 可选：good、bad、true、secret，title 用 4-10 个字
+- 悬疑题材发现线索时才填写 clues，其他题材保持 []
+- memoryHint 用10字内总结本回合最重要的一件事，如"获得玉佩信物"
+- 不要主动提示玩家"你要怎么做"，剧情自然结束即可
+- 不要随意触发结局，只在故事真正到达终点时输出`
 
   const historyMessages: { role: 'user' | 'assistant'; content: string }[] =
     history.map((msg) => ({

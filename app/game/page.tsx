@@ -12,8 +12,7 @@ import { useStyleStore } from '@/stores/styleStore'
 import { useClueStore } from '@/stores/clueStore'
 import { useAuthStore } from '@/stores/authStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
-import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
-import { parseClues } from '@/lib/prompts/cluePrompt'
+import { applyStatusDelta } from '@/lib/statusBar'
 import { speak, stop } from '@/lib/tts'
 import { Message } from '@/types/game'
 import { SaveRecord } from '@/types/save'
@@ -36,21 +35,6 @@ import RewindModal from '@/components/game/RewindModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
-}
-
-function parseEnding(text: string): {
-  cleanText: string
-  ending?: { type: 'good' | 'bad' | 'true' | 'secret'; title: string }
-} {
-  const match = text.match(/\[ENDING\](\{[^}]+\})\s*$/)
-  if (!match) return { cleanText: text }
-  try {
-    const ending = JSON.parse(match[1])
-    const cleanText = text.slice(0, match.index).trimEnd()
-    return { cleanText, ending }
-  } catch {
-    return { cleanText: text }
-  }
 }
 
 export default function GamePage() {
@@ -139,7 +123,13 @@ export default function GamePage() {
     setStreamingText('')
     setNewClueFound(false)
 
-    let fullText = ''
+    let narrativeText = ''
+    let parsedData: {
+      statusDelta?: Record<string, number>
+      ending?: { type: 'good' | 'bad' | 'true' | 'secret'; title: string } | null
+      clues?: { id: string; name: string; description: string; category: string; importance: string; relatedClues: string[]; revelation: string }[]
+      memoryHint?: string
+    } | null = null
     let choicesFetchPromise: Promise<Response | null> | null = null
 
     try {
@@ -177,14 +167,21 @@ export default function GamePage() {
         const { done, value } = await reader.read()
         if (done) break
         const chunk = decoder.decode(value, { stream: true })
-        fullText += chunk
-        const { cleanText } = parseStatusDelta(fullText)
-        setStreamingText(cleanText)
+
+        if (chunk.includes('[PARSED_DATA]')) {
+          const parts = chunk.split('[PARSED_DATA]')
+          narrativeText += parts[0]
+          try {
+            parsedData = JSON.parse(parts[1])
+          } catch {}
+        } else {
+          narrativeText += chunk
+        }
+
+        setStreamingText(narrativeText)
       }
 
       // 流读取结束，立刻并行发起选项请求
-      // ending 此时还没解析，始终发起请求，后面拿到 ending 再决定是否使用
-      const { cleanText: previewText } = parseStatusDelta(fullText)
       const recentChoices = useGameStore.getState().messages
         .filter(m => m.role === 'player')
         .slice(-5)
@@ -194,7 +191,7 @@ export default function GamePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           genre: currentGenre,
-          lastNarratorText: previewText,
+          lastNarratorText: narrativeText,
           status,
           turn: turn + 1,
           protagonistName: currentWorld.protagonistName,
@@ -203,30 +200,31 @@ export default function GamePage() {
         }),
       }).catch(() => null)
     } catch (err) {
-      fullText = `[生成出错：${err instanceof Error ? err.message : '未知错误'}]`
-      setStreamingText(fullText)
+      narrativeText = `[生成出错：${err instanceof Error ? err.message : '未知错误'}]`
+      setStreamingText(narrativeText)
     }
 
-    let processedText = fullText
-    if (currentGenre === 'mystery') {
-      const { cleanText: afterClues, clues } = parseClues(processedText)
-      processedText = afterClues
-      if (clues.length > 0) {
-        setNewClueFound(true)
-        clues.forEach((clue) => {
-          addClue({
-            ...clue,
-            foundAt: turn,
-            timestamp: Date.now(),
-            revealed: !!clue.revelation,
-          })
+    const cleanText = narrativeText
+    const delta = parsedData?.statusDelta ?? {}
+    const ending = parsedData?.ending ?? null
+    const clues = parsedData?.clues ?? []
+    const memoryHint = parsedData?.memoryHint ?? ''
+
+    if (currentGenre === 'mystery' && clues.length > 0) {
+      setNewClueFound(true)
+      clues.forEach((clue) => {
+        addClue({
+          ...clue,
+          category: (clue.category as 'person' | 'object' | 'location' | 'event' | 'other') || 'other',
+          importance: (clue.importance as 'low' | 'medium' | 'high') || 'medium',
+          foundAt: turn,
+          timestamp: Date.now(),
+          revealed: !!clue.revelation,
         })
-        setTimeout(() => setNewClueFound(false), 3000)
-      }
+      })
+      setTimeout(() => setNewClueFound(false), 3000)
     }
 
-    const { cleanText: afterStatus, delta } = parseStatusDelta(processedText)
-    const { cleanText, ending } = parseEnding(afterStatus)
     const newStatus = applyStatusDelta(currentGenre!, status, delta)
 
     const narratorMsg: Message = {
@@ -243,6 +241,19 @@ export default function GamePage() {
     setStatus(newStatus)
     setLastDelta(delta)
     incrementTurn()
+
+    // 将 AI 提取的 memoryHint 写入长期记忆
+    if (memoryHint) {
+      const { addEvent: addMemoryHint } = useMemoryStore.getState()
+      addMemoryHint({
+        id: crypto.randomUUID(),
+        turn: turn + 1,
+        type: 'player_action',
+        subject: '本回合',
+        description: memoryHint,
+        importance: 'medium',
+      })
+    }
 
     // 标记已触发的剧情节点
     const { worldConfig: latestWorld } = useWorldStore.getState()
