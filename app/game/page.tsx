@@ -30,6 +30,7 @@ import SaveMenu from '@/components/game/SaveAsModal'
 import WorldConfigModal from '@/components/game/WorldConfigModal'
 import StyleSwitchPanel from '@/components/game/StyleSwitchPanel'
 import { useRelationshipStore } from '@/stores/relationshipStore'
+import { useMemoryStore, MemoryEvent } from '@/stores/memoryStore'
 import MoreMenu from '@/components/game/MoreMenu'
 import RewindModal from '@/components/game/RewindModal'
 
@@ -117,6 +118,7 @@ export default function GamePage() {
     const { summaries } = useSummaryStore.getState()
     const { ttsEnabled, ttsRate, ttsPitch, ttsVolume } = useSettingsStore.getState()
     const { styleConfig } = useStyleStore.getState()
+    const memoryEvents = useMemoryStore.getState().getHighImportanceEvents()
 
     if (streaming) return
     stop()
@@ -158,6 +160,7 @@ export default function GamePage() {
           styleConfig,
           plotHint: plotHint || undefined,
           subplots: subplots.length > 0 ? subplots : undefined,
+          memoryEvents: memoryEvents.length > 0 ? memoryEvents : undefined,
         }),
       })
 
@@ -295,6 +298,32 @@ export default function GamePage() {
           )
         })
         .catch(() => {})  // 关系提取失败不影响游戏
+    }
+
+    // 长期记忆：每5回合异步提取一次，不阻塞主流程
+    const newTurn = turn + 1
+    if (newTurn % 5 === 0) {
+      const { messages: latestMessages } = useGameStore.getState()
+      const { addEvent: addMemoryEvent } = useMemoryStore.getState()
+      fetch('/api/memory/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recentMessages: latestMessages.slice(-10),
+          turn: newTurn,
+        }),
+      })
+        .then((r) => r.json())
+        .then(({ events }) => {
+          events?.forEach((e: MemoryEvent) =>
+            addMemoryEvent({
+              ...e,
+              id: crypto.randomUUID(),
+              turn: newTurn,
+            })
+          )
+        })
+        .catch(() => {})
     }
 
     const gameId = currentWorld.worldName + '-' + currentGenre

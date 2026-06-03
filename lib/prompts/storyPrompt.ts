@@ -1,6 +1,7 @@
 import { GenreKey } from '@/types/genre'
 import { WorldConfig, NarrativePOV } from '@/types/world'
 import { Message } from '@/types/game'
+import type { MemoryEvent } from '@/stores/memoryStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import type { StyleConfig } from '@/stores/styleStore'
 import { SubplotKey } from '@/types/subplot'
@@ -162,10 +163,11 @@ interface BuildStoryPromptParams {
   styleConfig?: StyleConfig
   plotHint?: string
   subplots?: SubplotKey[]
+  memoryEvents?: MemoryEvent[]
 }
 
 export function buildStoryMessages(params: BuildStoryPromptParams) {
-  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint, subplots } = params
+  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint, subplots, memoryEvents } = params
   const config = GENRE_CONFIG[genre]
   const writingParams = GENRE_WRITING_PARAMS[genre]
   const pov: NarrativePOV = worldConfig.narrativePOV ?? 'second'
@@ -183,6 +185,14 @@ export function buildStoryMessages(params: BuildStoryPromptParams) {
 
   // NPC 记忆：从历史消息里提取
   const npcMemory = buildNPCMemory(worldConfig.npcs, history)
+
+  const memoryInstruction = memoryEvents && memoryEvents.length > 0
+    ? `\n【长期记忆（重要，请严格遵守）】\n以下是故事中已经发生的关键事件，生成剧情时必须与这些记忆保持一致，不能矛盾：\n${
+      memoryEvents
+        .map((e) => `- [${e.subject}] ${e.description}`)
+        .join('\n')
+    }\n`
+    : ''
 
   const styleInstruction = styleConfig ? buildStyleInstruction(styleConfig) : ''
   const triggerInstruction = getStatusTriggerInstructions(genre, status)
@@ -234,7 +244,7 @@ ${subplots
 【配角信息】
 ${npcText}
 ${npcMemory ? '\n' + npcMemory : ''}
-
+${memoryInstruction}
 【当前状态栏】
 ${statusText}
 ${triggerInstruction}
