@@ -30,6 +30,7 @@ import WorldConfigModal from '@/components/game/WorldConfigModal'
 import StyleSwitchPanel from '@/components/game/StyleSwitchPanel'
 import { useRelationshipStore } from '@/stores/relationshipStore'
 import { useMemoryStore, MemoryEvent } from '@/stores/memoryStore'
+import { sanitizePlayerInput } from '@/lib/sanitizeInput'
 import MoreMenu from '@/components/game/MoreMenu'
 import RewindModal from '@/components/game/RewindModal'
 
@@ -107,11 +108,46 @@ export default function GamePage() {
     if (streaming) return
     stop()
 
+    // 输入清洗：防注入和角色扮演绕过
+    const { safe, blocked } = sanitizePlayerInput(playerAction)
+    if (blocked) {
+      setStreamingText('（故事在这里停顿了一下，什么都没有发生。）')
+      setIsStreaming(false)
+      const { currentChoices } = useGameStore.getState()
+      const { messages: msgsBefore } = useGameStore.getState()
+      if (currentChoices.length > 0) return
+      // 恢复选项：基于最后一条 narrator 消息重新请求
+      const lastNarrator = msgsBefore.filter(m => m.role === 'narrator').slice(-1)[0]
+      if (lastNarrator) {
+        const recentChoices = msgsBefore
+          .filter(m => m.role === 'player')
+          .slice(-5)
+          .map(m => m.content)
+        fetch('/api/story/choices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            genre: currentGenre,
+            lastNarratorText: lastNarrator.content,
+            status,
+            turn: turn + 1,
+            protagonistName: currentWorld.protagonistName,
+            narrativePOV: currentWorld.narrativePOV ?? 'second',
+            recentChoices,
+          }),
+        })
+          .then(r => r.json())
+          .then(({ choices }) => useGameStore.setState({ currentChoices: choices ?? [] }))
+          .catch(() => {})
+      }
+      return
+    }
+
     if (!isOpening) {
       const playerMsg: Message = {
         id: uid(),
         role: 'player',
-        content: playerAction,
+        content: safe,
         turn,
         timestamp: Date.now(),
       }
@@ -144,7 +180,7 @@ export default function GamePage() {
           genre: currentGenre,
           worldConfig: currentWorld,
           history: messages.slice(-10),
-          playerAction: summaryContext + playerAction,
+          playerAction: summaryContext + safe,
           status,
           turn,
           styleConfig,
