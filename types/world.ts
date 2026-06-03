@@ -44,7 +44,8 @@ export interface WorldConfig {
   npcs: NPC[]
   plotBeats: PlotBeat[]
   targetEnding?: string
-  narrativePOV: NarrativePOV   // 叙述视角
+  narrativePOV: NarrativePOV
+  storyLength: 'short' | 'medium' | 'long'
 }
 
 export const EMPTY_WORLD_CONFIG: WorldConfig = {
@@ -56,5 +57,33 @@ export const EMPTY_WORLD_CONFIG: WorldConfig = {
   npcs: [],
   plotBeats: [],
   targetEnding: '',
-  narrativePOV: 'second',   // 默认第二人称（原有体验不变）
+  narrativePOV: 'second',
+  storyLength: 'medium',
+}
+
+export const STORY_LENGTH_CONFIG = {
+  short: {
+    label: '短篇',
+    description: '约30回合，3章，适合快节奏体验',
+    turnsPerChapter: 10,
+    totalChapters: 3,
+    totalTurns: 30,
+    ending: { hint: 20, push: 25, force: 30 },
+  },
+  medium: {
+    label: '中篇',
+    description: '约60回合，4章，完整起承转合',
+    turnsPerChapter: 15,
+    totalChapters: 4,
+    totalTurns: 60,
+    ending: { hint: 45, push: 55, force: 60 },
+  },
+  long: {
+    label: '长篇',
+    description: '约120回合，6章，史诗级故事',
+    turnsPerChapter: 20,
+    totalChapters: 6,
+    totalTurns: 120,
+    ending: { hint: 90, push: 110, force: 120 },
+  },
 }

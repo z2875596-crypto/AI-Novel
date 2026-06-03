@@ -1,5 +1,5 @@
 import { GenreKey } from '@/types/genre'
-import { WorldConfig, NarrativePOV } from '@/types/world'
+import { WorldConfig, NarrativePOV, STORY_LENGTH_CONFIG } from '@/types/world'
 import { Message } from '@/types/game'
 import type { MemoryEvent } from '@/stores/memoryStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
@@ -157,10 +157,11 @@ interface BuildStoryPromptParams {
   plotHint?: string
   subplots?: SubplotKey[]
   memoryEvents?: MemoryEvent[]
+  storyLength?: 'short' | 'medium' | 'long'
 }
 
 export function buildStoryMessages(params: BuildStoryPromptParams) {
-  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint, subplots, memoryEvents } = params
+  const { genre, worldConfig, history, playerAction, status, turn, styleConfig, plotHint, subplots, memoryEvents, storyLength } = params
   const config = GENRE_CONFIG[genre]
   const writingParams = GENRE_WRITING_PARAMS[genre]
   const pov: NarrativePOV = worldConfig.narrativePOV ?? 'second'
@@ -225,6 +226,28 @@ ${subplots
 注意：副线服务于主线，不能喧宾夺主。`
     : ''
 
+  const storyLengthCfg = STORY_LENGTH_CONFIG[storyLength ?? 'medium']
+  const endingInstruction = `
+【结局触发规则】
+本故事设定为${storyLengthCfg.label}，共${storyLengthCfg.totalChapters}章，约${storyLengthCfg.totalTurns}回合。
+
+好结局触发条件（满足任意一条）：
+- 玩家完成了目标结局的核心行动
+- 关键状态值达到 80 以上
+- 到达第${storyLengthCfg.ending.push}回合后故事自然收尾
+
+坏结局触发条件（满足任意一条）：
+- 关键状态值降至 20 以下
+- 玩家连续做出严重错误的选择
+- 故事陷入无法挽回的困境
+
+第${storyLengthCfg.ending.hint}回合后：开始铺设结局伏笔
+第${storyLengthCfg.ending.push}回合后：推进故事走向收尾
+第${storyLengthCfg.ending.force}回合：无论如何必须触发结局
+
+触发结局时在 JSON 的 ending 字段输出：
+{"type":"good|bad|true|secret","title":"结局标题"}`
+
   const systemPrompt = `${GENRE_PERSONA[genre]}
 
 【世界设定】
@@ -250,6 +273,8 @@ ${clueInstruction}
 
 ${povInstruction}
 ${subplotInstruction ? '\n' + subplotInstruction + '\n' : ''}
+${endingInstruction}
+
 【写作规则】
 1. 你正在为玩家生成互动小说的下一段剧情，当前是第 ${turn} 回合
 2. 续写剧情时紧密结合玩家的行动选择，让玩家的选择产生明显影响
@@ -283,7 +308,7 @@ ${subplotInstruction ? '\n' + subplotInstruction + '\n' : ''}
 - 悬疑题材发现线索时才填写 clues，其他题材保持 []
 - memoryHint 用10字内总结本回合最重要的一件事，如"获得玉佩信物"
 - 不要主动提示玩家"你要怎么做"，剧情自然结束即可
-- 不要随意触发结局，只在故事真正到达终点时输出`
+- 结局触发条件详见上方【结局触发规则】`
 
   const historyMessages: { role: 'user' | 'assistant'; content: string }[] =
     history.map((msg) => ({

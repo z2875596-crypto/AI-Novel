@@ -1,7 +1,7 @@
 'use client'
 
 import { useWorldStore } from '@/stores/worldStore'
-import { NPC, NARRATIVE_POV_OPTIONS, NarrativePOV } from '@/types/world'
+import { NPC, NARRATIVE_POV_OPTIONS, NarrativePOV, STORY_LENGTH_CONFIG } from '@/types/world'
 import PolishButton from './PolishButton'
 
 function uid() {
@@ -143,6 +143,37 @@ export default function CharacterEditor() {
               style={inputStyle}
             />
           </div>
+        </div>
+      </div>
+
+      {/* 故事长度 */}
+      <div>
+        <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--theme-primary)' }}>
+          故事长度
+        </h2>
+        <div className="flex gap-2">
+          {(Object.keys(STORY_LENGTH_CONFIG) as Array<'short' | 'medium' | 'long'>).map((key) => {
+            const cfg = STORY_LENGTH_CONFIG[key]
+            const selected = (worldConfig.storyLength ?? 'medium') === key
+            return (
+              <button
+                key={key}
+                onClick={() => updateField('storyLength', key)}
+                className="flex-1 rounded-xl border px-3 py-3 text-left transition-all hover:brightness-110"
+                style={{
+                  background: selected ? 'var(--theme-primary)22' : 'var(--theme-surface)',
+                  borderColor: selected ? 'var(--theme-primary)' : 'var(--theme-border)',
+                  color: selected ? 'var(--theme-primary)' : 'var(--theme-text)',
+                }}
+              >
+                <p className="text-sm font-bold">{cfg.label}</p>
+                <p className="text-xs mt-1 opacity-70">{cfg.description}</p>
+                <p className="text-xs mt-1.5 font-medium">
+                  {cfg.turnsPerChapter}回合/章 · 共{cfg.totalChapters}章
+                </p>
+              </button>
+            )
+          })}
         </div>
       </div>
 

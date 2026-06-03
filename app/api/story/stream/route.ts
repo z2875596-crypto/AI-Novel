@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     plotHint,
     subplots,
     memoryEvents,
+    storyLength,
   }: {
     genre: GenreKey
     worldConfig: WorldConfig
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
     plotHint?: string
     subplots?: SubplotKey[]
     memoryEvents?: MemoryEvent[]
+    storyLength?: 'short' | 'medium' | 'long'
   } = body
 
   const { system, messages } = buildStoryMessages({
@@ -46,6 +48,7 @@ export async function POST(req: NextRequest) {
     plotHint,
     subplots,
     memoryEvents,
+    storyLength,
   })
 
   const secureSystem = system + `\n

@@ -11,6 +11,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { useStyleStore } from '@/stores/styleStore'
 import { useClueStore } from '@/stores/clueStore'
 import { useAuthStore } from '@/stores/authStore'
+import { STORY_LENGTH_CONFIG } from '@/types/world'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { applyStatusDelta } from '@/lib/statusBar'
 import { speak, stop } from '@/lib/tts'
@@ -105,6 +106,17 @@ export default function GamePage() {
     const { styleConfig } = useStyleStore.getState()
     const memoryEvents = useMemoryStore.getState().getHighImportanceEvents()
 
+    const storyLength = currentWorld.storyLength ?? 'medium'
+    const { ending: endingTurns, totalTurns } = STORY_LENGTH_CONFIG[storyLength]
+    const endingPressure =
+      turn >= endingTurns.force
+        ? `【强制结局】已到达故事终点（第${totalTurns}回合），必须在本回合触发结局，根据当前状态决定好结局或坏结局。`
+        : turn >= endingTurns.push
+        ? `【推进结局】故事即将结束，请在1-3回合内自然收尾并触发结局。`
+        : turn >= endingTurns.hint
+        ? `【尾声提示】故事进入最终阶段，开始铺设结局伏笔。`
+        : ''
+
     if (streaming) return
     stop()
 
@@ -180,13 +192,14 @@ export default function GamePage() {
           genre: currentGenre,
           worldConfig: currentWorld,
           history: messages.slice(-10),
-          playerAction: summaryContext + safe,
+          playerAction: (endingPressure ? endingPressure + '\n' : '') + summaryContext + safe,
           status,
           turn,
           styleConfig,
           plotHint: plotHint || undefined,
           subplots: subplots.length > 0 ? subplots : undefined,
           memoryEvents: memoryEvents.length > 0 ? memoryEvents : undefined,
+          storyLength,
         }),
       })
 
@@ -374,13 +387,14 @@ export default function GamePage() {
     }
 
     const gameId = currentWorld.worldName + '-' + currentGenre
+    const { turnsPerChapter: autoSaveTPC } = STORY_LENGTH_CONFIG[currentWorld.storyLength ?? 'medium']
     const autoSave: SaveRecord = {
       id: gameId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       storyTitle: `${currentWorld.worldName} · ${currentWorld.protagonistName}`,
       genre: currentGenre!,
-      chapter: Math.floor((turn + 1) / 20) + 1,
+      chapter: Math.floor((turn + 1) / autoSaveTPC) + 1,
       turn: turn + 1,
       worldConfig: currentWorld,
       statusSnapshot: newStatus,
@@ -467,10 +481,13 @@ export default function GamePage() {
     currentMessages: Message[],
     currentGenre: string | null,
   ) {
-    // 每 20 回合触发一次章节摘要
-    if (currentTurn > 0 && currentTurn % 20 === 0) {
+    const { worldConfig: wc } = useWorldStore.getState()
+    const storyLength = wc.storyLength ?? 'medium'
+    const { turnsPerChapter } = STORY_LENGTH_CONFIG[storyLength]
+
+    if (currentTurn > 0 && currentTurn % turnsPerChapter === 0) {
       try {
-        const chapterNumber = Math.floor(currentTurn / 20)
+        const chapterNumber = Math.floor(currentTurn / turnsPerChapter)
         const { status } = useGameStore.getState()
         const res = await fetch('/api/summary', {
           method: 'POST',
@@ -572,10 +589,10 @@ export default function GamePage() {
   }
 
   function buildSaveRecord(customName?: string): SaveRecord {
-    // 手动存档时也用 getState，确保拿到当前数据而非渲染快照
     const { turn, status, messages } = useGameStore.getState()
     const { worldConfig: wc } = useWorldStore.getState()
     const { genre: g } = useGenreStore.getState()
+    const { turnsPerChapter: saveTPC } = STORY_LENGTH_CONFIG[wc.storyLength ?? 'medium']
     const gameId = wc.worldName + '-' + g
     const defaultTitle = `${wc.worldName} · ${wc.protagonistName}`
     return {
@@ -584,7 +601,7 @@ export default function GamePage() {
       updatedAt: Date.now(),
       storyTitle: customName ?? defaultTitle,
       genre: g!,
-      chapter: Math.floor(turn / 20) + 1,
+      chapter: Math.floor(turn / saveTPC) + 1,
       turn,
       worldConfig: wc,
       statusSnapshot: status,

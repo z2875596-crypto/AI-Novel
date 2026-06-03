@@ -6,6 +6,7 @@ import { useSummaryStore } from '@/stores/summaryStore'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
+import { STORY_LENGTH_CONFIG } from '@/types/world'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import { Message } from '@/types/game'
@@ -61,8 +62,11 @@ export default function ChaptersPage() {
   }
 
   const config = GENRE_CONFIG[genre]
-  const currentChapter = Math.floor(turn / 20) + 1
-  const currentChapterProgress = turn % 20
+  const storyLength = worldConfig.storyLength ?? 'medium'
+  const { turnsPerChapter, totalTurns, totalChapters } = STORY_LENGTH_CONFIG[storyLength]
+  const currentChapter = Math.floor(turn / turnsPerChapter) + 1
+  const currentChapterProgress = turn % turnsPerChapter
+  const overallProgress = Math.min((turn / totalTurns) * 100, 100)
 
   return (
     <ThemeProvider>
@@ -100,15 +104,40 @@ export default function ChaptersPage() {
           <p className="text-sm" style={{ color: config.theme.textMuted }}>
             主角：{worldConfig.protagonistName} · 共 {turn} 回合
           </p>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <span
+              className="text-xs px-3 py-1 rounded-full inline-block"
+              style={{
+                background: config.theme.primary + '22',
+                color: config.theme.primary,
+                border: `1px solid ${config.theme.primary}44`,
+              }}
+            >
+              第 {currentChapter}/{totalChapters} 章
+            </span>
+            <span
+              className="text-xs px-3 py-1 rounded-full inline-block"
+              style={{
+                background: config.theme.primary + '11',
+                color: config.theme.textMuted,
+                border: `1px solid ${config.theme.border}`,
+              }}
+            >
+              整体 {Math.round(overallProgress)}%
+            </span>
+          </div>
           <div
-            className="mt-3 text-xs px-3 py-1 rounded-full inline-block"
-            style={{
-              background: config.theme.primary + '22',
-              color: config.theme.primary,
-              border: `1px solid ${config.theme.primary}44`,
-            }}
+            className="mt-3 w-full h-1 rounded-full overflow-hidden max-w-[200px] mx-auto"
+            style={{ background: config.theme.primary + '22' }}
           >
-            当前第 {currentChapter} 章
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${overallProgress}%`,
+                background: config.theme.primary,
+                boxShadow: `0 0 8px ${config.theme.primary}88`,
+              }}
+            />
           </div>
         </div>
 
@@ -124,7 +153,7 @@ export default function ChaptersPage() {
           >
             <p className="text-3xl mb-3">📖</p>
             <p className="text-sm">第一章尚未完成</p>
-            <p className="text-xs mt-1 opacity-60">每 20 回合自动生成章节摘要</p>
+            <p className="text-xs mt-1 opacity-60">每 {turnsPerChapter} 回合自动生成章节摘要</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -161,7 +190,7 @@ export default function ChaptersPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs" style={{ color: config.theme.textMuted }}>
-                          第 {s.chapterNumber} 章 · 第 {s.triggerTurn - 19}–{s.triggerTurn} 回合
+                          第 {s.chapterNumber} 章 · 第 {s.triggerTurn - turnsPerChapter + 1}–{s.triggerTurn} 回合
                         </p>
                         <p className="text-base font-bold truncate" style={{ color: config.theme.text }}>
                           {s.chapterTitle || `第${s.chapterNumber}章`}
@@ -251,7 +280,7 @@ export default function ChaptersPage() {
                   </p>
                 </div>
                 <div className="ml-auto text-xs" style={{ color: config.theme.textMuted }}>
-                  {currentChapterProgress}/20 回合
+                  {currentChapterProgress}/{turnsPerChapter} 回合
                 </div>
               </div>
               <div
@@ -261,14 +290,14 @@ export default function ChaptersPage() {
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
-                    width: `${(currentChapterProgress / 20) * 100}%`,
+                    width: `${(currentChapterProgress / turnsPerChapter) * 100}%`,
                     background: config.theme.primary,
                     boxShadow: `0 0 8px ${config.theme.primary}88`,
                   }}
                 />
               </div>
               <p className="text-xs mt-1.5 text-right" style={{ color: config.theme.textMuted }}>
-                再 {20 - currentChapterProgress} 回合解锁下一章摘要
+                再 {turnsPerChapter - currentChapterProgress} 回合解锁下一章摘要
               </p>
             </div>
           </div>

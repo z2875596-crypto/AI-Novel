@@ -93,6 +93,7 @@ export default function SetupPage() {
       plotBeats: worldConfig.plotBeats ?? [],
       targetEnding: worldConfig.targetEnding,
       narrativePOV: worldConfig.narrativePOV ?? 'second',
+      storyLength: worldConfig.storyLength ?? 'medium',
     })
   }
 
