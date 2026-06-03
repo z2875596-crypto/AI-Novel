@@ -13,7 +13,7 @@ import { useClueStore } from '@/stores/clueStore'
 import { useAuthStore } from '@/stores/authStore'
 import { STORY_LENGTH_CONFIG } from '@/types/world'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
-import { applyStatusDelta } from '@/lib/statusBar'
+import { parseStatusDelta, applyStatusDelta } from '@/lib/statusBar'
 import { speak, stop } from '@/lib/tts'
 import { Message } from '@/types/game'
 import { SaveRecord } from '@/types/save'
@@ -37,6 +37,21 @@ import RewindModal from '@/components/game/RewindModal'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+}
+
+function parseEnding(text: string): {
+  cleanText: string
+  ending?: { type: 'good' | 'bad' | 'true' | 'secret'; title: string }
+} {
+  const match = text.match(/\[ENDING\](\{[^}]+\})\s*$/)
+  if (!match) return { cleanText: text }
+  try {
+    const ending = JSON.parse(match[1])
+    const cleanText = text.slice(0, match.index).trimEnd()
+    return { cleanText, ending }
+  } catch {
+    return { cleanText: text }
+  }
 }
 
 export default function GamePage() {
@@ -212,25 +227,32 @@ export default function GamePage() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
 
+      let chunkBuffer = ''
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
         const chunk = decoder.decode(value, { stream: true })
+        chunkBuffer += chunk
 
-        if (chunk.includes('[PARSED_DATA]')) {
-          const parts = chunk.split('[PARSED_DATA]')
-          narrativeText += parts[0]
+        if (chunkBuffer.includes('[PARSED_DATA]')) {
+          const parts = chunkBuffer.split('[PARSED_DATA]')
+          narrativeText = parts[0]
+          setStreamingText(narrativeText)
           try {
-            parsedData = JSON.parse(parts[1])
+            parsedData = JSON.parse(parts[1].trim())
           } catch {}
+        } else if (chunkBuffer.includes('[ERROR]')) {
+          narrativeText = chunkBuffer
+          setStreamingText(narrativeText)
         } else {
           narrativeText += chunk
+          const { cleanText } = parseStatusDelta(narrativeText)
+          setStreamingText(cleanText)
         }
-
-        setStreamingText(narrativeText)
       }
 
       // 流读取结束，立刻并行发起选项请求
+      const displayText = parseStatusDelta(narrativeText).cleanText
       const recentChoices = useGameStore.getState().messages
         .filter(m => m.role === 'player')
         .slice(-5)
@@ -240,7 +262,7 @@ export default function GamePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           genre: currentGenre,
-          lastNarratorText: narrativeText,
+          lastNarratorText: displayText,
           status,
           turn: turn + 1,
           protagonistName: currentWorld.protagonistName,
@@ -253,9 +275,12 @@ export default function GamePage() {
       setStreamingText(narrativeText)
     }
 
-    const cleanText = narrativeText
-    const delta = parsedData?.statusDelta ?? {}
-    const ending = parsedData?.ending ?? null
+    // 结构化数据优先，兜底用旧方式
+    const delta = parsedData?.statusDelta
+      ?? parseStatusDelta(narrativeText).delta
+    const { cleanText, ending } = parsedData
+      ? { cleanText: parseStatusDelta(narrativeText).cleanText, ending: parsedData.ending }
+      : parseEnding(parseStatusDelta(narrativeText).cleanText)
     const clues = parsedData?.clues ?? []
     const memoryHint = parsedData?.memoryHint ?? ''
 

@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
 import { buildStoryMessages } from '@/lib/prompts/storyPrompt'
-import { parseNarrativeResponse } from '@/lib/parseNarrative'
 import { GenreKey } from '@/types/genre'
 import { WorldConfig } from '@/types/world'
 import { Message } from '@/types/game'
@@ -66,26 +65,38 @@ export async function POST(req: NextRequest) {
         const response = await deepseek.chat.completions.create({
           model: DEEPSEEK_MODEL,
           messages: [{ role: 'system', content: secureSystem }, ...messages],
-          stream: false,
+          stream: true,
           max_tokens: 1200,
           temperature: 0.7,
         })
 
-        const raw = response.choices[0]?.message?.content ?? ''
-        const parsed = parseNarrativeResponse(raw)
+        let fullText = ''
 
-        for (const char of parsed.narrative) {
-          controller.enqueue(encoder.encode(char))
+        for await (const chunk of response) {
+          const text = chunk.choices[0]?.delta?.content ?? ''
+          if (text) {
+            fullText += text
+            controller.enqueue(encoder.encode(text))
+          }
         }
 
-        controller.enqueue(
-          encoder.encode(`[PARSED_DATA]${JSON.stringify({
-            statusDelta: parsed.statusDelta,
-            ending: parsed.ending,
-            clues: parsed.clues,
-            memoryHint: parsed.memoryHint,
-          })}`)
-        )
+        // 流结束后，尝试从完整文本中解析 JSON 结构化数据
+        try {
+          const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0])
+            controller.enqueue(
+              encoder.encode(`[PARSED_DATA]${JSON.stringify({
+                statusDelta: parsed.statusDelta ?? {},
+                ending: parsed.ending ?? null,
+                clues: parsed.clues ?? [],
+                memoryHint: parsed.memoryHint ?? '',
+              })}`)
+            )
+          }
+        } catch {
+          // JSON 解析失败，不发送 [PARSED_DATA]，前端用旧方式兜底
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error'
         controller.enqueue(encoder.encode(`[ERROR]${msg}`))
@@ -100,6 +111,7 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'text/plain; charset=utf-8',
       'Transfer-Encoding': 'chunked',
       'Cache-Control': 'no-cache',
+      'X-Accel-Buffering': 'no',
     },
   })
 }
