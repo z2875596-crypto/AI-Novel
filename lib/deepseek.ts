@@ -20,4 +20,4 @@ export const deepseek = new Proxy({} as OpenAI, {
   },
 })
 
-export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL ?? 'deepseek-chat'
+export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL ?? 'deepseek-flash'

@@ -118,7 +118,7 @@ npm install
 # 必填
 DEEPSEEK_API_KEY=sk-your-api-key-here
 DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_MODEL=deepseek-flash
 
 # 可选（用户认证）
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
