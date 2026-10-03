@@ -6,7 +6,7 @@
 
 ## 🔗 在线体验
 
-**[👉 立即体验 —— ai-novel-seven.vercel.app](https://ai-novel-seven.vercel.app/)**
+**[👉 立即体验 —— ai-novel-w2x5.onrender.com](https://ai-novel-w2x5.onrender.com/)**
 
 无需注册，点击"游客模式"即可开始。推荐使用 DeepSeek API Key 获得完整体验。
 
