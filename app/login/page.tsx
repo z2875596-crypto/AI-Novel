@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -76,7 +76,7 @@ const inputBase: React.CSSProperties = {
 /* ── 主页面 ── */
 export default function LoginPage() {
   const router = useRouter()
-  const { user, isGuest, setIsGuest, isLoading } = useAuthStore()
+  const { user, setIsGuest, isLoading } = useAuthStore()
   const [tab, setTab] = useState<'guest' | 'login'>('guest')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -88,10 +88,10 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && (user || isGuest)) {
+    if (!isLoading && user) {
       router.replace('/')
     }
-  }, [user, isGuest, isLoading, router])
+  }, [user, isLoading, router])
 
   if (isLoading) {
     return (
@@ -112,9 +112,8 @@ export default function LoginPage() {
     setMessage('')
     setSubmitting(true)
 
-    const supabase = createClient()
-
     try {
+      const supabase = createClient()
       if (isRegister) {
         if (password !== confirmPassword) {
           setError('两次输入的密码不一致')
@@ -144,14 +143,14 @@ export default function LoginPage() {
     setSubmitting(false)
   }
 
-  const focusStyle = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+  const focusStyle = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.borderColor = 'rgba(200,150,12,0.6)'
     e.target.style.boxShadow = '0 0 8px rgba(200,150,12,0.12)'
-  }, [])
-  const blurStyle = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+  }
+  const blurStyle = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.borderColor = 'rgba(255,255,255,0.1)'
     e.target.style.boxShadow = 'none'
-  }, [])
+  }
 
   const btnPrimary: React.CSSProperties = {
     width: '100%',
@@ -265,7 +264,7 @@ export default function LoginPage() {
                     直接开始 →
                   </button>
                   <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                    注册账号可永久保存存档
+                    存档保存在当前浏览器，登录暂不提供云同步
                   </p>
                 </div>
               )}
@@ -323,13 +322,7 @@ export default function LoginPage() {
 
                     {!isRegister && (
                       <div className="flex justify-end">
-                        <button
-                          type="button"
-                          className="text-xs hover:underline"
-                          style={{ color: 'rgba(200,150,12,0.6)' }}
-                        >
-                          忘记密码？
-                        </button>
+                        <span className="text-xs opacity-60">暂不支持在此页面找回密码</span>
                       </div>
                     )}
 
@@ -369,7 +362,7 @@ export default function LoginPage() {
 
           {/* 底部 */}
           <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,255,255,0.18)' }}>
-            继续即表示同意服务条款
+            清理浏览器数据会移除本机存档，请及时导出备份
           </p>
         </div>
       </main>

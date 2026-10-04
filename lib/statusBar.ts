@@ -21,7 +21,8 @@ export function applyStatusDelta(
   const bars = GENRE_CONFIG[genre].bars
   const next = { ...current }
   for (const bar of bars) {
-    const d = delta[bar.key] ?? 0
+    const raw = delta[bar.key]
+    const d = typeof raw === 'number' && Number.isFinite(raw) ? Math.max(-15, Math.min(15, raw)) : 0
     next[bar.key] = Math.min(bar.max, Math.max(0, (next[bar.key] ?? 0) + d))
   }
   return next
@@ -32,7 +33,6 @@ export function parseStatusDelta(text: string): {
   delta: Record<string, number>
 } {
   const match = text.match(/\[STATUS_DELTA\](\{[^}]+\})\s*$/)
-  console.log('STATUS_DELTA match:', match?.[0] ?? '未找到', '| 末尾100字:', text.slice(-100))
   if (!match) return { cleanText: text, delta: {} }
   try {
     const delta = JSON.parse(match[1]) as Record<string, number>

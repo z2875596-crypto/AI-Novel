@@ -97,7 +97,7 @@ export default function WorldConfigModal({ onClose }: Props) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {!editing ? (
+            {!editing && !worldConfig.supply ? (
               <button
                 onClick={handleEdit}
                 className="px-3 py-1.5 rounded-lg text-xs transition-all hover:brightness-110"
@@ -109,7 +109,7 @@ export default function WorldConfigModal({ onClose }: Props) {
               >
                 ✏️ 编辑
               </button>
-            ) : (
+            ) : editing ? (
               <div className="flex gap-2">
                 <button
                   onClick={() => setEditing(false)}
@@ -133,7 +133,7 @@ export default function WorldConfigModal({ onClose }: Props) {
                   保存修改
                 </button>
               </div>
-            )}
+            ) : null}
             <button
               onClick={onClose}
               className="px-2 py-1.5 rounded-lg text-xs transition-all hover:brightness-110"

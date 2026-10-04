@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
@@ -36,11 +37,8 @@ export const useMemoryStore = create<MemoryStore>()(
     }),
     {
       name: 'memory-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined'
-          ? localStorage
-          : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      skipHydration: true,
+      storage: createJSONStorage(() => localPersistence),
     }
   )
 )

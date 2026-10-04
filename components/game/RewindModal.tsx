@@ -7,11 +7,12 @@ import { Message } from '@/types/game'
 interface Props {
   messages: Message[]
   currentTurn: number
+  availableTurns: number[]
   onRewind: (turn: number, messages: Message[]) => void
   onClose: () => void
 }
 
-export default function RewindModal({ messages, currentTurn, onRewind, onClose }: Props) {
+export default function RewindModal({ messages, currentTurn, availableTurns, onRewind, onClose }: Props) {
   const genre = useGenreStore((s) => s.genre)
   const config = genre ? GENRE_CONFIG[genre] : null
 
@@ -23,8 +24,7 @@ export default function RewindModal({ messages, currentTurn, onRewind, onClose }
 
   // 只取 narrator 类型的消息作为回溯节点（每条叙述都是一个分叉点）
   const narratorMessages = messages
-    .filter((m) => m.role === 'narrator' && m.turn !== undefined)
-    .slice(0, -1)  // 排除最后一条（当前节点，无意义回溯）
+    .filter((m) => m.role === 'narrator' && m.turn !== undefined && availableTurns.includes(m.turn) && m.turn < currentTurn)
     .reverse()     // 最近的在最上面
 
   return (
@@ -58,7 +58,7 @@ export default function RewindModal({ messages, currentTurn, onRewind, onClose }
         <div className="p-4 max-h-80 overflow-y-auto space-y-2">
           {narratorMessages.length === 0 ? (
             <p className="text-center py-8 text-sm" style={{ color: textMuted }}>
-              暂无可回溯的节点
+              暂无完整回溯快照；旧存档可继续游玩，新回合会记录快照
             </p>
           ) : (
             narratorMessages.map((msg) => {

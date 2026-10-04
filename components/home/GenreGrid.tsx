@@ -1,254 +1,72 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GenreKey } from '@/types/genre'
-import { SubplotKey } from '@/types/subplot'
-import { SUBPLOT_OPTIONS } from '@/types/subplot'
-import { GENRE_CONFIG, getRandomGenre, applyTheme } from '@/lib/themeConfig'
+import type { GenreKey } from '@/types/genre'
+import { archiveCurrentStory, resetAuxiliaryState } from '@/lib/session'
+import { quickStartWorld } from '@/lib/quickStart'
+import { STORY_CATALOG, FEATURED_STORIES } from '@/lib/storyCatalog'
+import { getInitialStatus } from '@/lib/statusBar'
+import { GENRE_CONFIG, ALL_GENRE_KEYS, applyTheme } from '@/lib/themeConfig'
 import { useGenreStore } from '@/stores/genreStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useWorldStore } from '@/stores/worldStore'
-import GenreBackground from './GenreBackground'
-
-const DISPLAY_GENRES: GenreKey[] = [
-  'urban', 'ancient', 'xuanhuan',
-  'magic', 'mystery', 'horror',
-  'scifi', 'apocalypse',
-]
 
 export default function GenreGrid() {
   const router = useRouter()
-  const setGenre = useGenreStore((s) => s.setGenre)
-  const setSubplots = useGenreStore((s) => s.setSubplots)
-  const resetGame = useGameStore((s) => s.resetGame)
-  const resetWorld = useWorldStore((s) => s.reset)
-  const [hoveredGenre, setHoveredGenre] = useState<GenreKey | 'random' | null>(null)
-  const [selectedGenre, setSelectedGenre] = useState<GenreKey | null>(null)
-  const [selectedSubplotKeys, setSelectedSubplotKeys] = useState<SubplotKey[]>([])
+  const [filter, setFilter] = useState<GenreKey | null>(null)
+  const [customGenre, setCustomGenre] = useState<GenreKey>('urban')
+  const [error, setError] = useState('')
+  const [starting, setStarting] = useState(false)
+  const stories = filter ? [filter] : FEATURED_STORIES
 
-  function handleHover(key: GenreKey | 'random' | null) {
-    setHoveredGenre(key)
-    if (key && key !== 'random') {
-      applyTheme(GENRE_CONFIG[key].theme)
-    } else if (key === 'random') {
-      applyTheme({
-        primary: '#ffffff',
-        secondary: '#cccccc',
-        background: '#0a0a0a',
-        surface: '#1a1a1a',
-        surfaceHover: '#2a2a2a',
-        text: '#ffffff',
-        textMuted: '#888888',
-        border: '#333333',
-        fontFamily: 'default',
-      })
-    } else {
-      const currentGenre = useGenreStore.getState().genre
-      if (currentGenre) {
-        applyTheme(GENRE_CONFIG[currentGenre].theme)
-      }
-    }
-  }
-
-  function handleCardClick(key: GenreKey) {
-    if (selectedGenre === key) {
-      setSelectedGenre(null)
-      setSelectedSubplotKeys([])
-    } else {
-      setSelectedGenre(key)
-      setSelectedSubplotKeys([])
-    }
-  }
-
-  function toggleSubplot(key: SubplotKey) {
-    setSelectedSubplotKeys((prev) => {
-      if (prev.includes(key)) return prev.filter((k) => k !== key)
-      if (prev.length >= 2) return prev
-      return [...prev, key]
-    })
-  }
-
-  function handleStart() {
-    if (!selectedGenre) return
-    setGenre(selectedGenre)
-    setSubplots(selectedSubplotKeys)
-    resetGame({})
-    resetWorld()
-    router.push('/setup')
+  function start(genre: GenreKey, custom = false) {
+    if (starting) return
+    try {
+      archiveCurrentStory()
+      const world = custom ? null : quickStartWorld(genre)
+      resetAuxiliaryState()
+      useGenreStore.getState().setGenre(genre)
+      useGenreStore.getState().setSubplots([])
+      useGameStore.getState().resetGame(getInitialStatus(genre))
+      useWorldStore.getState().reset()
+      if (world) useWorldStore.getState().setWorldConfig(world)
+      applyTheme(GENRE_CONFIG[genre].theme)
+      setStarting(true)
+      setError('')
+      router.push(custom ? '/setup' : '/game')
+    } catch (e) { setError((e as Error).message) }
   }
 
   return (
-    <>
-      <GenreBackground hoveredGenre={hoveredGenre} />
-      <div className="grid grid-cols-3 gap-3 relative z-10">
-        {DISPLAY_GENRES.map((key, i) => {
-          const cfg = GENRE_CONFIG[key]
-          const isSelected = selectedGenre === key
-          const isOtherSelected = selectedGenre !== null && selectedGenre !== key
-
-          return (
-            <div
-              key={key}
-              className="flex flex-col rounded-2xl transition-all duration-500"
-              style={{
-                background: isSelected ? cfg.theme.surface : 'transparent',
-                border: isSelected ? `1px solid ${cfg.theme.primary}44` : '1px solid transparent',
-                boxShadow: isSelected ? `0 0 24px ${cfg.theme.primary}22` : 'none',
-                opacity: isOtherSelected ? 0.4 : 1,
-              }}
-            >
-              <button
-                onClick={() => handleCardClick(key)}
-                onMouseEnter={() => !isSelected && handleHover(key)}
-                onMouseLeave={() => !isSelected && handleHover(null)}
-                className="group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-5 transition-all duration-300 hover:scale-[1.05] active:scale-[0.96] overflow-hidden w-full"
-                style={{
-                  background: cfg.theme.surface,
-                  border: `1px solid ${cfg.theme.border}`,
-                  ...(key === 'scifi' && { boxShadow: '0 0 15px #00BFFF22' }),
-                  ...(key === 'apocalypse' && { border: '1px solid #FF6B3544' }),
-                  animationDelay: `${i * 0.06}s`,
-                  animationFillMode: 'backwards',
-                }}
-              >
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    background: `radial-gradient(circle at 50% 80%, ${cfg.theme.primary}20 0%, transparent 65%)`,
-                  }}
-                />
-                <div
-                  className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, ${cfg.theme.primary}, transparent)`,
-                  }}
-                />
-                {isSelected && (
-                  <span
-                    className="absolute top-2 right-2 text-xs font-medium px-2 py-0.5 rounded-full z-10"
-                    style={{
-                      background: cfg.theme.primary + '22',
-                      color: cfg.theme.primary,
-                    }}
-                  >
-                    ✓ 已选择
-                  </span>
-                )}
-                <span
-                  className="text-3xl relative z-10 transition-transform duration-300 group-hover:scale-110"
-                  style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
-                >
-                  {cfg.emoji}
-                </span>
-                <span
-                  className="text-sm font-bold relative z-10 tracking-wide"
-                  style={{ color: cfg.theme.text }}
-                >
-                  {cfg.label}
-                </span>
-                <span
-                  className="text-xs text-center leading-tight relative z-10 line-clamp-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
-                  style={{ color: cfg.theme.textMuted }}
-                >
-                  {cfg.description}
-                </span>
-                <div
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 group-hover:w-3/4 transition-all duration-300 rounded-full"
-                  style={{ background: cfg.theme.primary }}
-                />
-              </button>
-
-              {/* 展开区域 */}
-              <div
-                className="overflow-hidden transition-all duration-500 ease-in-out"
-                style={{
-                  maxHeight: isSelected ? '320px' : '0px',
-                  opacity: isSelected ? 1 : 0,
-                }}
-              >
-                <div
-                  className="px-4 pb-4 pt-1 space-y-3"
-                  style={{ borderTop: `1px solid ${cfg.theme.border}66` }}
-                >
-                  <p className="text-xs" style={{ color: cfg.theme.textMuted }}>
-                    添加副线（可选，最多2个）：
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {SUBPLOT_OPTIONS
-                      .filter((sub) => !(selectedGenre === 'mystery' && sub.key === 'mystery_sub'))
-                      .map((sub) => {
-                      const active = selectedSubplotKeys.includes(sub.key)
-                      const atLimit = selectedSubplotKeys.length >= 2 && !active
-                      return (
-                        <button
-                          key={sub.key}
-                          onClick={() => toggleSubplot(sub.key)}
-                          disabled={atLimit}
-                          className="text-xs px-2.5 py-1.5 rounded-full border transition-all duration-200 disabled:opacity-30"
-                          style={{
-                            background: active ? cfg.theme.primary + '22' : 'transparent',
-                            borderColor: active ? cfg.theme.primary : cfg.theme.border,
-                            color: active ? cfg.theme.primary : cfg.theme.textMuted,
-                          }}
-                        >
-                          {sub.emoji} {sub.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <button
-                    onClick={handleStart}
-                    className="w-full py-2.5 rounded-xl text-sm font-bold transition-all hover:brightness-110 active:scale-[0.98]"
-                    style={{
-                      background: cfg.theme.primary,
-                      color: '#fff',
-                      boxShadow: `0 0 16px ${cfg.theme.primary}44`,
-                    }}
-                  >
-                    开始冒险 →
-                  </button>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-
-        {/* 随机按钮 */}
-        <button
-          onClick={() => {
-            const randomKey = getRandomGenre()
-            setSelectedGenre(randomKey)
-            setSelectedSubplotKeys([])
-          }}
-          onMouseEnter={() => handleHover('random')}
-          onMouseLeave={() => handleHover(null)}
-          className="group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-5 transition-all duration-300 hover:scale-[1.05] active:scale-[0.96] overflow-hidden"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px dashed rgba(255,255,255,0.15)',
-            animationDelay: '0.48s',
-            animationFillMode: 'backwards',
-            opacity: selectedGenre ? 0.4 : 1,
-          }}
-        >
-          <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{
-              background: 'radial-gradient(circle at 50% 80%, rgba(255,255,255,0.06) 0%, transparent 65%)',
-            }}
-          />
-          <span className="text-3xl relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
-            🎲
-          </span>
-          <span className="text-sm font-bold relative z-10" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            随机
-          </span>
-          <span className="text-xs text-center relative z-10 opacity-50 group-hover:opacity-80 transition-opacity">
-            随机抽一种题材开始冒险
-          </span>
-        </button>
+    <section aria-labelledby="story-selection" className="space-y-6">
+      <div>
+        <p className="text-xs tracking-widest mb-2" style={{ color: 'var(--theme-primary)' }}>故事，从一个难题开始</p>
+        <h2 id="story-selection" className="text-xl font-semibold">你想走进哪段故事？</h2>
+        <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--theme-text-muted)' }}>无需先写设定。选一个故事，直接面对你的第一个抉择。</p>
       </div>
-    </>
+      <div className="flex flex-wrap gap-2" aria-label="按题材筛选故事">
+        <button aria-pressed={!filter} onClick={() => setFilter(null)} className="rounded-full border px-3 py-2 text-xs" style={{ borderColor: !filter ? 'var(--theme-primary)' : 'var(--theme-border)' }}>主推故事</button>
+        {ALL_GENRE_KEYS.map(key => <button key={key} aria-pressed={filter === key} onClick={() => setFilter(key)} className="rounded-full border px-3 py-2 text-xs transition-colors hover:bg-white/5" style={{ borderColor: filter === key ? 'var(--theme-primary)' : 'var(--theme-border)' }}>{GENRE_CONFIG[key].label}</button>)}
+      </div>
+      {error && <p role="alert" className="rounded-xl border p-3">{error}</p>}
+      <div className="grid gap-4 md:grid-cols-3">
+        {stories.map(key => {
+          const story = STORY_CATALOG[key], cfg = GENRE_CONFIG[key]
+          return <article key={key} className="flex flex-col rounded-2xl border p-5 sm:p-6" style={{ background: cfg.theme.surface, borderColor: cfg.theme.border, color: cfg.theme.text }}>
+            <div className="flex items-center justify-between gap-3 mb-6"><span className="text-3xl" aria-hidden="true">{cfg.emoji}</span><span className="text-xs" style={{ color: cfg.theme.textMuted }}>{cfg.label} · 短篇体验</span></div>
+            <h3 className="text-xl font-semibold mb-3">{story.title}</h3>
+            <p className="text-sm leading-7 mb-5">{story.hook}</p>
+            <p className="text-xs leading-6 mb-6" style={{ color: cfg.theme.textMuted }}>你的目标：{story.goal}</p>
+            <div className="mt-auto space-y-3"><p className="text-xs" style={{ color: cfg.theme.textMuted }}>约 8 回合 · 可自由输入 · 可回溯</p><button disabled={starting} onClick={() => start(key)} className="w-full rounded-xl border px-4 py-3 text-sm font-semibold transition hover:brightness-125 disabled:opacity-50" style={{ background: `${cfg.theme.primary}22`, borderColor: cfg.theme.primary, color: cfg.theme.text }} aria-label={`进入故事：${story.title}`}>进入故事 →</button></div>
+          </article>
+        })}
+      </div>
+      <p className="text-xs leading-6" style={{ color: 'var(--theme-text-muted)' }}>选择行动，或写下你想怎么做。剧情由 AI 生成；结束后，你可以回溯关键选择，探索另一种走向。</p>
+      <details className="rounded-2xl border p-5" style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-surface)' }}>
+        <summary className="cursor-pointer text-sm font-medium">想讲自己的故事？创建世界与角色</summary>
+        <div className="mt-4 space-y-4"><p className="text-sm leading-6" style={{ color: 'var(--theme-text-muted)' }}>为自己的主角搭建世界，再一起推进剧情。文风、剧情节点与目标结局都可以在高级设定中调整。</p><div className="flex flex-wrap items-center gap-3"><label htmlFor="custom-genre" className="text-sm">故事题材</label><select id="custom-genre" value={customGenre} onChange={e => setCustomGenre(e.target.value as GenreKey)} className="rounded-lg border p-2 text-sm" style={{ background: 'var(--theme-surface)', borderColor: 'var(--theme-border)' }}>{ALL_GENRE_KEYS.map(key => <option key={key} value={key}>{GENRE_CONFIG[key].label}</option>)}</select><button disabled={starting} onClick={() => start(customGenre, true)} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50" style={{ borderColor: 'var(--theme-border)' }}>开始共创 →</button></div></div>
+      </details>
+    </section>
   )
 }

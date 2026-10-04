@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
+import { deepseek, DEEPSEEK_MODEL, DEEPSEEK_GENERATION_OPTIONS } from '@/lib/deepseek'
 import { Message } from '@/types/game'
 
 export async function POST(req: NextRequest) {
@@ -30,6 +30,7 @@ ${recentMessages.map((m) => `${m.role}: ${m.content}`).join('\n')}`
 
   try {
     const response = await deepseek.chat.completions.create({
+      ...DEEPSEEK_GENERATION_OPTIONS,
       model: DEEPSEEK_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },

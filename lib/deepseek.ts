@@ -21,3 +21,6 @@ export const deepseek = new Proxy({} as OpenAI, {
 })
 
 export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL ?? 'deepseek-flash'
+
+// Interactive generation needs final output, not a hidden reasoning budget.
+export const DEEPSEEK_GENERATION_OPTIONS = { thinking: { type: 'disabled' as const } }

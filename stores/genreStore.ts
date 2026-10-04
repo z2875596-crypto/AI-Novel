@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { GenreKey } from '@/types/genre'
@@ -26,9 +27,7 @@ export const useGenreStore = create<GenreStore>()(
     }),
     {
       name: 'genre-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
     }
   )

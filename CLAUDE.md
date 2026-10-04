@@ -11,7 +11,7 @@
 - **Tailwind CSS v4**
 - **DeepSeek API** — 通过 OpenAI SDK 兼容接口调用（`openai` npm 包）
 - **Supabase** — 用户认证（`@supabase/ssr` + `@supabase/supabase-js`）
-- **部署**：Vercel（含 Cron Job 保活）
+- **部署**：Render（main 分支提交后自动部署；Vercel 配置保留）
 
 ## 项目结构说明
 
@@ -19,7 +19,7 @@
 ai-novel/
 ├── app/
 │   ├── api/
-│   │   ├── story/stream/       # 剧情流式生成（SSE）
+│   │   ├── story/stream/       # 剧情流式生成（NDJSON）
 │   │   ├── story/choices/      # 选项生成
 │   │   ├── worldgen/           # 世界观随机生成
 │   │   ├── summary/            # 章节摘要生成
@@ -28,7 +28,7 @@ ai-novel/
 │   │   ├── analyze-style/      # 文笔风格分析
 │   │   ├── polish/             # 设定润色
 │   │   └── cron/keepalive/     # Supabase 保活（Vercel Cron 每5天触发）
-│   ├── page.tsx                # 首页（9宫格布局：8题材+随机）
+│   ├── page.tsx                # 首页（响应式题材卡片 + 快速体验）
 │   ├── layout.tsx              # 根布局（元数据 + ClientAuthProvider）
 │   ├── login/                  # 登录/注册页
 │   ├── setup/                  # 世界观配置页
@@ -199,3 +199,9 @@ npm run lint       # ESLint 检查
 # 部署到 Vercel
 git add . && git commit -m "描述改动" && git push
 ```
+
+## 流程可靠性（v0.2）
+
+产品规则和验收标准见 `docs/PRD.md`。`lib/storyRunner.ts` 管理完整回合提交与取消；`lib/session.ts` 统一保存、恢复和回溯；`lib/storyProtocol.ts` 校验模型响应。
+
+运行 `npm test`、`npm run typecheck` 和 `npm run build` 验证。新生成接口不能绕过完整校验写入回合，禁止按世界名或回合数猜测存档身份。

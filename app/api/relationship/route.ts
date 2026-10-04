@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
+import { deepseek, DEEPSEEK_MODEL, DEEPSEEK_GENERATION_OPTIONS } from '@/lib/deepseek'
 import { RelationshipUpdate, RelationType } from '@/stores/relationshipStore'
 import { NPC } from '@/types/world'
 
@@ -47,6 +47,7 @@ ${narratorText}
 
   try {
     const response = await deepseek.chat.completions.create({
+      ...DEEPSEEK_GENERATION_OPTIONS,
       model: DEEPSEEK_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },

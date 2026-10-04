@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Clue } from '@/types/clue'
@@ -40,9 +41,7 @@ export const useClueStore = create<ClueStore>()(
     }),
     {
       name: 'clue-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
     }
   )

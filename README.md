@@ -300,3 +300,10 @@ MIT License
 - [Supabase](https://supabase.com/) —— 开源 Firebase 替代方案
 - [Zustand](https://github.com/pmndrs/zustand) —— 轻量级状态管理
 - [Tailwind CSS](https://tailwindcss.com/) —— 实用优先的 CSS 框架
+
+## 流程改进与开发验证
+
+- 产品需求与验收：[PRD v0.2](docs/PRD.md)。
+- 支持约 8 回合的快速体验、失败重试、完整本机存档、回合快照与独立回溯分支。
+- 存档保存在当前浏览器，登录暂不提供云同步；JSON 备份导出位于存档页。
+- 验证命令：`npm test`（模拟接口）、`npm run typecheck`、`npm run build`。

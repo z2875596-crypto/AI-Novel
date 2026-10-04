@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
@@ -121,9 +122,7 @@ export const useStyleStore = create<StyleStore>()(
     }),
     {
       name: 'style-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
     }
   )

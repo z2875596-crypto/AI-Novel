@@ -1,12 +1,10 @@
 'use client'
 
+import { exportSavesJson } from '@/lib/saveManager'
+import { restoreSave } from '@/lib/session'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSaveStore } from '@/stores/saveStore'
-import { useGameStore } from '@/stores/gameStore'
-import { useGenreStore } from '@/stores/genreStore'
-import { useWorldStore } from '@/stores/worldStore'
-import { useSummaryStore } from '@/stores/summaryStore'
 import { SaveRecord } from '@/types/save'
 import ThemeProvider from '@/components/shared/ThemeProvider'
 import SaveCard from '@/components/saves/SaveCard'
@@ -15,72 +13,13 @@ import { exportNovelAsText, downloadText } from '@/lib/exportNovel'
 export default function SavesPage() {
   const router = useRouter()
   const { saves, loadFromStorage, remove } = useSaveStore()
-  const resetGame = useGameStore((s) => s.resetGame)
-  const setMessages = useGameStore((s) => s.setMessages)
-  const setGenre = useGenreStore((s) => s.setGenre)
-  const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
-  const { reset: resetSummaries, loadForGame } = useSummaryStore()
 
   useEffect(() => {
     loadFromStorage()
   }, [loadFromStorage])
 
   function handleContinue(save: SaveRecord) {
-    setGenre(save.genre)
-    setWorldConfig(save.worldConfig)
-
-    if (save.summaries && save.summaries.length > 0) {
-      const gameId = save.worldConfig.worldName + '-' + save.genre
-      loadForGame(gameId, save.summaries)
-    } else {
-      resetSummaries()
-    }
-
-    const persisted = useGameStore.getState()
-    const isSameGame =
-      persisted.turn === save.turn &&
-      persisted.messages.length > 0
-
-    const restoredMessages = isSameGame ? persisted.messages : save.recentHistory
-    const restoredChoices = isSameGame ? persisted.currentChoices : []
-
-    useGameStore.setState({
-      turn: save.turn,
-      status: save.statusSnapshot,
-      messages: restoredMessages,
-      currentChoices: restoredChoices,
-      isStreaming: false,
-      streamingText: '',
-    })
-
-    // 跨设备或换存档时，持久化 choices 为空，重新生成一次
-    if (!isSameGame || restoredChoices.length === 0) {
-      const lastNarrator = restoredMessages
-        .filter((m) => m.role === 'narrator')
-        .slice(-1)[0]
-
-      if (lastNarrator) {
-        fetch('/api/story/choices', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre: save.genre,
-            lastNarratorText: lastNarrator.content,
-            status: save.statusSnapshot,
-            turn: save.turn + 1,
-            protagonistName: save.worldConfig.protagonistName,
-            narrativePOV: save.worldConfig.narrativePOV ?? 'second',
-          }),
-        })
-          .then((r) => r.json())
-          .then(({ choices }) => {
-            if (choices?.length > 0) {
-              useGameStore.setState({ currentChoices: choices })
-            }
-          })
-          .catch(() => {})
-      }
-    }
+    restoreSave(save)
 
     router.push('/game')
   }
@@ -116,6 +55,8 @@ export default function SavesPage() {
           <div className="w-16" />
         </div>
 
+        <p className="text-xs mb-3 opacity-70">存档仅保存在当前浏览器，登录暂不提供云同步。旧存档只恢复其中已有的数据。</p>
+        <button className="mb-5 text-sm underline" onClick={() => downloadText(exportSavesJson(), "yuanxu-saves-backup.json")}>导出全部存档备份（JSON）</button>
         {saves.length === 0 ? (
           <div
             className="text-center py-20"

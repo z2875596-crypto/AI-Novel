@@ -36,6 +36,7 @@ export interface PlotBeat {
 }
 
 export interface WorldConfig {
+  supply?: import('../lib/supplyGame').SupplyState
   worldName: string
   worldSetting: string
   protagonistName: string
@@ -45,7 +46,7 @@ export interface WorldConfig {
   plotBeats: PlotBeat[]
   targetEnding?: string
   narrativePOV: NarrativePOV
-  storyLength: 'short' | 'medium' | 'long'
+  storyLength: 'trial' | 'short' | 'medium' | 'long'
 }
 
 export const EMPTY_WORLD_CONFIG: WorldConfig = {
@@ -62,6 +63,11 @@ export const EMPTY_WORLD_CONFIG: WorldConfig = {
 }
 
 export const STORY_LENGTH_CONFIG = {
+  trial: {
+    label: '体验篇', description: '约 8 回合，1 章，先体验选择与结局',
+    turnsPerChapter: 8, totalChapters: 1, totalTurns: 8,
+    ending: { hint: 5, push: 7, force: 8 },
+  },
   short: {
     label: '短篇',
     description: '约30回合，3章，适合快节奏体验',

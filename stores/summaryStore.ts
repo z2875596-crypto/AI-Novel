@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Message } from '@/types/game'
@@ -32,9 +33,7 @@ export const useSummaryStore = create<SummaryStore>()(
     }),
     {
       name: 'summary-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
     }
   )

@@ -1,12 +1,12 @@
 'use client'
 
+import { resetAuxiliaryState } from '@/lib/session'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGenreStore } from '@/stores/genreStore'
 import { useWorldStore } from '@/stores/worldStore'
 import { useGameStore } from '@/stores/gameStore'
 import { useStyleStore } from '@/stores/styleStore'
-import { useAuthStore } from '@/stores/authStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import { getInitialStatus } from '@/lib/statusBar'
 import ThemeProvider from '@/components/shared/ThemeProvider'
@@ -26,6 +26,7 @@ import HorrorBackground from '@/components/home/backgrounds/HorrorBackground'
 import ScifiBackground from '@/components/home/backgrounds/ScifiBackground'
 import ApocalypseBackground from '@/components/home/backgrounds/ApocalypseBackground'
 import RandomBackground from '@/components/home/backgrounds/RandomBackground'
+import { SUBPLOT_OPTIONS } from '@/types/subplot'
 
 function uid() {
   return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -51,15 +52,10 @@ export default function SetupPage() {
   const worldConfig = useWorldStore((s) => s.worldConfig)
   const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
   const resetGame = useGameStore((s) => s.resetGame)
-  const resetStyle = useStyleStore((s) => s.reset)
+  const subplots = useGenreStore((s) => s.subplots)
 
-  const { user, isGuest, isLoading } = useAuthStore()
 
-  useEffect(() => {
-    if (!isLoading && !user && !isGuest) {
-      router.replace('/login')
-    }
-  }, [isLoading, user, isGuest, router])
+
 
   useEffect(() => {
     if (!genre) router.replace('/')
@@ -99,7 +95,7 @@ export default function SetupPage() {
 
   function validate() {
     const { worldName, worldSetting, protagonistName, protagonistTraits, openingScene } = worldConfig
-    return worldName && worldSetting && protagonistName && protagonistTraits && openingScene
+    return [worldName, worldSetting, protagonistName, protagonistTraits, openingScene].every(value => value.trim())
   }
 
   function handleStart() {
@@ -108,6 +104,11 @@ export default function SetupPage() {
       return
     }
     const initialStatus = getInitialStatus(genre!)
+    const subplots = useGenreStore.getState().subplots
+    const styleConfig = useStyleStore.getState().styleConfig
+    resetAuxiliaryState()
+    useGenreStore.getState().setSubplots(subplots)
+    useStyleStore.setState({ styleConfig })
     resetGame(initialStatus)
     router.push('/game')
   }
@@ -139,7 +140,7 @@ export default function SetupPage() {
                 {config.label}
               </span>
               <span className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>
-                · 世界设定
+                · 故事共创
               </span>
             </div>
           </div>
@@ -162,6 +163,8 @@ export default function SetupPage() {
 
           <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
+          <details className="mb-6"><summary className="cursor-pointer mb-4">高级设定：副线、剧情节点、结局与文风（可选）</summary>
+          <fieldset className="mb-6"><legend className="text-sm mb-3">副线风格（最多选择两项）</legend><div className="flex flex-wrap gap-2">{SUBPLOT_OPTIONS.map(option => <button key={option.key} type="button" aria-pressed={subplots.includes(option.key)} disabled={!subplots.includes(option.key) && subplots.length >= 2} onClick={() => useGenreStore.getState().setSubplots(subplots.includes(option.key) ? subplots.filter(key => key !== option.key) : [...subplots, option.key])} className="rounded-full border px-3 py-2 text-xs disabled:opacity-40" style={{ borderColor: subplots.includes(option.key) ? config.theme.primary : config.theme.border }}>{option.emoji} {option.label}</button>)}</div></fieldset>
           <div className="mb-6"><PlotBeatsEditor /></div>
 
           <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
@@ -170,7 +173,7 @@ export default function SetupPage() {
 
           <div className="border-t mb-6" style={{ borderColor: `${config.theme.border}88` }} />
 
-          <div className="mb-8"><StyleEditor /></div>
+          <div className="mb-8"><StyleEditor /></div></details>
 
           <button
             onClick={handleStart}

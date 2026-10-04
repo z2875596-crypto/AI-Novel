@@ -1,25 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { restoreSave } from '@/lib/session'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { SaveRecord } from '@/types/save'
-import { getLatestSave } from '@/lib/saveManager'
+import { useSaveStore } from '@/stores/saveStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
-import { useGameStore } from '@/stores/gameStore'
-import { useGenreStore } from '@/stores/genreStore'
-import { useWorldStore } from '@/stores/worldStore'
-import { useSummaryStore } from '@/stores/summaryStore'
 
 export default function RecentSaveBanner() {
   const router = useRouter()
-  const [save, setSave] = useState<SaveRecord | null>(null)
-  const setGenre = useGenreStore((s) => s.setGenre)
-  const setWorldConfig = useWorldStore((s) => s.setWorldConfig)
-  const resetSummaries = useSummaryStore((s) => s.reset)
+  const { saves, loadFromStorage } = useSaveStore()
+  const save = saves[0] ?? null
 
   useEffect(() => {
-    setSave(getLatestSave())
-  }, [])
+    loadFromStorage()
+  }, [loadFromStorage])
 
   if (!save) return null
 
@@ -33,54 +27,7 @@ export default function RecentSaveBanner() {
 
   function handleContinue() {
     if (!save) return
-    setGenre(save.genre)
-    setWorldConfig(save.worldConfig)
-    resetSummaries()
-
-    const persisted = useGameStore.getState()
-    const isSameGame =
-      persisted.turn === save.turn &&
-      persisted.messages.length > 0
-
-    const restoredMessages = isSameGame ? persisted.messages : save.recentHistory
-    const restoredChoices = isSameGame ? persisted.currentChoices : []
-
-    useGameStore.setState({
-      turn: save.turn,
-      status: save.statusSnapshot,
-      messages: restoredMessages,
-      currentChoices: restoredChoices,
-      isStreaming: false,
-      streamingText: '',
-    })
-
-    if (!isSameGame || restoredChoices.length === 0) {
-      const lastNarrator = restoredMessages
-        .filter((m) => m.role === 'narrator')
-        .slice(-1)[0]
-
-      if (lastNarrator) {
-        fetch('/api/story/choices', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            genre: save.genre,
-            lastNarratorText: lastNarrator.content,
-            status: save.statusSnapshot,
-            turn: save.turn + 1,
-            protagonistName: save.worldConfig.protagonistName,
-            narrativePOV: save.worldConfig.narrativePOV ?? 'second',
-          }),
-        })
-          .then((r) => r.json())
-          .then(({ choices }) => {
-            if (choices?.length > 0) {
-              useGameStore.setState({ currentChoices: choices })
-            }
-          })
-          .catch(() => {})
-      }
-    }
+    restoreSave(save)
 
     router.push('/game')
   }

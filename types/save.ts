@@ -11,6 +11,11 @@ export interface BranchNode {
 }
 
 export interface SaveRecord {
+  schemaVersion?: 2
+  storyId?: string
+  currentChoices?: string[]
+  snapshot?: import('./session').TurnSnapshot
+  checkpoints?: import('./session').TurnSnapshot[]
   id: string
   createdAt: number
   updatedAt: number

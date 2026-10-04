@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { deepseek, DEEPSEEK_MODEL } from '@/lib/deepseek'
+import { deepseek, DEEPSEEK_MODEL, DEEPSEEK_GENERATION_OPTIONS } from '@/lib/deepseek'
 import { buildSummaryMessages } from '@/lib/prompts/summaryPrompt'
 import { GenreKey } from '@/types/genre'
 import { Message } from '@/types/game'
@@ -21,14 +21,16 @@ export async function POST(req: NextRequest) {
     // 同时生成摘要和章节标题
     const [summaryRes, titleRes] = await Promise.all([
       deepseek.chat.completions.create({
-        model: DEEPSEEK_MODEL,
+        ...DEEPSEEK_GENERATION_OPTIONS,
+      model: DEEPSEEK_MODEL,
         messages: [{ role: 'system', content: system }, ...messages],
         stream: false,
         max_tokens: 300,
         temperature: 0.7,
       }),
       deepseek.chat.completions.create({
-        model: DEEPSEEK_MODEL,
+        ...DEEPSEEK_GENERATION_OPTIONS,
+      model: DEEPSEEK_MODEL,
         messages: [
           {
             role: 'system',

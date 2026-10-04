@@ -7,7 +7,7 @@ import Link from 'next/link'
 export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-start px-4 py-12 relative z-10">
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-5xl">
         {/* 右上角：用户状态 + 存档按钮 */}
         <div className="flex justify-end items-center gap-2 mb-4 animate-fade-in">
           <UserStatus />
@@ -28,9 +28,8 @@ export default function HomePage() {
         {/* Logo */}
         <div className="text-center mb-10 animate-fade-in-up">
           <Logo size={72} showText={true} />
-          <p className="text-xs mt-3" style={{ color: 'var(--theme-text-muted)' }}>
-            AI 互动小说 · 由 DeepSeek 实时生成剧情
-          </p>
+          <h1 className="text-2xl sm:text-4xl font-semibold mt-6 leading-relaxed">进入一段故事，自由行动，<br className="hidden sm:block" />经历选择的后果。</h1>
+          <p className="text-sm mt-4 leading-7" style={{ color: 'var(--theme-text-muted)' }}>在信任与怀疑、留下与离开之间，走出你的故事。<br />以角色关系和关键抉择为核心的 AI 互动故事。</p>
         </div>
 
         {/* 最近存档横幅 */}

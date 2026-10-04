@@ -1,8 +1,17 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Message } from '@/types/game'
 
 interface GameStore {
+  activeRequestId: string
+  sessionId: string
+  storyId: string
+  createdAt: number
+  parentId?: string
+  branchFromTurn?: number
+  ending?: import('@/types/save').SaveRecord['ending']
+  checkpoints: import('@/types/session').TurnSnapshot[]
   turn: number
   status: Record<string, number>
   isStreaming: boolean
@@ -25,6 +34,8 @@ interface GameStore {
 export const useGameStore = create<GameStore>()(
   persist(
     (set) => ({
+      activeRequestId: '',
+      sessionId: '', storyId: '', createdAt: 0, checkpoints: [], ending: undefined,
       turn: 0,
       status: {},
       isStreaming: false,
@@ -41,6 +52,9 @@ export const useGameStore = create<GameStore>()(
       incrementTurn: () => set((s) => ({ turn: s.turn + 1 })),
       resetGame: (initialStatus) =>
         set({
+          activeRequestId: '',
+          sessionId: crypto.randomUUID(), storyId: crypto.randomUUID(), createdAt: Date.now(),
+          parentId: undefined, branchFromTurn: undefined, ending: undefined, checkpoints: [],
           turn: 0,
           status: initialStatus,
           isStreaming: false,
@@ -54,11 +68,12 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'game-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
       partialize: (state) => ({
+        sessionId: state.sessionId, storyId: state.storyId, createdAt: state.createdAt,
+        parentId: state.parentId, branchFromTurn: state.branchFromTurn,
+        ending: state.ending, checkpoints: state.checkpoints,
         turn: state.turn,
         status: state.status,
         messages: state.messages,

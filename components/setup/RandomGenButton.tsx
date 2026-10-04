@@ -16,14 +16,16 @@ export default function RandomGenButton({ genre, onGenerated }: Props) {
     setLoading(true)
     try {
       const res = await fetch('/api/worldgen', {
+        signal: AbortSignal.timeout(60000),
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ genre }),
       })
       const data = await res.json()
+      if (!res.ok || !['worldName', 'worldSetting', 'protagonistName', 'protagonistTraits', 'openingScene'].every(key => typeof data[key] === 'string' && data[key].trim())) throw new Error('Invalid world')
       onGenerated(data)
     } catch {
-      alert('生成失败，请检查网络或 API Key 配置')
+      alert('设定生成未完成，原有内容已保留。请稍后重试。')
     } finally {
       setLoading(false)
     }

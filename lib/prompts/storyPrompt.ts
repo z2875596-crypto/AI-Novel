@@ -157,7 +157,7 @@ interface BuildStoryPromptParams {
   plotHint?: string
   subplots?: SubplotKey[]
   memoryEvents?: MemoryEvent[]
-  storyLength?: 'short' | 'medium' | 'long'
+  storyLength?: 'trial' | 'short' | 'medium' | 'long'
 }
 
 export function buildStoryMessages(params: BuildStoryPromptParams) {
@@ -233,11 +233,11 @@ ${subplots
 
 好结局触发条件（满足任意一条）：
 - 玩家完成了目标结局的核心行动
-- 关键状态值达到 80 以上
+- 与当前题材目标相关的关键行动已完成，状态数值只作为辅助依据
 - 到达第${storyLengthCfg.ending.push}回合后故事自然收尾
 
 坏结局触发条件（满足任意一条）：
-- 关键状态值降至 20 以下
+- 叙事中已经明确发生不可逆的失败后果，状态数值只作为辅助依据
 - 玩家连续做出严重错误的选择
 - 故事陷入无法挽回的困境
 
@@ -292,7 +292,7 @@ ${endingInstruction}
 
 {
   "narrative": "剧情正文（${writingParams.minWords}-${writingParams.maxWords}字）",
-  "statusDelta": {"状态key": 数值变化},
+  "statusDelta": {},
   "ending": null,
   "clues": [],
   "memoryHint": "10字内总结本回合最重要的事"
@@ -313,10 +313,13 @@ ${endingInstruction}
   const historyMessages: { role: 'user' | 'assistant'; content: string }[] =
     history.map((msg) => ({
       role: msg.role === 'player' ? 'user' : 'assistant',
-      content: msg.content,
+      // Assistant examples must use the same JSON format as the next response.
+      // Plain-text history can make JSON-mode providers emit only whitespace.
+      content: msg.role === 'narrator' ? JSON.stringify({ narrative: msg.content,
+        statusDelta: msg.statusDelta ?? {}, ending: null, clues: [], memoryHint: '' }) : msg.content,
     }))
 
-  const userMessage = `玩家行动：${playerAction}`
+  const userMessage = `玩家行动：${playerAction}\n请输出完整 JSON 对象，包含 narrative、statusDelta、ending、clues、memoryHint。`
 
   return {
     system: systemPrompt,

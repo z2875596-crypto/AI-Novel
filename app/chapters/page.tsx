@@ -64,7 +64,7 @@ export default function ChaptersPage() {
   const config = GENRE_CONFIG[genre]
   const storyLength = worldConfig.storyLength ?? 'medium'
   const { turnsPerChapter, totalTurns, totalChapters } = STORY_LENGTH_CONFIG[storyLength]
-  const currentChapter = Math.floor(turn / turnsPerChapter) + 1
+  const currentChapter = Math.min(totalChapters, Math.max(1, Math.ceil(turn / turnsPerChapter)))
   const currentChapterProgress = turn % turnsPerChapter
   const overallProgress = Math.min((turn / totalTurns) * 100, 100)
 

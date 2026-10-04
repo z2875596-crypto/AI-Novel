@@ -152,7 +152,7 @@ export default function CharacterEditor() {
           故事长度
         </h2>
         <div className="flex gap-2">
-          {(Object.keys(STORY_LENGTH_CONFIG) as Array<'short' | 'medium' | 'long'>).map((key) => {
+          {(Object.keys(STORY_LENGTH_CONFIG) as Array<'trial' | 'short' | 'medium' | 'long'>).map((key) => {
             const cfg = STORY_LENGTH_CONFIG[key]
             const selected = (worldConfig.storyLength ?? 'medium') === key
             return (

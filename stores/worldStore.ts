@@ -1,3 +1,4 @@
+import { localPersistence } from '@/lib/localPersistence'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { WorldConfig, EMPTY_WORLD_CONFIG } from '@/types/world'
@@ -22,9 +23,7 @@ export const useWorldStore = create<WorldStore>()(
     }),
     {
       name: 'world-store',
-      storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-      ),
+      storage: createJSONStorage(() => localPersistence),
       skipHydration: true,
     }
   )

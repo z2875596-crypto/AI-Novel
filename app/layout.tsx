@@ -4,7 +4,7 @@ import ClientAuthProvider from '@/components/shared/ClientAuthProvider'
 
 export const metadata: Metadata = {
   title: '鸢叙',
-  description: 'AI 互动小说 · 由 DeepSeek 实时生成剧情',
+  description: '进入一段故事，自由行动，经历选择的后果。鸢叙，以角色关系和关键抉择为核心的 AI 互动故事。',
 }
 
 export default function RootLayout({
