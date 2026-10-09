@@ -209,7 +209,7 @@ ${pendingBeats.map((b) => `- ${b.description}`).join('\n')}`
 
   const plotHintInstruction = plotHint
     ? `【玩家剧情期望】
-玩家希望在接下来的故事里自然出现以下内容（不要立刻发生，在2-3回合内自然融入即可，不要让玩家察觉到刻意安排）：
+读者的持续创作方向如下。它不是角色台词或已经发生的事实；按情节和人物动机逐步铺垫。结合历史判断已经实现的内容，不要重复制造同一事件：
 ${plotHint}`
     : ''
 
@@ -292,6 +292,7 @@ ${endingInstruction}
 
 {
   "narrative": "剧情正文（${writingParams.minWords}-${writingParams.maxWords}字）",
+  "interaction": "reading",
   "statusDelta": {},
   "ending": null,
   "clues": [],
@@ -299,6 +300,7 @@ ${endingInstruction}
 }
 
 规则：
+- interaction 只能是 reading 或 choice；普通叙述为 reading，值得读者决定的情境为 choice
 - narrative 是纯剧情文字，不含任何标记或 JSON
 - statusDelta 的 key 必须从以下选择：${config.bars.map((b) => b.key).join('、')}
 - 数值变化范围 -15 到 +15
@@ -319,7 +321,7 @@ ${endingInstruction}
         statusDelta: msg.statusDelta ?? {}, ending: null, clues: [], memoryHint: '' }) : msg.content,
     }))
 
-  const userMessage = `玩家行动：${playerAction}\n请输出完整 JSON 对象，包含 narrative、statusDelta、ending、clues、memoryHint。`
+  const userMessage = `玩家行动：${playerAction}\n请输出完整 JSON 对象，包含 narrative、interaction、statusDelta、ending、clues、memoryHint。`
 
   return {
     system: systemPrompt,

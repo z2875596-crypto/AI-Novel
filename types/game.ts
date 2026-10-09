@@ -5,6 +5,7 @@ export interface Message {
   role: MessageRole
   content: string
   turn?: number
+  interaction?: 'reading' | 'choice'
   choices?: string[]
   statusDelta?: Record<string, number>
   timestamp: number

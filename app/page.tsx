@@ -28,8 +28,8 @@ export default function HomePage() {
         {/* Logo */}
         <div className="text-center mb-10 animate-fade-in-up">
           <Logo size={72} showText={true} />
-          <h1 className="text-2xl sm:text-4xl font-semibold mt-6 leading-relaxed">进入一段故事，自由行动，<br className="hidden sm:block" />经历选择的后果。</h1>
-          <p className="text-sm mt-4 leading-7" style={{ color: 'var(--theme-text-muted)' }}>在信任与怀疑、留下与离开之间，走出你的故事。<br />以角色关系和关键抉择为核心的 AI 互动故事。</p>
+          <h1 className="text-2xl sm:text-4xl font-semibold mt-6 leading-relaxed">读一段小说，参与其中，<br className="hidden sm:block" />写出你的故事。</h1>
+          <p className="text-sm mt-4 leading-7" style={{ color: 'var(--theme-text-muted)' }}>进入准备好的故事，或设定自己的世界。<br />通过角色行动与剧情构想，参与人物关系和情节的发展。</p>
         </div>
 
         {/* 最近存档横幅 */}

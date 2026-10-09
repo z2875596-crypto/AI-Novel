@@ -41,6 +41,7 @@ async function generateChoices(signal: AbortSignal) {
   const lastNarrator = g.messages.filter(m => m.role === 'narrator').at(-1)
   if (!lastNarrator || g.ending) return []
   if (wc.supply) return supplyChoices(wc.supply)
+  if (lastNarrator.interaction === 'reading') return []
   const data = await jsonRequest('/api/story/choices', { genre: useGenreStore.getState().genre,
     lastNarratorText: lastNarrator.content, status: g.status, turn: g.turn,
     protagonistName: wc.protagonistName, narrativePOV: wc.narrativePOV,
@@ -67,7 +68,7 @@ export async function retryChoices(signal: AbortSignal, feedback: RunFeedback) {
   }
 }
 
-export async function runStory(action: string, opening: boolean, signal: AbortSignal, feedback: RunFeedback) {
+export async function runStory(action: string, opening: boolean, signal: AbortSignal, feedback: RunFeedback, mode: 'action' | 'continue' = 'action') {
   ensureSession()
   const before = useGameStore.getState()
   if (before.isStreaming || before.ending) return
@@ -85,7 +86,8 @@ export async function runStory(action: string, opening: boolean, signal: AbortSi
   try {
     const response = await fetch('/api/story/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       signal: AbortSignal.any([signal, AbortSignal.timeout(95000)]),
-      body: JSON.stringify({ genre, worldConfig: world, history: before.messages.slice(-10), action: safe, opening,
+      body: JSON.stringify({ genre, worldConfig: world, history: before.messages.slice(-10), action: safe, opening, inputMode: mode,
+        delegateDecision: mode === 'continue' && (before.messages.filter(m => m.role === 'narrator').at(-1)?.interaction === 'choice' || before.currentChoices.length > 0),
         playerAction: (useSummaryStore.getState().summaries.length ? '【历史摘要】\n' + useSummaryStore.getState().summaries.map(s => s.content).join('\n') + '\n' : '') + safe,
         status: before.status, turn: before.turn + 1, styleConfig: useStyleStore.getState().styleConfig,
         plotHint: before.plotHint, subplots, memoryEvents: useMemoryStore.getState().getHighImportanceEvents(),
@@ -126,9 +128,9 @@ export async function runStory(action: string, opening: boolean, signal: AbortSi
       .map(key => [key, status[key] - (before.status[key] ?? 0)] as const)
       .filter(([, change]) => change !== 0))
     const messages: Message[] = [...before.messages,
-      ...(!opening ? [{ id: crypto.randomUUID(), role: 'player' as const, content: safe, turn, timestamp: now }] : []),
-      { id: crypto.randomUUID(), role: 'narrator', content: data.narrative, turn, timestamp: now, statusDelta: appliedDelta }]
-    useGameStore.setState({ turn, status, messages, currentChoices: [], streamingText: '', plotHint: '',
+      ...(!opening && mode !== 'continue' ? [{ id: crypto.randomUUID(), role: 'player' as const, content: safe, turn, timestamp: now }] : []),
+      { id: crypto.randomUUID(), role: 'narrator', content: data.narrative, turn, timestamp: now, statusDelta: appliedDelta, interaction: data.interaction }]
+    useGameStore.setState({ turn, status, messages, currentChoices: [], streamingText: '', plotHint: before.plotHint,
       ending: data.ending ? { ...data.ending, unlockedAt: now } : undefined })
     if (data.supply) useWorldStore.getState().updateField('supply', data.supply)
     committed = true
@@ -141,7 +143,7 @@ export async function runStory(action: string, opening: boolean, signal: AbortSi
     saveCheckpoint(feedback)
     const settings = useSettingsStore.getState()
     if (settings.ttsEnabled) speak(data.narrative, { rate: settings.ttsRate, pitch: settings.ttsPitch, volume: settings.ttsVolume })
-    feedback.phase(data.ending ? '正在整理结局…' : '故事已生成，正在准备行动选项…')
+    feedback.phase(data.ending ? '正在整理结局…' : '故事已生成，正在保存阅读进度…')
     const tpc = STORY_LENGTH_CONFIG[world.storyLength ?? 'medium'].turnsPerChapter
     // All secondary writes are guarded and finish before the next action is enabled.
     await Promise.allSettled([

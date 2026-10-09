@@ -11,6 +11,7 @@ export interface TurnSnapshot {
   turn: number
   messageCount: number
   status: Record<string, number>
+  plotHint?: string
   currentChoices: string[]
   worldConfig: WorldConfig
   clues: Clue[]

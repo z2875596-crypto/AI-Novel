@@ -62,7 +62,7 @@ export default function StoryPanel() {
           >
             {msg.role === 'narrator' && (
               <div
-                className="rounded-xl p-4 text-sm leading-relaxed"
+                className="px-3 py-3 text-base leading-8 whitespace-pre-wrap"
                 style={{
                   background: `linear-gradient(135deg, ${config?.theme.surface ?? '#1a1a1a'}ee, ${config?.theme.surface ?? '#1a1a1a'})`,
                   color: config?.theme.text ?? '#fff',
@@ -114,7 +114,7 @@ export default function StoryPanel() {
         {isStreaming && streamingText && (
           <div className="animate-fade-in">
             <div
-              className="rounded-xl p-4 text-sm leading-relaxed"
+              className="px-3 py-3 text-base leading-8 whitespace-pre-wrap"
               style={{
                 background: `linear-gradient(135deg, ${config?.theme.surface ?? '#1a1a1a'}ee, ${config?.theme.surface ?? '#1a1a1a'})`,
                 color: config?.theme.text ?? '#fff',

@@ -32,16 +32,19 @@ export default function GamePage() {
   const router = useRouter()
   const genre = useGenreStore(s => s.genre)
   const worldConfig = useWorldStore(s => s.worldConfig)
-  const { isStreaming, ending, turn, currentChoices, checkpoints } = useGameStore()
+  const { isStreaming, ending, turn, currentChoices, checkpoints, messages } = useGameStore()
+  const latestInteraction = messages.filter(m => m.role === 'narrator').at(-1)?.interaction
   const [lastDelta, setLastDelta] = useState<Record<string, number>>({})
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [showWorldConfig, setShowWorldConfig] = useState(false)
   const [showStylePanel, setShowStylePanel] = useState(false)
   const [showRewind, setShowRewind] = useState(false)
+  const [participating, setParticipating] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
   const [phase, setPhase] = useState('')
   const [error, setError] = useState('')
   const [warning, setWarning] = useState('')
-  const [pending, setPending] = useState<{ action: string; opening: boolean } | null>(null)
+  const [pending, setPending] = useState<{ action: string; opening: boolean; mode: 'action' | 'continue' } | null>(null)
   const request = useRef<AbortController | null>(null)
   const feedback = { phase: setPhase, warning: setWarning, delta: setLastDelta }
 
@@ -51,13 +54,13 @@ export default function GamePage() {
     return () => window.removeEventListener('yuanxu-storage-error', warn)
   }, [])
 
-  async function handleAction(action: string, opening = false) {
+  async function handleAction(action: string, opening = false, mode: 'action' | 'continue' = 'action') {
     if (request.current || useGameStore.getState().isStreaming || useGameStore.getState().ending) return
     const controller = new AbortController()
     request.current = controller
-    setPending({ action, opening })
+    setPending({ action, opening, mode })
     setError(''); setWarning('')
-    try { await runStory(action, opening, controller.signal, feedback); if (!controller.signal.aborted) setPending(null) }
+    try { await runStory(action, opening, controller.signal, feedback, mode); if (!controller.signal.aborted) setPending(null) }
     catch (error) { setError(controller.signal.aborted ? '生成已取消，进度未推进。可以重试刚才的行动。' : error instanceof StoryGenerationError ? error.message : '连接中断或等待超时，进度未推进。请重试刚才的行动。') }
     finally { if (request.current === controller) request.current = null }
   }
@@ -80,7 +83,7 @@ export default function GamePage() {
     const timer = setTimeout(() => {
       const g = useGameStore.getState()
       if (g.turn === 0 && !g.messages.length) void handleAction(worldConfig.openingScene, true)
-      else if (!g.ending && !g.currentChoices.length) void handleRetryChoices()
+      else if (!g.ending && !g.currentChoices.length && g.messages.filter(m => m.role === 'narrator').at(-1)?.interaction !== 'reading') void handleRetryChoices()
     }, 0)
     return () => {
       clearTimeout(timer); request.current?.abort(); stop()
@@ -197,26 +200,33 @@ export default function GamePage() {
         </div>
 
         <div className="flex-shrink-0">
-          {worldConfig.supply ? <SupplyPanel /> : <StatusBar />}
+          {worldConfig.supply ? <SupplyPanel onAction={action => { void handleAction(action) }} /> : <>
+            <div className="flex justify-between text-xs" style={{ color: config.theme.textMuted }}><span>小说阅读</span><button aria-expanded={showDetails} onClick={() => setShowDetails(!showDetails)}>人物状态 {showDetails ? '收起' : '展开'}</button></div>
+            {showDetails && <StatusBar />}
+          </>}
         </div>
 
         <StoryPanel />
 
         {phase && <div role="status" className="text-xs flex items-center justify-between"><span>{phase}</span><button className="underline p-2" onClick={() => request.current?.abort()}>停止等待</button></div>}
-        {error && <div role="alert" className="text-sm rounded-lg border p-3">{error}{pending && <p className="text-xs mt-1">待重试：{pending.action.slice(0, 100)}</p>}<button disabled={isStreaming} className="underline p-2" onClick={() => { if (pending) void handleAction(pending.action, pending.opening) }}>重试本次行动</button></div>}
+        {error && <div role="alert" className="text-sm rounded-lg border p-3">{error}{pending && <p className="text-xs mt-1">待重试：{pending.action.slice(0, 100)}</p>}<button disabled={isStreaming} className="underline p-2" onClick={() => { if (pending) void handleAction(pending.action, pending.opening, pending.mode) }}>重试本次行动</button></div>}
         {warning && <div role="alert" className="text-xs rounded-lg border p-2">{warning}<button disabled={isStreaming} className="underline ml-2" onClick={() => downloadText(JSON.stringify(buildSaveRecord(), null, 2), worldConfig.worldName + '-backup.json')}>导出当前进度备份</button></div>}
         {ending ? <section className="rounded-xl border p-4 space-y-2" aria-label="故事结局"><h2 className="font-bold">故事已完结 · {ending.title}</h2><p className="text-xs">共完成 {turn} 回合。你可以导出故事，或回溯探索其他选择。</p><div className="flex gap-4 text-sm"><button disabled={isStreaming} onClick={() => downloadText(exportNovelAsText(buildSaveRecord()), worldConfig.worldName + '.txt')}>导出全文</button><button disabled={isStreaming} onClick={() => setShowRewind(true)}>回溯分支</button><button onClick={() => router.push('/')}>开始新故事</button></div></section> :
         <div className="flex-shrink-0 space-y-2">
-          {!isStreaming && turn > 0 && !currentChoices.length && <button className="text-sm underline" onClick={handleRetryChoices}>重新生成行动选项</button>}
+          {!isStreaming && turn > 0 && !currentChoices.length && latestInteraction !== 'reading' && <button className="text-sm underline" onClick={handleRetryChoices}>重新生成行动选项</button>}
           <ChoicesBar onChoice={(c) => handleAction(c)} />
-          <div className="flex items-center gap-2">
+          {!worldConfig.supply && <div className="flex items-center justify-between gap-3">
+            <button disabled={isStreaming || turn === 0} className="rounded-xl px-4 py-2 text-sm disabled:opacity-40" style={{ background: config.theme.primary, color: '#fff' }} onClick={() => handleAction('继续阅读，让故事自然向前发展。', false, 'continue')}>{latestInteraction === 'choice' || currentChoices.length ? '交给故事发展' : '继续阅读'}</button>
+            <button disabled={isStreaming} aria-expanded={participating} className="text-sm px-3 py-2" onClick={() => setParticipating(!participating)}>{participating ? '收起参与' : '参与故事'}</button>
+          </div>}
+          {(worldConfig.supply || participating) && <div className="space-y-2 max-h-[35dvh] overflow-y-auto">
+            <p className="text-xs">{worldConfig.supply ? '角色行动：说出你想做的事。' : '角色行动：说出你想做的事；剧情构想：提出希望故事如何发展。'}</p>
             <div className="flex-1">
               <FreeInputBox onSubmit={(t) => handleAction(t)} />
             </div>
             {!worldConfig.supply && <PlotHintInput />}
-            <BGMController />
-            <TTSToggle />
-          </div>
+          </div>}
+          <div className="flex justify-end gap-2"><BGMController /><TTSToggle /></div>
         </div>}
       </main>
     </ThemeProvider>

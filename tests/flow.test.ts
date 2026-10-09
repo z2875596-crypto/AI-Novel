@@ -34,6 +34,55 @@ function reset() {
 }
 beforeEach(reset)
 
+test('reading continuation skips choice requests, preserves directions and restores reading state', async () => {
+  game.getState().setPlotHint('逐渐揭露人物的秘密')
+  const requests: string[] = []
+  globalThis.fetch = (async (url, init) => {
+    requests.push(String(url))
+    if (String(url).includes('/stream')) {
+      assert.equal(JSON.parse(String(init?.body)).inputMode, 'continue')
+      assert.equal(JSON.parse(String(init?.body)).delegateDecision, false)
+      return stream({ ...data, interaction: 'reading' })
+    }
+    return Response.json({ updates: [] })
+  }) as typeof fetch
+  await runStory('继续阅读', false, new AbortController().signal, feedback, 'continue')
+  assert.equal(game.getState().turn, 1)
+  assert.equal(game.getState().messages.length, 1)
+  assert.equal(game.getState().messages[0].role, 'narrator')
+  assert.deepEqual(game.getState().currentChoices, [])
+  assert.equal(requests.some(url => url.includes('/choices')), false)
+  assert.equal(game.getState().plotHint, '逐渐揭露人物的秘密')
+  const saved = buildSaveRecord()
+  game.getState().setPlotHint('')
+  restoreSave(saved)
+  assert.equal(game.getState().messages.at(-1)?.interaction, 'reading')
+  assert.equal(game.getState().plotHint, '逐渐揭露人物的秘密')
+  game.getState().setPlotHint('下一章出现一位旧友')
+  await runStory('继续阅读', false, new AbortController().signal, feedback, 'continue')
+  rewindTo(1)
+  assert.equal(game.getState().plotHint, '逐渐揭露人物的秘密')
+  assert.equal(game.getState().messages.at(-1)?.interaction, 'reading')
+})
+
+test('choice scenes still prepare options and retain the role action', async () => {
+  globalThis.fetch = (async url => String(url).includes('/stream')
+    ? stream({ ...data, interaction: 'choice' }) : Response.json({ choices: ['追问', '离开'] })) as typeof fetch
+  await runStory('我敲门', false, new AbortController().signal, feedback)
+  assert.equal(game.getState().messages[0].content, '我敲门')
+  assert.deepEqual(game.getState().currentChoices, ['追问', '离开'])
+})
+
+test('invalid reading classifications never commit a turn; old responses remain valid', async () => {
+  assert.equal(validateNarrative(data).interaction, undefined)
+  assert.throws(() => validateNarrative({ ...data, interaction: ['reading'] }))
+  globalThis.fetch = (async () => stream({ ...data, interaction: 'invalid' } as unknown as NarrativeResponse)) as typeof fetch
+  await assert.rejects(runStory('继续阅读', false, new AbortController().signal, feedback, 'continue'))
+  assert.equal(game.getState().turn, 0)
+  assert.equal(game.getState().messages.length, 0)
+})
+
+
 test('supply state commits with the turn, restores and rewinds with its own branch', async () => {
   genre.getState().setGenre('apocalypse')
   world.getState().setWorldConfig(quickStartWorld('apocalypse'))
@@ -58,6 +107,26 @@ test('supply state commits with the turn, restores and rewinds with its own bran
   assert.deepEqual(world.getState().worldConfig.supply?.known, ['water'])
   restoreSave(first)
   assert.equal(world.getState().worldConfig.supply?.time, 5)
+})
+
+test('social offers, promises and unfinished plans restore with their own snapshot', async () => {
+  const { resolveSupply } = await import('../lib/supplyGame')
+  genre.getState().setGenre('apocalypse')
+  world.getState().setWorldConfig(quickStartWorld('apocalypse'))
+  game.getState().resetGame(getInitialStatus('apocalypse'))
+  let state = resolveSupply(world.getState().worldConfig.supply!, 'inspect_shelter').state
+  state = resolveSupply(state, 'ask_team').state
+  state.pending = { steps: ['repair', 'load_device'], explanation: '协商之后继续' }
+  world.getState().updateField('supply', state)
+  const original = buildSaveRecord()
+  const accepted = resolveSupply(state, 'accept_offer').state
+  world.getState().updateField('supply', accepted)
+  assert.equal(world.getState().worldConfig.supply?.social?.promises.length, 1)
+  restoreSave(original)
+  assert.equal(world.getState().worldConfig.supply?.team, false)
+  assert.equal(world.getState().worldConfig.supply?.social?.offer?.target, 'xu')
+  assert.equal(world.getState().worldConfig.supply?.social?.promises.length, 0)
+  assert.deepEqual(world.getState().worldConfig.supply?.pending?.steps, ['repair', 'load_device'])
 })
 
 test('invalid, empty, and nonfinite model output is rejected; preview decodes escapes', () => {

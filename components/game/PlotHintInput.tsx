@@ -8,10 +8,11 @@ import { GENRE_CONFIG } from '@/lib/themeConfig'
 export default function PlotHintInput() {
   const genre = useGenreStore((s) => s.genre)
   const plotHint = useGameStore((s) => s.plotHint)
+  const isStreaming = useGameStore(s => s.isStreaming)
   const setPlotHint = useGameStore((s) => s.setPlotHint)
 
   const [expanded, setExpanded] = useState(false)
-  const [draft, setDraft] = useState('')
+  const [draft, setDraft] = useState(plotHint)
 
   if (!genre) return null
   const config = GENRE_CONFIG[genre]
@@ -19,6 +20,7 @@ export default function PlotHintInput() {
   const hasHint = !!plotHint
 
   function handleConfirm() {
+    if (isStreaming) return
     setPlotHint(draft.trim())
     setDraft('')
     setExpanded(false)
@@ -32,27 +34,29 @@ export default function PlotHintInput() {
   const preview = plotHint.length > 10 ? plotHint.slice(0, 10) + '…' : plotHint
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       <button
-        onClick={() => setExpanded(!expanded)}
+        disabled={isStreaming}
+        onClick={() => { setDraft(plotHint); setExpanded(!expanded) }}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
         style={{
           background: hasHint ? config.theme.primary + '33' : 'rgba(255,255,255,0.06)',
           color: hasHint ? config.theme.primary : config.theme.textMuted,
           border: `1px solid ${hasHint ? config.theme.primary + '66' : config.theme.border}`,
         }}
-        title={hasHint ? plotHint : '剧情干预'}
+        title={hasHint ? plotHint : '剧情构想'}
       >
         <span>✍</span>
         {hasHint ? (
           <span className="max-w-[6em] truncate">{preview}</span>
         ) : (
-          <span>干预</span>
+          <span>剧情构想</span>
         )}
       </button>
 
+      {hasHint && <p role="status" className="w-full text-xs">已加入后续剧情方向，可修改或清除：{plotHint}</p>}
       {expanded && (
-        <div className="flex items-center gap-1.5 animate-fade-in">
+        <div className="flex flex-wrap items-center gap-1.5 animate-fade-in">
           <input
             type="text"
             placeholder="希望接下来出现什么情节…"
@@ -68,7 +72,7 @@ export default function PlotHintInput() {
           />
           <button
             onClick={handleConfirm}
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || isStreaming}
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: config.theme.primary, color: '#fff' }}
           >
@@ -76,6 +80,7 @@ export default function PlotHintInput() {
           </button>
           {hasHint && (
             <button
+              disabled={isStreaming}
               onClick={handleClear}
               className="text-xs opacity-50 hover:opacity-100 transition-opacity px-1"
               style={{ color: config.theme.textMuted }}

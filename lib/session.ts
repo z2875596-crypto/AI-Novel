@@ -14,7 +14,7 @@ import type { TurnSnapshot } from '@/types/session'
 export function captureSnapshot(): TurnSnapshot {
   const g = useGameStore.getState()
   return structuredClone({ turn: g.turn, messageCount: g.messages.length, status: g.status,
-    currentChoices: g.currentChoices, ending: g.ending,
+    currentChoices: g.currentChoices, ending: g.ending, plotHint: g.plotHint,
     worldConfig: useWorldStore.getState().worldConfig, clues: useClueStore.getState().clues,
     relationships: useRelationshipStore.getState().relationships, memoryEvents: useMemoryStore.getState().events,
     summaries: useSummaryStore.getState().summaries, styleConfig: useStyleStore.getState().styleConfig,
@@ -30,7 +30,7 @@ export function restoreSnapshot(s: TurnSnapshot) {
   useStyleStore.setState({ styleConfig: s.styleConfig })
   useGenreStore.getState().setSubplots(s.subplots)
   useGameStore.setState({ turn: s.turn, status: s.status, currentChoices: s.currentChoices,
-    ending: s.ending, plotHint: '', isStreaming: false, streamingText: '' })
+    ending: s.ending, plotHint: s.plotHint ?? '', isStreaming: false, streamingText: '' })
 }
 
 export function ensureSession() {
@@ -67,7 +67,7 @@ export function restoreSave(save: SaveRecord) {
     createdAt: save.createdAt, parentId: save.parentId, branchFromTurn: save.branchFromTurn,
     turn: save.turn, status: save.statusSnapshot, messages: structuredClone(history),
     currentChoices: save.currentChoices ?? [], checkpoints: structuredClone(save.checkpoints ?? []),
-    ending: save.ending, isStreaming: false, activeRequestId: '', streamingText: '', plotHint: '' })
+    ending: save.ending, isStreaming: false, activeRequestId: '', streamingText: '', plotHint: save.snapshot?.plotHint ?? '' })
 }
 
 export function resetAuxiliaryState() {

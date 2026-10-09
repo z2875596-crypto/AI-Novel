@@ -6,6 +6,7 @@ export function validateNarrative(value: unknown): NarrativeResponse {
   if (!value || typeof value !== 'object') throw new Error('故事响应格式不完整，请重试')
   const v = value as Record<string, unknown>
   if (typeof v.narrative !== 'string' || !v.narrative.trim()) throw new Error('没有收到完整故事，请重试')
+  if (v.interaction !== undefined && (typeof v.interaction !== 'string' || !['reading', 'choice'].includes(v.interaction))) throw new Error('阅读情境格式异常，请重试')
   const delta = v.statusDelta
   if (!delta || typeof delta !== 'object' || Array.isArray(delta) ||
     Object.values(delta).some(n => typeof n !== 'number' || !Number.isFinite(n))) {
@@ -22,7 +23,7 @@ export function validateNarrative(value: unknown): NarrativeResponse {
     ['person', 'object', 'location', 'event', 'other'].includes(c.category) &&
     ['low', 'medium', 'high'].includes(c.importance) && Array.isArray(c.relatedClues) &&
     c.relatedClues.every((id: unknown) => typeof id === 'string')) : []
-  return { supply: v.supply === undefined ? undefined : validateSupply(v.supply), narrative: v.narrative.trim(), statusDelta: delta as Record<string, number>,
+  return { interaction: v.interaction as NarrativeResponse['interaction'], supply: v.supply === undefined ? undefined : validateSupply(v.supply), narrative: v.narrative.trim(), statusDelta: delta as Record<string, number>,
     ending: (v.ending ?? null) as NarrativeResponse['ending'], clues,
     memoryHint: typeof v.memoryHint === 'string' ? v.memoryHint : '' }
 }

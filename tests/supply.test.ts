@@ -9,7 +9,7 @@ function run(actions: Parameters<typeof resolveSupply>[1][]) {
   return state
 }
 test('cooperation makes the six-unit safe delivery route possible', () => {
-  const state = run(['inspect_water', 'inspect_shelter', 'find_tools', 'ask_team', 'repair', 'load_device', 'depart'])
+  const state = run(['inspect_water', 'inspect_shelter', 'find_tools', 'ask_team', 'accept_offer', 'repair', 'load_device', 'depart'])
   assert.equal(state.time, 0)
   assert.equal(state.repaired, true)
   assert.equal(state.departed, true)
@@ -62,7 +62,7 @@ test('creative core route evacuates residents and supplies the camp within six u
   assert.equal(supplyEnding(state)?.type, 'good')
 })
 test('hidden risk remains a recorded consequence, confession does not invent a diagnosis', () => {
-  const state = run(['deceive_team'])
+  const state = run(['deceive_team', 'accept_offer'])
   assert.equal(state.team, true)
   assert.equal(state.hiddenRisk, true)
   const confessed = resolveSupply(state, 'confess').state
@@ -97,4 +97,90 @@ test('API proposes before spending and commits only the confirmed plan', async (
     assert.equal(worldConfig.supply?.time, 5)
     assert.equal(worldConfig.supply?.cargo, 'device')
   } finally { deepseek.chat.completions.create = original }
+})
+
+
+test('requesting cooperation creates an offer, only acceptance provides people', () => {
+  const requested = run(['inspect_shelter', 'ask_team'])
+  assert.equal(requested.team, false)
+  assert.equal(requested.social?.offer?.condition, 'deliver')
+  assert.equal(requested.social?.promises.length, 0)
+  const accepted = resolveSupply(requested, 'accept_offer').state
+  assert.equal(accepted.team, true)
+  assert.equal(accepted.social?.promises[0].status, 'active')
+  assert.equal(accepted.time, requested.time)
+})
+test('wary leader counters with loading first and cannot grant free people', () => {
+  let state = run(['inspect_shelter'])
+  state.social!.trust.xu = 'wary'
+  state = resolveSupply(state, 'ask_team', { target: 'xu', condition: 'deliver' }).state
+  assert.equal(state.social?.offer?.condition, 'load_first')
+  assert.equal(resolveSupply(state, 'accept_offer').state.team, false)
+  state = resolveSupply(state, 'load_device').state
+  assert.equal(resolveSupply(state, 'accept_offer').state.team, true)
+})
+test('concealed risk is not revealed automatically when the vehicle departs', () => {
+  const state = run(['deceive_team', 'accept_offer', 'load_device', 'depart'])
+  assert.equal(state.social?.exposed, false)
+  assert.equal(state.social?.knowledge.xu.includes('lie'), false)
+  assert.equal(state.social?.promises[0].status, 'fulfilled')
+})
+test('crew report provides evidence, retracts future help and changes negotiation', () => {
+  let state = run(['inspect_shelter', 'find_tools', 'deceive_team', 'accept_offer', 'repair'])
+  assert.equal(state.repaired, true)
+  assert.equal(state.social?.exposed, true)
+  assert.equal(state.social?.trust.xu, 'wary')
+  assert.equal(state.team, false)
+  state = resolveSupply(state, 'ask_team').state
+  assert.equal(state.social?.offer?.condition, 'load_first')
+})
+test('private investigation is not automatically shared with all characters', () => {
+  let state = run(['inspect_shelter', 'inspect_water'])
+  assert.equal(state.social?.knowledge.xu.includes('shelter'), false)
+  assert.equal(state.social?.knowledge.chen.includes('water'), false)
+  state = resolveSupply(state, 'ask_residents').state
+  assert.equal(state.social?.knowledge.chen.includes('water'), true)
+  assert.equal(state.social?.knowledge.xu.includes('shelter'), false)
+})
+test('unfulfilled delivery becomes a broken promise at the ending', () => {
+  const state = run(['inspect_shelter', 'ask_team', 'accept_offer', 'depart'])
+  assert.equal(state.social?.promises[0].status, 'broken')
+  assert.equal(state.social?.trust.xu, 'wary')
+})
+test('plan stops at a missing condition and retains remaining steps for editing', async () => {
+  const { executeSupplyPlan, editSupplyPlan } = await import('../lib/supplyPlan')
+  const plan = { steps: ['repair', 'load_device'] as const, explanation: '维修后运输' }
+  const original = run(['inspect_shelter'])
+  const stopped = executeSupplyPlan(original, { ...plan, steps: [...plan.steps] }).state
+  assert.equal(stopped.time, original.time)
+  assert.deepEqual(stopped.pending?.steps, ['repair', 'load_device'])
+  const edited = editSupplyPlan(stopped, '在方案前加入寻找工具')
+  assert.deepEqual(edited.pending?.steps, ['find_tools', 'repair', 'load_device'])
+  assert.equal(edited.tools, false)
+  assert.equal(edited.time, original.time)
+})
+test('negotiation pauses a plan and acceptance preserves the unfinished operations', async () => {
+  const { executeSupplyPlan } = await import('../lib/supplyPlan')
+  const state = run(['inspect_shelter', 'find_tools'])
+  const proposed = executeSupplyPlan(state, { steps: ['ask_team', 'repair', 'load_device'], explanation: '争取人手后维修装车', negotiation: { target: 'xu', condition: 'deliver' } }).state
+  assert.equal(proposed.team, false)
+  assert.deepEqual(proposed.pending?.steps, ['repair', 'load_device'])
+  const accepted = executeSupplyPlan(proposed, { steps: ['accept_offer'], explanation: '接受' }).state
+  assert.equal(accepted.team, true)
+  assert.deepEqual(accepted.pending?.steps, ['repair', 'load_device'])
+  const executed = executeSupplyPlan(accepted, accepted.pending!).state
+  assert.equal(executed.repaired, true)
+  assert.equal(executed.cargo, 'device')
+})
+test('legacy saves migrate existing cooperation without exposing a secret', () => {
+  const old = { ...initialSupply(), social: undefined, team: true, hiddenRisk: true }
+  const restored = validateSupply(JSON.parse(JSON.stringify(old)))
+  assert.equal(restored.team, true)
+  assert.equal(restored.social?.promises[0].status, 'active')
+  assert.equal(restored.social?.exposed, false)
+  assert.equal(restored.social?.knowledge.xu.includes('shelter'), false)
+})
+test('invalid negotiation cannot assign another character resources or terms', () => {
+  assert.throws(() => validatePlan({ steps: ['ask_team'], explanation: '', negotiation: { target: 'xu', condition: 'keep_device' } }))
+  assert.throws(() => validatePlan({ steps: ['repair'], explanation: '', negotiation: { target: 'xu', condition: 'deliver' } }))
 })

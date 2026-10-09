@@ -1,5 +1,6 @@
 export interface NarrativeResponse {
   supply?: import('../lib/supplyGame').SupplyState
+  interaction?: 'reading' | 'choice'
   narrative: string
   statusDelta: Record<string, number>
   ending: {
