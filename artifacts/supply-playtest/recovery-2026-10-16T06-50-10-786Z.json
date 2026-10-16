@@ -1,0 +1,340 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "recovery",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 3140,
+      "data": {
+        "narrative": "你蹲在排水泵旁，手电光扫过泵壳，指尖触到进水口滤网上的淤泥——堵了，但只是诊断，没工具也没动手。周宁从车头探出半个身子：“车能装一套完整设备，另一套留站里继续供水。要腾座位，得看核心能不能拆装。”许岚抱着交接单走过来：“城外等水的人按点接货，别误了。”陈默站在泵房门口：“留守的人得先有安全着落。”你站起身，拍了拍手上的灰：“先查车，看有没有拆核心的替代路线；储水和泵的细节，查了再说。”周宁点头，拉开车门开始翻检工具槽。你回头对许岚说：“交付时间我盯着。”又对陈默说：“排水不修好，谁也别留下。”\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "我能不能再找一辆车，或者先把设备送走再回来接人？先别执行。",
+      "elapsedMs": 10017,
+      "data": {
+        "narrative": "你伸手按住车厢侧板，金属的凉意从掌心渗进来。周宁正蹲在车尾，手电光扫过底盘，他抬头看你一眼，又低头继续照。“两套净水设备都是完整的，搬一套走不影响站里供水。”他顿了顿，光束停在车轴附近，“但座位就这些，装了设备就装不下所有人。”\n\n许岚从站房门口探出身，声音压得很低：“城外等水的人等不了太久，准时交付是死线。”她没有走近，只是看着你。\n\n陈默站在她身后，目光落在留守的几个人身上，没说话，但手一直攥着门框。\n\n周宁关掉手电，站起来拍了拍膝盖上的灰：“先别动手。要腾座位，得看这车的接口能不能拆运核心，工具也得先找到——这两样都没查，搬了也是白搬。”\n\n你收回手，指节上还留着铁皮的凉。没有第二辆车，风暴前回不来，先把设备送走再折返接人这条路走不通。你刚才按住车厢那一下，等于替所有人做了选择：要么修好排水让留守的人撑到返程，要么把核心拆下来，让居民跟你一起走。两条路都还没动，但至少方向已经摆在眼前。\n\n【行动裁定】本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "修复排水设施",
+      "elapsedMs": 6823,
+      "data": {
+        "narrative": "你蹲在排水泵旁，手指悬在泵壳上方，没有探下去。周宁从工具架那边走过来，扫了一眼泵体，说：“先别动手，缺工具，也还没查过这泵到底什么毛病。我建议先做两件事：看一眼泵壳外部有没有明显裂痕或渗漏，再确认站里有没有能用的疏通工具。确认完再决定是修还是拆。”许岚站在门口，没往里看，只问了一句：“城外等水的人今天能拿到吗？”你摇头：“设备还没装车，车也没动。先把泵的事看清楚，再谈别的。”陈默靠在墙边，目光落在留守的几个人身上，没说话。你站起身，把手从泵壳边收回，转向工具架——先找工具，再决定下一步。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：修复排水设施。预计步骤与代价：修复排水设施：预计耗时 0，条件不足，需调整 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "修复排水设施"
+          }
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "确认执行当前方案",
+      "elapsedMs": 2907,
+      "data": {
+        "narrative": "你把手从排水泵外壳上收回来，指尖沾了一层薄灰。泵体没有震动，积水线还停在原处。周宁蹲在旁边看了一眼接线盒，说：“得先查清楚是堵了还是坏了，工具也不在，现在动不了。”许岚站在门口没进来，只问了一句：“城外那车水，今天还能不能准时？”陈默回头看了看站里剩下的人，低声说：“先别拆，等查明白再说。”你点头，把刚才拟的步骤在脑子里过了一遍——先诊断，再找工具，然后才谈修。没有谁去碰扳手，也没有人往车上搬东西。你选择先确认条件而不是硬来，这让排水泵、储水和那套设备都还留在原来的位置上，下一步只能是查故障或找工具。你承诺，等条件齐了，由你来动手。\n\n【行动裁定】维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "修复排水设施"
+          }
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "在方案前加入寻找工具",
+      "elapsedMs": 2588,
+      "data": {
+        "narrative": "你指尖敲了敲桌面，把“寻找工具”挪到方案最前面。周宁瞥了一眼，只说：“行，先找工具，再修排水。”许岚没接话，低头核对城外等水的人数。陈默站在窗边，目光落在留守居民身上，半晌问了一句：“工具没找到之前，泵还是堵着，对吧？”周宁点头：“对，只能先诊断，不能动手。”你确认方案预览：寻找工具预计耗时一，修复排水条件不足，需先拿到工具。没有人开始搬设备，也没有人碰核心。你选择先补上工具这一环，让排水维修从不可能变成可执行——这个顺序，决定了后面留守者能不能等来泵转。你承诺，工具一到，立刻推进维修。\n\n【行动裁定】方案已调整，时间与资源不变。寻找维修工具：预计耗时 1；修复排水设施：预计耗时 0，条件不足，需调整",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "find_tools",
+              "repair"
+            ],
+            "explanation": "修复排水设施"
+          }
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "action": "确认执行当前方案",
+      "elapsedMs": 3266,
+      "data": {
+        "narrative": "你蹲在工具柜最底层，指尖碰到一只沾满灰的金属盒。打开，里面是一根疏通弹簧和一把拆装扳手，锈迹不多，还能用。周宁接过去掂了掂，说：“工具齐了，但泵还没拆开看过，得先诊断堵在哪。”陈默从门口探头：“那我去叫许岚，让她别急着装车。”你抬手拦住：“先别声张。工具只是工具，没修好之前，谁都不能当它已经通了。”你把扳手收回盒里，合上柜门。周宁点头，转身去拿手电。你站在工具间门口，听见远处水泵房传来低沉的闷响，像有什么东西卡在里面。你想起自己刚才没让陈默去叫许岚，这个选择让装车的事暂时压住，也让你能先弄清泵到底怎么了。你对自己说，等诊断完，再决定先修泵还是先装车。眼下，工具在手，但泵还堵着，车还空着，人还没动。你朝水泵房走去。\n\n【行动裁定】找到疏通工具与拆装扳手。 耗时 1，剩余 5。；维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "修复排水设施"
+          }
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "action": "取消当前方案",
+      "elapsedMs": 7201,
+      "data": {
+        "narrative": "你把手从工具箱边缘收回来，没有抽出任何东西。周宁蹲在排水泵旁，只拿手电照了照管口，没碰管壁，也没下诊断——工具在，但诊断还没做，疏通和维修都缺这一步。许岚站在门口，目光越过你落在城外方向，只说了一句：“等水的人还在等，准时交付不能拖。”陈默没接话，低头看了看留守名单，把纸折好塞进口袋。你开口：“先不拆装，也不搬设备。下一步我安排诊断排水泵，拿到结果再定维修还是拆核心。”周宁点头，把扳手留在箱里。此前你选择先找工具、不急着动手，所以此刻扳手和弹簧都在手边，但诊断未做，维修未启，设备未装，车未出发，时间仍是五点。你承诺，接下来由你决定先诊断还是先拆装。\n\n【行动裁定】已取消待执行方案，资源与时间不变。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "action": "诊断排水设施",
+      "elapsedMs": 9282,
+      "error": {
+        "type": "error",
+        "message": "行动未完成，时间与资源未改变。请重试。"
+      }
+    }
+  ]
+}

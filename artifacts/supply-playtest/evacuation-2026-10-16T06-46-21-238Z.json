@@ -1,0 +1,236 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "evacuation",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 1859,
+      "data": {
+        "narrative": "风暴倒计时悬在头顶。许岚先开口：“六个时间单位，两套设备只能带一套，你得定。”陈默立刻接上：“排水一坏，水就保不住，先修这个。”周宁蹲在车边，手电照着接口：“另一套是备用泵，没查过状态，带错等于白跑。”三人同时看向你。许岚要你给个时间表，陈默要你保证水源，周宁只等你确认先查哪样。你还没动手，谁也没让步。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "先检查这辆车，问周宁能不能只带净水核心，把空间留给居民。",
+      "elapsedMs": 2971,
+      "data": {
+        "narrative": "你蹲到车边，手电光落在净水核心的接口上。周宁跟着照了照，说：“核心能单独拆，但接口和车架得对得上，现在没查过，我不敢说拆下来就能装走。”许岚看了眼表：“检查可以，一个时间单位，但别把时间耗在没定的事上。”陈默站在储水罐旁没动：“我只问一句，水能不能保住。”你没有回答，只让周宁先看接口。他俯身拨开线束，还没给出结论。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：先检查车辆与核心的兼容性，确认净水核心能否单独装载、是否真能腾出居民空间；同时向周宁询问只带净水核心的可行性。这不能保证空间一定够，也不能替代对储水和排水的调查。。预计步骤与代价：检查车辆与净水核心：预计耗时 1；询问或讨论方案：预计耗时 0 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [],
+          "pending": {
+            "steps": [
+              "inspect_vehicle",
+              "talk"
+            ],
+            "explanation": "先检查车辆与核心的兼容性，确认净水核心能否单独装载、是否真能腾出居民空间；同时向周宁询问只带净水核心的可行性。这不能保证空间一定够，也不能替代对储水和排水的调查。"
+          }
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "寻找维修工具",
+      "elapsedMs": 2037,
+      "data": {
+        "narrative": "你从工具箱里抽出疏通工具和拆装扳手，金属碰撞声在风里格外清楚。许岚扫了一眼你手里的东西，没追问，只把表往你面前一抬：“还剩五个时间单位，工具到手了，下一步你得说清先动哪。”陈默盯着那两件工具，语气没松：“扳手修不了水罐，我只想知道排水到底坏在哪。”周宁蹲下来接过扳手翻看，指节敲了敲钳口：“工具能用，但接口型号还没对过，现在拆下去可能卡死。你要先查哪一样，我跟着。”三人都在等你开口，没人替你定顺序。\n\n【行动裁定】找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "把净水核心拆下来装车，接着让居民上车，最后出发去城外。",
+      "elapsedMs": 3007,
+      "data": {
+        "narrative": "你伸手去够净水核心的接口，周宁先一步按住扳手：“型号没对过，现在拆可能卡死。”许岚抬表：“还剩五个单位，拆装没验证，登车也没组织，你这一步跨不过去。”陈默挡在储水罐前：“水还没查，人不能先走。”你手停在半空，三人各守一段，谁也没让开。风把工具箱吹得哐当响，扳手还在周宁手里，核心纹丝未动。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：我理解你想尽快拆下净水核心、让居民登车并出发。但按现有信息，车辆与核心的兼容性尚未检查，直接拆装可能卡死；排水故障未诊断、储水未调查，居民也未组织，登车条件不成立。因此我只能先执行拆装核心，随后尝试组织登车与出发，但这两步很可能因条件不足而停下，不能保证成功。。预计步骤与代价：拆卸并装运净水核心：预计耗时 0，条件不足，需调整 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。"
+          ],
+          "pending": {
+            "steps": [
+              "split_core",
+              "evacuate",
+              "depart"
+            ],
+            "explanation": "我理解你想尽快拆下净水核心、让居民登车并出发。但按现有信息，车辆与核心的兼容性尚未检查，直接拆装可能卡死；排水故障未诊断、储水未调查，居民也未组织，登车条件不成立。因此我只能先执行拆装核心，随后尝试组织登车与出发，但这两步很可能因条件不足而停下，不能保证成功。"
+          }
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "确认执行当前方案",
+      "elapsedMs": 1971,
+      "data": {
+        "narrative": "你刚说出“确认执行”，周宁就把扳手横在核心接口前：“先别动，型号没对过，卡死了谁都拆不下来。”许岚没有收表，只把剩余时间报给你：“五个单位，检查兼容性要占一个，你确定从这里开始？”陈默依旧站在储水罐旁，目光没离开那两件工具：“我不拦你查车，但水的事没结论之前，别让人先上车。”风卷着沙粒打在车壳上，扳手还在周宁手里，核心接口尚未触碰。三人都在等你把顺序说定。\n\n【行动裁定】需要先检查兼容性并找到工具，尚未拆卸。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "需要先检查兼容性并找到工具，尚未拆卸。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "split_core",
+              "evacuate",
+              "depart"
+            ],
+            "explanation": "我理解你想尽快拆下净水核心、让居民登车并出发。但按现有信息，车辆与核心的兼容性尚未检查，直接拆装可能卡死；排水故障未诊断、储水未调查，居民也未组织，登车条件不成立。因此我只能先执行拆装核心，随后尝试组织登车与出发，但这两步很可能因条件不足而停下，不能保证成功。"
+          }
+        }
+      }
+    }
+  ]
+}

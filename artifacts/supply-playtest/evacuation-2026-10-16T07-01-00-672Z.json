@@ -1,0 +1,272 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "evacuation",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 14,
+      "quality": {
+        "type": "quality",
+        "source": "authored-opening",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "风把补给站的铁门撞得一响。你刚接过临时协调的名单，许岚便将车钥匙压在桌上：“城外的人还等着净水设备。车只能装一套，风暴前得走。”\n\n陈默扶住门，身后是挤在站里的居民。“另一套留给我们。可避难间已经渗水——车走了，留下的人怎么办？”\n\n周宁从排水间退出来，裤脚湿了一截：“得查清设施哪里出了问题，也可以先核对储水或检查车辆。动手之前，咱们把代价说清楚。”\n\n两套设备并排立在墙边。留给你协调的时间，只够六个时间单位的行动；询问和商量暂不耗时。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "先检查这辆车，问周宁能不能只带净水核心，把空间留给居民。",
+      "elapsedMs": 4442,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你伸手按了按车厢侧板，金属在掌心下发出空而薄的回响。周宁从车尾绕过来，把接口图纸摊在引擎盖上，指尖点着城外营地那组对应端子：“核心能直接接进去，不用改。”你问能不能只带核心，把座位空出来。他蹲下看了看固定架，又抬头估了估空间：“可以，但拆装得用工具，还得有人手，前后要两个单位时间。”你点头，把图纸折好收进口袋。许岚站在几步外，没插话，只朝车厢方向看了一眼。陈默也没动。你心里清楚，这只是个替代方案——车还停着，设备没动，工具也没到手。你决定先去找工具，再定拆装。此前你选择先问周宁兼容性，而不是急着装整机，这让座位有了腾出来的可能。\n\n【行动裁定】车辆可运一套完整设备，或净水核心加部分物资。核心可接入城外营地现有接口；拆装需要工具与维修员，耗时 2。不能再次返程。 耗时 1，剩余 5。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "vehicle"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [
+            "vehicle"
+          ],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "车辆可运一套完整设备，或净水核心加部分物资。核心可接入城外营地现有接口；拆装需要工具与维修员，耗时 2。不能再次返程。 耗时 1，剩余 5。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "寻找维修工具",
+      "elapsedMs": 3204,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "扳手落进工具箱时，铁皮发出一声闷响。周宁蹲在车尾，把疏通工具和拆装扳手一件件摊开，指腹蹭过钳口，又抹了抹柄上的锈迹，确认齿口没崩，才合上箱盖，靠墙放好。她没有开始拆任何东西，只是回头看了你一眼。许岚站在门边，手里攥着城外等水人的名单，问：“工具齐了，能动手了吗？”你摇头，说得先看清泵到底卡在哪，不然拆了也白拆。陈默从里屋探出身子，只问了一句：“留守的人今晚还有水喝吗？”你没接话，把工具箱推到排水泵旁。此前你选择先找工具而不是空手去拆，现在至少有了能下手的家伙。你承诺，等看清故障，再决定先修泵还是先拆核心。\n\n【行动裁定】找到疏通工具与拆装扳手。 耗时 1，剩余 4。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "vehicle"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "vehicle"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "车辆可运一套完整设备，或净水核心加部分物资。核心可接入城外营地现有接口；拆装需要工具与维修员，耗时 2。不能再次返程。 耗时 1，剩余 5。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 4。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "把净水核心拆下来装车，接着让居民上车，最后出发去城外。",
+      "elapsedMs": 9656,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 1
+      },
+      "data": {
+        "narrative": "你指尖压着那张画了三条线的纸，没动。周宁看了一眼车钥匙，说：“车能装一套完整设备，也能装核心加物资，但拆装要工具和维修员，得两个钟头。”许岚把一叠登记表推到桌角：“城外等水的人按名单排着，准时到就行，我不催你。”陈默靠着门框，目光落在窗外那排空桶上：“站里还有人没走，水得先顾着他们。”你点头，把纸折起来，说：“那就先确认步骤——拆核心、装车、居民登车、出发。谁有补充？”没人再开口。你收起纸，等自己按下确认。此前你选择先找工具而不是空手去拆，才让这套方案现在能摆上桌面。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试拆卸并装运净水核心，然后组织居民登车撤离，然后执行最终安排，救援车出发；执行结果取决于实际条件。预计步骤与代价：拆卸并装运净水核心：预计耗时 2；组织居民登车撤离：预计耗时 1；执行最终安排，救援车出发：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "vehicle"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "vehicle"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "车辆可运一套完整设备，或净水核心加部分物资。核心可接入城外营地现有接口；拆装需要工具与维修员，耗时 2。不能再次返程。 耗时 1，剩余 5。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 4。"
+          ],
+          "pending": {
+            "steps": [
+              "split_core",
+              "evacuate",
+              "depart"
+            ],
+            "explanation": "尝试拆卸并装运净水核心，然后组织居民登车撤离，然后执行最终安排，救援车出发；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "确认执行当前方案",
+      "elapsedMs": 2625,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你拧紧最后一颗固定螺栓时，扳手在掌心硌出一道红痕。周宁把拆下的净水核心递过来，金属外壳还带着站内管路的余温。许岚站在车门边，目光越过你的肩，落在城外方向——那里有人等着这套核心接入接口。陈默最后一个上车，回头看了一眼留在站里的完整设备和拆剩的储水箱，没说话。\n\n车门合拢，引擎声压过风声。你选择拆运核心，而不是整套设备，座位才腾出来让居民登车。此刻车轮碾过碎石，两处灯火在风暴里各自亮着：一处随车远去，一处留在原地，都还能出水。\n\n【行动裁定】周宁协助拆装核心，城外可接入使用；居民保留另一套完整设备和拆剩的储水箱。 耗时 2，剩余 2。；居民登车，出发后将抵达城外营地。 耗时 1，剩余 1。；救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 0。 最终复盘：居民：随车撤离。 城外：获得兼容净水核心。 未留下尚未揭露的设施风险隐瞒。 结局：风暴中的两处灯火",
+        "statusDelta": {},
+        "ending": {
+          "type": "good",
+          "title": "风暴中的两处灯火"
+        },
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "vehicle"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 0,
+          "known": [
+            "vehicle"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "core",
+          "evacuated": true,
+          "hiddenRisk": false,
+          "departed": true,
+          "log": [
+            "车辆可运一套完整设备，或净水核心加部分物资。核心可接入城外营地现有接口；拆装需要工具与维修员，耗时 2。不能再次返程。 耗时 1，剩余 5。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 4。",
+            "周宁协助拆装核心，城外可接入使用；居民保留另一套完整设备和拆剩的储水箱。 耗时 2，剩余 2。",
+            "居民登车，出发后将抵达城外营地。 耗时 1，剩余 1。",
+            "救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 0。"
+          ]
+        }
+      }
+    }
+  ]
+}

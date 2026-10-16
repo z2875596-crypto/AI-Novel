@@ -76,12 +76,14 @@ export default function GenreGrid() {
             <div className="flex items-center justify-between gap-3 mb-6"><span className="text-3xl" aria-hidden="true">{cfg.emoji}</span><span className="text-xs" style={{ color: cfg.theme.textMuted }}>{cfg.label} · 短篇体验</span></div>
             <h3 className="text-xl font-semibold mb-3">{story.title}</h3>
             <p className="text-sm leading-7 mb-5">{story.hook}</p>
+            {story.participantRole && <p className="text-xs leading-6 mb-2" style={{ color: cfg.theme.textMuted }}>你的身份：{story.participantRole}</p>}
+            {story.experience && <p className="text-xs leading-6 mb-3" style={{ color: cfg.theme.textMuted }}>你将体验：{story.experience}</p>}
             <p className="text-xs leading-6 mb-6" style={{ color: cfg.theme.textMuted }}>你的目标：{story.goal}</p>
-            <div className="mt-auto space-y-3"><p className="text-xs" style={{ color: cfg.theme.textMuted }}>约 8 回合 · 可自由输入 · 可回溯</p><button disabled={starting} onClick={() => start(key)} className="w-full rounded-xl border px-4 py-3 text-sm font-semibold transition hover:brightness-125 disabled:opacity-50" style={{ background: `${cfg.theme.primary}22`, borderColor: cfg.theme.primary, color: cfg.theme.text }} aria-label={`进入故事：${story.title}`}>进入故事 →</button></div>
+            <div className="mt-auto space-y-3"><p className="text-xs" style={{ color: cfg.theme.textMuted }}>短篇体验 · 可自由输入 · 可回溯</p><button disabled={starting} onClick={() => start(key)} className="w-full rounded-xl border px-4 py-3 text-sm font-semibold transition hover:brightness-125 disabled:opacity-50" style={{ background: `${cfg.theme.primary}22`, borderColor: cfg.theme.primary, color: cfg.theme.text }} aria-label={`进入故事：${story.title}`}>进入故事 →</button></div>
           </article>
         })}
       </div>
-      <p className="text-xs leading-6" style={{ color: 'var(--theme-text-muted)' }}>选择行动，或写下你想怎么做。剧情由 AI 生成；结束后，你可以回溯关键选择，探索另一种走向。</p>
+      <p className="text-xs leading-6" style={{ color: 'var(--theme-text-muted)' }}>故事提供预设背景与冲突，后续正文由 AI 生成。选择行动，或写下你想怎么做；结束后可回溯探索其他走向。进度保存在本机浏览器，建议导出备份。</p>
 
       </section>
     </div>

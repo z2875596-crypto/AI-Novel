@@ -220,7 +220,7 @@ export default function GamePage() {
             <button disabled={isStreaming} aria-expanded={participating} className="text-sm px-3 py-2" onClick={() => setParticipating(!participating)}>{participating ? '收起参与' : '参与故事'}</button>
           </div>}
           {(worldConfig.supply || participating) && <div className="space-y-2 max-h-[35dvh] overflow-y-auto">
-            <p className="text-xs">{worldConfig.supply ? '角色行动：说出你想做的事。' : '角色行动：说出你想做的事；剧情构想：提出希望故事如何发展。'}</p>
+            <p className="text-xs leading-6">角色行动：主角想尝试做什么？人物会依据自身立场回应，行动不保证成功。</p>
             <div className="flex-1">
               <FreeInputBox onSubmit={(t) => handleAction(t)} />
             </div>

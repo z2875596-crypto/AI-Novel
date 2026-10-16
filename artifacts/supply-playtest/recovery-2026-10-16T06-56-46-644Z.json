@@ -1,0 +1,145 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "recovery",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 16,
+      "data": {
+        "narrative": "风把补给站的铁门撞得一响。你刚接过临时协调的名单，许岚便将车钥匙压在桌上：“城外的人还等着净水设备。车只能装一套，风暴前得走。”\n\n陈默扶住门，身后是挤在站里的居民。“另一套留给我们。可避难间已经渗水——车走了，留下的人怎么办？”\n\n周宁从排水间退出来，裤脚湿了一截：“得查清设施哪里出了问题，也可以先核对储水或检查车辆。动手之前，咱们把代价说清楚。”\n\n两套设备并排立在墙边。留给你协调的时间，只够六个时间单位的行动；询问和商量暂不耗时。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "我能不能再找一辆车，或者先把设备送走再回来接人？先别执行。",
+      "elapsedMs": 8412,
+      "data": {
+        "narrative": "林舟的话音落下，许岚先开口：“再找一辆车，我们没有第二辆。设备送走再回来接人，油和路况都不允许折返。”她顿了顿，手指无意识地敲着桌沿，“城外等水的人还在，准时交付不能拖。”陈默摇头：“留守的人也得有人管，不能把谁落下。”周宁把目光从故障记录上移开，只说了句：“泵还没查，工具也没到手，现在谈怎么走都太早。先让我诊断排水，再看车辆能不能装完整设备——装设备本身不用查接口。”林舟点头，没有下令拆机，也没有搬动任何东西。他清楚，此前选择先讨论而非直接动手，才让所有人停在原地，没有消耗掉那六小时里任何一分钟。\n\n【行动裁定】本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "修复排水设施",
+      "elapsedMs": 7528,
+      "data": {
+        "narrative": "周宁盯着屏幕上的排水设施修复方案，手指悬在确认键上方。“这个方案缺条件，”他说，“直接执行会停住。”\n\n许岚站在门口，目光扫过站内那套仍在运转的净水设备。“城外等水的人不能拖，”她声音不高，“但泵修不好，水也送不出去。”\n\n陈默从走廊尽头走过来，只问了一句：“留守的人怎么办？”\n\n周宁没有回答，只是把方案页面转向林舟。“先确认缺什么，再决定下一步。取消还是调整，你定。”\n\n林舟看着方案上那行“条件不足，需调整”的提示，没有碰任何工具，也没有靠近泵体。他想起自己之前选择先预览方案而不是直接执行——正因为这个选择，此刻才没有在条件不足时白白消耗时间，而是停在确认页前，等一个可行的下一步。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：修复排水设施。预计步骤与代价：修复排水设施：预计耗时 0，条件不足，需调整 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "修复排水设施"
+          }
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "确认执行当前方案",
+      "elapsedMs": 8445,
+      "error": {
+        "type": "error",
+        "message": "行动未完成，时间与资源未改变。请重试。"
+      }
+    }
+  ]
+}

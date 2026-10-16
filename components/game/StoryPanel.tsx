@@ -4,8 +4,22 @@ import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/stores/gameStore'
 import { useGenreStore } from '@/stores/genreStore'
 import { useSummaryStore } from '@/stores/summaryStore'
+import { useWorldStore } from '@/stores/worldStore'
 import { GENRE_CONFIG } from '@/lib/themeConfig'
 import SummaryCard from './SummaryCard'
+
+function SupplyNarrative({ content }: { content: string }) {
+  const marker = '\n\n【行动裁定】'
+  const boundary = content.lastIndexOf(marker)
+  if (boundary < 0) return <>{content}</>
+  return <>
+    {content.slice(0, boundary)}
+    <details className="mt-3 border-t pt-2 text-xs leading-6" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-text-muted)' }}>
+      <summary className="cursor-pointer">查看行动结果与代价</summary>
+      <p className="pt-2">{content.slice(boundary + marker.length)}</p>
+    </details>
+  </>
+}
 
 export default function StoryPanel() {
   const messages = useGameStore((s) => s.messages)
@@ -13,6 +27,7 @@ export default function StoryPanel() {
   const isStreaming = useGameStore((s) => s.isStreaming)
   const genre = useGenreStore((s) => s.genre)
   const summaries = useSummaryStore((s) => s.summaries)
+  const isSupply = useWorldStore(s => !!s.worldConfig.supply)
 
   const followBottom = useRef(true)
   const [showLatest, setShowLatest] = useState(false)
@@ -69,7 +84,7 @@ export default function StoryPanel() {
                   borderLeft: `2px solid ${config?.theme.primary ?? '#888'}44`,
                 }}
               >
-                {msg.content}
+                {isSupply ? <SupplyNarrative content={msg.content} /> : msg.content}
               </div>
             )}
 

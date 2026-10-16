@@ -1,6 +1,6 @@
 ﻿import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { initialSupply, resolveSupply, supplyEnding, validateSupply, validatePlan } from '../lib/supplyGame'
+import { initialSupply, resolveSupply, supplyChoices, supplyEnding, validateSupply, validatePlan } from '../lib/supplyGame'
 import { quickStartWorld } from '../lib/quickStart'
 
 function run(actions: Parameters<typeof resolveSupply>[1][]) {
@@ -74,7 +74,7 @@ test('API proposes before spending and commits only the confirmed plan', async (
   const { deepseek } = await import('../lib/deepseek')
   const { supplyResponse } = await import('../lib/supplyResponse')
   const original = deepseek.chat.completions.create
-  const fake = async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ narrative: '【模拟测试】许岚等待你的安排。' }) } }] })
+  const fake = async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ narrative: '【模拟测试】许岚等待你的安排。', consistent: true, violations: [] }) } }] })
   deepseek.chat.completions.create = fake as unknown as typeof original
   try {
     const worldConfig = quickStartWorld('apocalypse')
@@ -183,4 +183,79 @@ test('legacy saves migrate existing cooperation without exposing a secret', () =
 test('invalid negotiation cannot assign another character resources or terms', () => {
   assert.throws(() => validatePlan({ steps: ['ask_team'], explanation: '', negotiation: { target: 'xu', condition: 'keep_device' } }))
   assert.throws(() => validatePlan({ steps: ['repair'], explanation: '', negotiation: { target: 'xu', condition: 'deliver' } }))
+})
+
+test('discovered core route can be selected without guessing a free-text command', () => {
+  const state = run(['inspect_vehicle', 'find_tools'])
+  assert.ok(supplyChoices(state).includes('拆卸并装运净水核心'))
+})
+
+test('real playtest regressions cannot reset a known diagnosis or invent a vehicle restriction', async () => {
+  const { observedSupplyProseIssues } = await import('../lib/supplyNarrative')
+  const diagnosed = run(['inspect_shelter', 'find_tools'])
+  for (const text of ['工具够，但泵还没查，先别拆。', '你还有三天。', '泵不转，装车的事就无从谈起。', '许岚的承诺兑现了。']) {
+    assert.ok(observedSupplyProseIssues(text, diagnosed).length, text)
+  }
+  assert.deepEqual(observedSupplyProseIssues('工具已经找到，排水故障已诊断，维修还没有开始。', diagnosed), [])
+})
+
+test('contradictory narration is revised; repeated semantic rejection uses the edited scene without mutating input', async () => {
+  process.env.DEEPSEEK_API_KEY = 'local-test-only'
+  const { deepseek } = await import('../lib/deepseek')
+  const { supplyResponse } = await import('../lib/supplyResponse')
+  const original = deepseek.chat.completions.create
+  let rejectAlways = false, audits = 0, revisions = 0
+  deepseek.chat.completions.create = (async (request: { messages: { content: string }[] }) => {
+    const isAudit = request.messages[0].content.includes('一致性核对员')
+    let value
+    if (isAudit) {
+      audits++
+      value = { consistent: !rejectAlways && audits > 1, violations: rejectAlways || audits === 1 ? ['诊断不等于维修完成'] : [] }
+    } else {
+      if (JSON.parse(request.messages[1].content).revision) revisions++
+      value = { narrative: audits ? '周宁确认了堵塞，还需要工具才能维修。' : '排水已经修好。' }
+    }
+    return { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(value) } }] }
+  }) as unknown as typeof original
+  try {
+    const worldConfig = quickStartWorld('apocalypse')
+    const call = async () => {
+      const response = await supplyResponse(new Request('http://localhost/api/story/stream'), { worldConfig, history: [], playerAction: '诊断排水设施' })
+      return (await response.text()).trim().split('\n').map(line => JSON.parse(line))
+    }
+    const events = await call()
+    const complete = events.find(event => event.type === 'complete')
+    assert.ok(complete)
+    assert.equal(complete.data.supply.repaired, false)
+    assert.ok(complete.data.narrative.startsWith('周宁确认了堵塞'))
+    assert.equal(revisions, 1)
+    assert.equal(worldConfig.supply?.time, 6, 'Handler must not mutate caller state')
+    rejectAlways = true
+    const failed = await call()
+    assert.equal(failed.find(event => event.type === 'quality')?.source, 'authored-fallback')
+    assert.equal(failed.find(event => event.type === 'complete')?.data.supply.repaired, false)
+    assert.equal(worldConfig.supply?.time, 6)
+    deepseek.chat.completions.create = (async () => { throw Object.assign(new Error('authentication failed'), { status: 401 }) }) as unknown as typeof original
+    const unavailable = await call()
+    assert.equal(unavailable.some(event => event.type === 'complete'), false, 'Transport/auth errors must not become successful authored turns')
+    assert.equal(unavailable.some(event => event.type === 'error'), true)
+  } finally { deepseek.chat.completions.create = original }
+})
+
+test('free-text acceptance uses existing offer terms even if interpretation repeats different terms', async () => {
+  process.env.DEEPSEEK_API_KEY = 'local-test-only'
+  const { deepseek } = await import('../lib/deepseek')
+  const { supplyResponse } = await import('../lib/supplyResponse')
+  const original = deepseek.chat.completions.create
+  deepseek.chat.completions.create = (async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ steps: ['accept_offer'], explanation: '接受', negotiation: { target: 'xu', condition: 'load_first' } }) } }] })) as unknown as typeof original
+  try {
+    const worldConfig = quickStartWorld('apocalypse')
+    worldConfig.supply = run(['inspect_shelter', 'ask_team'])
+    const response = await supplyResponse(new Request('http://localhost/api/story/stream'), { worldConfig, history: [], playerAction: '我答应，接受许岚的条件。' })
+    const events = (await response.text()).trim().split('\n').map(line => JSON.parse(line))
+    const complete = events.find(event => event.type === 'complete')
+    assert.equal(complete?.data.supply.team, true)
+    assert.equal(complete?.data.supply.social.promises[0].condition, 'deliver')
+    assert.equal(complete?.data.supply.cargo, 'none')
+  } finally { deepseek.chat.completions.create = original }
 })

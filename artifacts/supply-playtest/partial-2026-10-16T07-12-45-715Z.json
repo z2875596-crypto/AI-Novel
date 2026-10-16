@@ -1,0 +1,253 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "partial",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 34,
+      "quality": {
+        "type": "quality",
+        "source": "authored-opening",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "风把补给站的铁门撞得一响。你刚接过临时协调的名单，许岚便将车钥匙压在桌上：“城外的人还等着净水设备。车只能装一套，风暴前得走。”\n\n陈默扶住门，身后是挤在站里的居民。“另一套留给我们。可避难间已经渗水——车走了，留下的人怎么办？”\n\n周宁从排水间退出来，裤脚湿了一截：“得查清设施哪里出了问题，也可以先核对储水或检查车辆。动手之前，咱们把代价说清楚。”\n\n两套设备并排立在墙边。留给你协调的时间，只够六个时间单位的行动；询问和商量暂不耗时。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "装运一套完整设备",
+      "elapsedMs": 2,
+      "quality": {
+        "type": "quality",
+        "source": "authored-preview",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你将“装运一套完整设备”的打算重新过了一遍。\n\n周宁没有动手，只提醒：“只搬一套，另一套原样留给站里。等你确认，我们再动。”\n\n方案尚未执行。决定确认、取消，或改掉其中一步的余地，还握在你手里。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试装运一套完整设备；执行结果取决于实际条件。预计步骤与代价：装运一套完整设备：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [],
+          "pending": {
+            "steps": [
+              "load_device"
+            ],
+            "explanation": "尝试装运一套完整设备；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "确认执行当前方案",
+      "elapsedMs": 3852,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你拧紧最后一根绑带，金属卡扣“咔”地咬合，整套净水设备稳稳压在车厢底板上。周宁从车尾探身，拍了拍外壳：“这一套走，另一套留在站里，城里城外都不落空。”许岚站在车门旁，目光扫过仪表盘，没催发车，只问：“排水泵那边，还是没动静？”陈默蹲在泵房门口，手电光柱里水面纹丝不动，他摇头：“没工具，拆不开，也看不出堵在哪。光靠看，诊断不了。”许岚没再追问，转向你：“那就先这样，设备装好了，泵的事等有工具再说。城外的人等水，但车没发，我不催你。”陈默站起来，拍了拍裤腿上的灰：“站里那套留着，留下的人至少还有水喝。我不拦了。”你拉上车门，锁扣弹回，声音干脆。此前你选择先装一套、留一套，此刻两处供水各有着落，发车与否，只等你下一步动作。\n\n【行动裁定】装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 5。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 5。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "执行最终安排，救援车出发",
+      "elapsedMs": 1,
+      "quality": {
+        "type": "quality",
+        "source": "authored-preview",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你将“执行最终安排，救援车出发”的打算重新过了一遍。\n\n周宁没有动手，只提醒：“车一旦出发，这次安排就定下了。再看一眼留下的人和车上的东西。”\n\n方案尚未执行。决定确认、取消，或改掉其中一步的余地，还握在你手里。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试执行最终安排，救援车出发；执行结果取决于实际条件。预计步骤与代价：执行最终安排，救援车出发：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 5。"
+          ],
+          "pending": {
+            "steps": [
+              "depart"
+            ],
+            "explanation": "尝试执行最终安排，救援车出发；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "确认执行当前方案",
+      "elapsedMs": 0,
+      "quality": {
+        "type": "quality",
+        "source": "authored-ending",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "救援车驶出站门，陈默仍扶着那扇被风撞响的铁门。排水间没有传来恢复运转的声音，留下的人还不能确认避难是否安全。\n\n车上的设备将送往城外，但这项交付没有解决留守者的处境。你作出的安排已经成为结果；未能完成的部分，也留在了这一场风暴里。\n\n【行动裁定】救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 4。 最终复盘：居民：避难安全未获保障。 城外：获得完整净水设备。 未留下尚未揭露的设施风险隐瞒。 结局：抵达之后的牵挂",
+        "statusDelta": {},
+        "ending": {
+          "type": "bad",
+          "title": "抵达之后的牵挂"
+        },
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": true,
+          "log": [
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 5。",
+            "救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 4。"
+          ]
+        }
+      }
+    }
+  ]
+}

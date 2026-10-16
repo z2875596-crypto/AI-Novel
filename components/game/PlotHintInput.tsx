@@ -27,8 +27,10 @@ export default function PlotHintInput() {
   }
 
   function handleClear() {
+    if (isStreaming) return
     setPlotHint('')
     setDraft('')
+    setExpanded(false)
   }
 
   const preview = plotHint.length > 10 ? plotHint.slice(0, 10) + '…' : plotHint
@@ -37,6 +39,8 @@ export default function PlotHintInput() {
     <div className="flex flex-wrap items-center gap-1.5">
       <button
         disabled={isStreaming}
+        aria-expanded={expanded}
+        aria-controls="plot-direction-editor"
         onClick={() => { setDraft(plotHint); setExpanded(!expanded) }}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:brightness-110 active:scale-95"
         style={{
@@ -54,16 +58,28 @@ export default function PlotHintInput() {
         )}
       </button>
 
-      {hasHint && <p role="status" className="w-full text-xs">已加入后续剧情方向，可修改或清除：{plotHint}</p>}
+      {hasHint && <div className="w-full space-y-2 rounded-lg border p-3" style={{ borderColor: config.theme.border }}>
+        <p role="status" className="text-xs leading-6">当前剧情方向：{plotHint}</p>
+        <p className="text-xs leading-6" style={{ color: config.theme.textMuted }}>会持续用于后续生成，直到你修改或结束。已发生的剧情会保留。</p>
+        <div className="flex flex-wrap gap-3 text-xs">
+          <button disabled={isStreaming} onClick={() => { setDraft(plotHint); setExpanded(true) }} className="underline disabled:opacity-40">修改方向</button>
+          <button disabled={isStreaming} onClick={handleClear} className="underline disabled:opacity-40">已实现，结束此方向</button>
+          <button disabled={isStreaming} onClick={handleClear} className="underline disabled:opacity-40">取消方向</button>
+        </div>
+      </div>}
       {expanded && (
-        <div className="flex flex-wrap items-center gap-1.5 animate-fade-in">
+        <div id="plot-direction-editor" className="w-full space-y-2 animate-fade-in">
+          <label htmlFor="plot-direction" className="block text-xs leading-6">希望后续往什么方向发展？这不是主角的行动，也不会立即成为已发生的事实。</label>
+          <div className="flex flex-wrap items-center gap-2">
           <input
+            id="plot-direction"
             type="text"
-            placeholder="希望接下来出现什么情节…"
+            placeholder="例如：希望两人逐渐建立信任"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleConfirm() }}
-            className="w-40 rounded-lg border px-3 py-1.5 text-xs outline-none transition-colors"
+            disabled={isStreaming}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && draft.trim()) handleConfirm() }}
+            className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-xs outline-none transition-colors"
             style={{
               background: config.theme.surface,
               borderColor: config.theme.border,
@@ -76,7 +92,7 @@ export default function PlotHintInput() {
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: config.theme.primary, color: '#fff' }}
           >
-            确定
+            保存方向
           </button>
           {hasHint && (
             <button
@@ -88,6 +104,7 @@ export default function PlotHintInput() {
               清除
             </button>
           )}
+          </div>
         </div>
       )}
     </div>

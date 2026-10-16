@@ -1,0 +1,196 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "cooperation",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 14,
+      "data": {
+        "narrative": "风把补给站的铁门撞得一响。你刚接过临时协调的名单，许岚便将车钥匙压在桌上：“城外的人还等着净水设备。车只能装一套，风暴前得走。”\n\n陈默扶住门，身后是挤在站里的居民。“另一套留给我们。可避难间已经渗水——车走了，留下的人怎么办？”\n\n周宁从排水间退出来，裤脚湿了一截：“得查清设施哪里出了问题，也可以先核对储水或检查车辆。动手之前，咱们把代价说清楚。”\n\n两套设备并排立在墙边。留给你协调的时间，只够六个时间单位的行动；询问和商量暂不耗时。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "调查居民储水",
+      "elapsedMs": 7379,
+      "data": {
+        "narrative": "林舟合上储水记录，纸页边缘在指腹下发出轻微的刮擦声。只够一天。他没有对许岚、陈默或周宁提起这件事，也没有宣布任何新计划。另一套设备会留在站内，这一点他清楚，但暴雨避难的安全路线还没查过。他独自站在记录室，把册子放回原位，手指在封面上停了一瞬。许岚关心的是城外等水的人和准时交付，陈默关心的是留守者，周宁负责技术——可此刻没有人知道储水只够一天。他需要先确认暴雨避难路线是否可行，再决定下一步。此前他选择独自核对而不是当众宣布，现在他只能自己先消化这个数字，再找机会让周宁去看排水泵的故障。\n\n【行动裁定】居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [
+            "water"
+          ],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "诊断排水设施",
+      "elapsedMs": 7152,
+      "data": {
+        "narrative": "你蹲在泵体旁，指尖碰到外壳上黏腻的油垢，一股铁锈味混着积水漫上来。周宁用手电照向泵轴连接处，光斑停在一团缠结的碎布与泥沙上。“堵在这里，”他收回手电，“得用工具才能拆开清。”你问他眼下能做什么，他摇头：“没工具，拆不动，硬转只会把轴别弯。”你记下位置，起身时裤脚蹭过地面湿痕。周宁补了一句：“工具齐了，两个人能快些。”你点头，没再碰泵体。远处传来居民搬水桶的磕碰声，许岚和陈默都不在泵房附近。你清楚，城外等水的人还在等，而泵不转，装车的事就无从谈起。你决定先去找工具，再回来叫上周宁。此前你选择先诊断而非直接装车，才让堵塞点被准确定位，下一步的维修有了明确目标。你承诺自己会带工具回来。\n\n【行动裁定】排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "water",
+            "shelter"
+          ],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "寻找维修工具",
+      "elapsedMs": 11299,
+      "data": {
+        "narrative": "扳手落在掌心，沉甸甸的，沾着旧油污。周宁用拇指刮了刮活动钳口，确认没卡死，又拎起疏通器抖了两下，弹簧软轴缩回筒里，发出细碎的金属声。他把两样东西并排搁在泵房门口的干燥台阶上，没有跨过门槛，也没有去碰泵体上那圈锈死的螺栓。你站在旁边，听见积水在脚下轻轻晃荡，漫过鞋底边缘。周宁蹲下来，手指点了点疏通器前端，说：“工具齐了，泵还堵着，得先拆开看是缠了东西还是叶轮卡住。”他抬头看你，等你决定什么时候动手。许岚没过来，只在远处仓库门口清点空桶，偶尔朝这边望一眼。陈默守在居民那侧，没问进度。你清楚，泵没转，水就排不走，装车和出发都还谈不上。你弯腰把扳手拿起来，掂了掂分量，对周宁说：“先别急，我再确认一遍泵的型号。”周宁点头，把疏通器往墙边靠了靠。台阶上的工具静静躺着，泵房里只有水声，没有机器响。\n\n【行动裁定】找到疏通工具与拆装扳手。 耗时 1，剩余 3。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 3,
+          "known": [
+            "water",
+            "shelter"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 3。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "向许岚争取维修人手",
+      "elapsedMs": 12039,
+      "error": {
+        "type": "error",
+        "message": "行动未完成，时间与资源未改变。请重试。"
+      }
+    }
+  ]
+}

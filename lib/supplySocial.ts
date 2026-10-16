@@ -70,7 +70,7 @@ export function updatePromises(s: SupplyState): string[] {
     if (done || terminal) {
       p.status = done ? 'fulfilled' : 'broken'
       if (!done) s.social!.trust[p.target] = 'wary'
-      notes.push(`${PERSON_NAMES[p.target]}的承诺${done ? '已兑现' : '未兑现'}：${p.description}`)
+      notes.push(`你对${PERSON_NAMES[p.target]}的承诺${done ? '已兑现' : '未兑现'}：${p.description}`)
     }
   }
   return notes

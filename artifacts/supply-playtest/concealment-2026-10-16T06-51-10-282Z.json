@@ -1,0 +1,15 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "concealment",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 12653,
+      "error": {
+        "type": "error",
+        "message": "行动未完成，时间与资源未改变。请重试。"
+      }
+    }
+  ]
+}

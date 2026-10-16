@@ -4,7 +4,7 @@ import ClientAuthProvider from '@/components/shared/ClientAuthProvider'
 
 export const metadata: Metadata = {
   title: '鸢叙',
-  description: '进入一段故事，自由行动，经历选择的后果。鸢叙，以角色关系和关键抉择为核心的 AI 互动故事。',
+  description: '走进小说，读到由自己影响的故事。选择角色行动，提出剧情构想，在阅读中参与塑造人物关系与故事走向。',
 }
 
 export default function RootLayout({

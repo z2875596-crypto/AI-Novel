@@ -28,7 +28,7 @@ export default function HomePage() {
         {/* Logo */}
         <div className="text-center mb-10 animate-fade-in-up">
           <Logo size={72} showText={true} />
-          <h1 className="text-2xl sm:text-4xl font-semibold mt-6 leading-relaxed">读一段小说，参与其中，<br className="hidden sm:block" />写出你的故事。</h1>
+          <h1 className="text-2xl sm:text-4xl font-semibold mt-6 leading-relaxed">走进小说，<br className="hidden sm:block" />读到由自己影响的故事。</h1>
           <p className="text-sm mt-4 leading-7" style={{ color: 'var(--theme-text-muted)' }}>走进一个故事，或从自己的想象开始。</p>
         </div>
 

@@ -1,0 +1,983 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "recovery",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 14,
+      "quality": {
+        "type": "quality",
+        "source": "authored-opening",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "风把补给站的铁门撞得一响。你刚接过临时协调的名单，许岚便将车钥匙压在桌上：“城外的人还等着净水设备。车只能装一套，风暴前得走。”\n\n陈默扶住门，身后是挤在站里的居民。“另一套留给我们。可避难间已经渗水——车走了，留下的人怎么办？”\n\n周宁从排水间退出来，裤脚湿了一截：“得查清设施哪里出了问题，也可以先核对储水或检查车辆。动手之前，咱们把代价说清楚。”\n\n两套设备并排立在墙边。留给你协调的时间，只够六个时间单位的行动；询问和商量暂不耗时。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "我能不能再找一辆车，或者先把设备送走再回来接人？先别执行。",
+      "elapsedMs": 5076,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你刚把“先送设备再回来接人”说出口，周宁就放下手里的记录板，指节在板沿上敲了一下。“站里没有第二辆车，风暴前也回不来。这条路走不通。”她没等你追问，又补了一句：“设备不能拆开分送，另一套得留站内供水，这是死条件。”许岚从门边转过身，声音压得很低：“城外等水的人等不起返程，但我也不能让你把命押在一条不存在的路上。”陈默没接话，只把一截粉笔搁回窗台。你低头看见自己攥着车钥匙的手，指腹压出浅浅的印子。周宁把记录板递过来，上面列着三行待查项：车辆兼容、储水、排水故障。“选一个，我们往下走。”你先前决定先问清所有限制再动手，此刻这些限制反而让下一步变得清楚——没有捷径，只能从能查的地方查起。\n\n【行动裁定】本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。 讨论内容：你问的是两件目前无法实现的事：没有第二辆车可用，也不能在风暴前返程，所以“先送设备再回来接人”不成立。现有行动里没有“另找车辆”或“返程”的选项，我不能把它悄悄替换成别的方案。若你想推进，可先讨论是否调查车辆兼容性、储水或排水故障，或与许岚、陈默谈合作条件；这些都需要你明确选择后才会执行。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "修复排水设施",
+      "elapsedMs": 3655,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你蹲在排水泵前，指尖贴上外壳，只感到一片死寂的凉。周宁在你身后半步停住，扫了眼泵体与管路，说：“没诊断前，我判断不了是泵本身还是管路的问题。要修，得先有工具，还得把故障点找出来。”许岚站在门边，目光越过你落在院外：“城外等水的人还等着，准时交付不能拖。”陈默没接话，只把目光从泵移到你脸上。你站起身，把“修复排水设施”的预览又看了一遍——耗时零，条件不足。你没有去碰任何工具，只把下一步定在：先查清缺的是哪样工具、哪处故障，再决定要不要动手。此前你选择先预览方案而不是直接拆机，此刻才没在条件不足时白费力气。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试修复排水设施；执行结果取决于实际条件。预计步骤与代价：修复排水设施：预计耗时 0，条件不足，需调整 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "尝试修复排水设施；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "确认执行当前方案",
+      "elapsedMs": 7616,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "你把当前安排重新核对了一遍。\n\n维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。\n\n设备和人员仍按实际完成的步骤留在各自位置。未完成的事，没有被一句话算成已经做到。\n\n【行动裁定】维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "尝试修复排水设施；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "action": "在方案前加入寻找工具",
+      "elapsedMs": 7872,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "你把打算说了出来，目光在设备与站门之间停了一下。\n\n周宁没有去拿工具：“先把步骤核对清楚。缺了条件，我们就停在那里，不往下硬做。”\n\n方案还留在商量中。没有设备被搬动，也没有人因这次讨论离开补给站。\n\n【行动裁定】方案已调整，时间与资源不变。寻找维修工具：预计耗时 1；修复排水设施：预计耗时 0，条件不足，需调整",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "find_tools",
+              "repair"
+            ],
+            "explanation": "尝试修复排水设施；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "action": "确认执行当前方案",
+      "elapsedMs": 6693,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 1
+      },
+      "data": {
+        "narrative": "扳手落在掌心的分量比预想沉。你把它和疏通工具并排放好，周宁蹲下来逐一翻看，确认齿口没有崩缺，然后退开半步，什么也没说。许岚从门口探进身来，只问了一句：“工具齐了？”你点头。她没追问，转身回去继续清点要带出城的物资。陈默靠在墙边，目光在工具上停了一瞬，又移向那台还没修好的排水泵。你想起自己先前坚持先找齐工具再动手——正因为没有急着拆泵，此刻扳手和疏通器才都还完好地摆在面前。你开口说：“等查清故障，我来修。”周宁嗯了一声，把工具往你这边推了推。泵还停着，积水没退，但至少该用的东西都在手边了。\n\n【行动裁定】找到疏通工具与拆装扳手。 耗时 1，剩余 5。；维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "尝试寻找维修工具，然后修复排水设施；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "action": "取消当前方案",
+      "elapsedMs": 3035,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你把手从工具箱边缘收回来。周宁刚把拟好的步骤摊在台面上，你看了两秒，说：“先不执行。”他点头，把那张纸折起来，塞回口袋。许岚站在门边，没问原因，只把目光从你脸上移到窗外——城外等水的人还在，她的眉头没松。陈默蹲在角落清点留守者的名单，听见取消，抬头看了你一眼，又低头继续数。资源没动，时间没走。你想起之前坚持先确认工具再动手，才没让周宁在缺诊断的情况下拆机；眼下这一步取消，正是那个选择留下的余地。你对自己说，等条件齐了再走下一步。\n\n【行动裁定】已取消待执行方案，资源与时间不变。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "action": "诊断排水设施",
+      "elapsedMs": 7563,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "你跟着周宁检查排水泵，手电光停在堵住的管口。周宁指了指里面，没有伸手清理：“得先找疏通工具。我们两个人修，要花两个时间单位；多一份人手，就能快一些。”\n\n泵仍旧没有转动。故障已经查明，维修还没有开始；这份诊断也还没有传到许岚与陈默那里。\n\n【行动裁定】排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "action": "向许岚争取维修人手",
+      "elapsedMs": 8407,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "许岚按住交接单：“风暴前向城外交付设备或核心。”\n\n你听清了这项条件。对方还没有叫来帮手，等的是明确答复；承诺不能在沉默中替人作出。\n\n【行动裁定】许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false,
+            "offer": {
+              "target": "xu",
+              "condition": "deliver",
+              "description": "风暴前向城外交付设备或核心"
+            }
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 9,
+      "action": "我答应把净水设备送到城外，接受许岚刚才的条件。",
+      "elapsedMs": 9552,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "许岚听完你的答复，招手叫来队员：“去搭把手。城外的交付，按说好的办。”\n\n队员走到周宁身边，等候下一步。人手已经借出，维修还没有开始；交付的承诺也只是记下，尚未兑现。\n\n【行动裁定】你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 10,
+      "action": "修复排水设施",
+      "elapsedMs": 7891,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "你把打算说了出来，目光在设备与站门之间停了一下。\n\n周宁没有去拿工具：“先把步骤核对清楚。缺了条件，我们就停在那里，不往下硬做。”\n\n方案还留在商量中。没有设备被搬动，也没有人因这次讨论离开补给站。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试修复排水设施；执行结果取决于实际条件。预计步骤与代价：修复排水设施：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。"
+          ],
+          "pending": {
+            "steps": [
+              "repair"
+            ],
+            "explanation": "尝试修复排水设施；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "action": "确认执行当前方案",
+      "elapsedMs": 3162,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你把手掌贴上泵壳，金属的震颤从指缝间退下去，像退潮。积水漫过鞋面，正一寸寸缩回排水口。周宁蹲在旁边，用扳手背敲了敲管壁，侧耳听了几秒，朝你点头：“通了。”许岚站在台阶上，目光越过你，落在站外灰白的天际线上。她没催，只是把袖口挽紧了些。陈默从里屋探出半个身子，确认水线在降，又缩回去照看那几个老人。你想起接受许岚条件那一刻——借来的人手让本该两轮的活压成一轮。现在泵在转，地面在干，你还有三天。你弯腰拎起工具袋，对周宁说：“走，去看车。”\n\n【行动裁定】排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 3,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": true,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+            "排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 12,
+      "action": "装运一套完整设备",
+      "elapsedMs": 12557,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 2
+      },
+      "data": {
+        "narrative": "你把打算说了出来，目光在设备与站门之间停了一下。\n\n周宁没有去拿工具：“先把步骤核对清楚。缺了条件，我们就停在那里，不往下硬做。”\n\n方案还留在商量中。没有设备被搬动，也没有人因这次讨论离开补给站。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试装运一套完整设备；执行结果取决于实际条件。预计步骤与代价：装运一套完整设备：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 3,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": true,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+            "排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。"
+          ],
+          "pending": {
+            "steps": [
+              "load_device"
+            ],
+            "explanation": "尝试装运一套完整设备；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 13,
+      "action": "确认执行当前方案",
+      "elapsedMs": 7132,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 1
+      },
+      "data": {
+        "narrative": "你把手掌按在车厢侧板上，铁皮还带着站内暖气的余温。周宁从设备另一侧探出头：“排水泵修好，留下的人有避难保障了。”陈默站在门口，看着那台留在原位的净水设备，没再提水源的事。许岚走过来，目光扫过装好的车斗：“城外等水的人，就靠这一趟了。”你点头，拉紧绑带，回头看了一眼站内那套仍在运转的设备——当初你选择先修排水泵、再装车，才让两套设备各归其位。你转身面向驾驶室，手搭在门把上，对许岚说：“我会在风暴前送到。”\n\n【行动裁定】装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 2。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 2,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": true,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+            "排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。",
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 2。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 14,
+      "action": "执行最终安排，救援车出发",
+      "elapsedMs": 13768,
+      "quality": {
+        "type": "quality",
+        "source": "authored-fallback",
+        "revisions": 1
+      },
+      "data": {
+        "narrative": "你把打算说了出来，目光在设备与站门之间停了一下。\n\n周宁没有去拿工具：“先把步骤核对清楚。缺了条件，我们就停在那里，不往下硬做。”\n\n方案还留在商量中。没有设备被搬动，也没有人因这次讨论离开补给站。\n\n【行动裁定】方案尚未执行，未消耗时间。意图：尝试执行最终安排，救援车出发；执行结果取决于实际条件。预计步骤与代价：执行最终安排，救援车出发：预计耗时 1 请确认或取消；执行遇到条件不足会停下。未调查的事实只能在实际调查后揭露。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "active"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 2,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": true,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+            "排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。",
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 2。"
+          ],
+          "pending": {
+            "steps": [
+              "depart"
+            ],
+            "explanation": "尝试执行最终安排，救援车出发；执行结果取决于实际条件"
+          }
+        }
+      }
+    },
+    {
+      "turn": 15,
+      "action": "确认执行当前方案",
+      "elapsedMs": 2660,
+      "quality": {
+        "type": "quality",
+        "source": "model",
+        "revisions": 0
+      },
+      "data": {
+        "narrative": "你拧上最后一颗固定螺栓时，金属的凉意从指尖一直传到小臂。救援车的引擎在身后低吼，许岚拉开车门，回头看了你一眼——那眼神里没有多余的话，只有城外等水的人。陈默站在避难站门口，冲你点了下头，转身走回那台仍在运转的净水设备旁，弯腰检查出水口。周宁从控制面板前直起身，朝你比了个“没问题”的手势。你想起风暴前那个选择：没有拆走两套设备，而是修好排水泵、留下一套完整供水。此刻车驶离站台，车灯切开灰暗的天色，避难站的窗户透出另一盏光。两处灯火，一处随车远去，一处留在原地，都亮着。\n\n【行动裁定】救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 1。许岚的承诺已兑现：风暴前向城外交付设备或核心 最终复盘：居民：留守设施已修复。 城外：获得完整净水设备。 许岚：风暴前向城外交付设备或核心（已兑现）。 未留下尚未揭露的设施风险隐瞒。 结局：风暴中的两处灯火",
+        "statusDelta": {},
+        "ending": {
+          "type": "good",
+          "title": "风暴中的两处灯火"
+        },
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [
+                "shelter"
+              ],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "cooperative",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [
+              {
+                "target": "xu",
+                "condition": "deliver",
+                "description": "风暴前向城外交付设备或核心",
+                "id": "xu-deliver",
+                "status": "fulfilled"
+              }
+            ],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 1,
+          "known": [
+            "shelter"
+          ],
+          "tools": true,
+          "team": true,
+          "residents": false,
+          "repaired": true,
+          "cargo": "device",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": true,
+          "log": [
+            "本次仅讨论，不改变资源或时间；人物不能凭对话创造新设备，也不能把承诺写成已完成的事实。 未消耗时间。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "找到疏通工具与拆装扳手。 耗时 1，剩余 5。",
+            "维修缺少诊断或工具，尚未执行，也不扣时间。 未消耗时间。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+            "许岚提出条件：风暴前向城外交付设备或核心。这只是提议，尚未借出人手，需你明确接受。 未消耗时间。",
+            "你接受许岚的条件，协助现已生效。承诺记录：风暴前向城外交付设备或核心。 未消耗时间。",
+            "排水设施修复，站内居民可安全避难。 耗时 1，剩余 3。",
+            "装车一套完整净水设备，另一套仍留在补给站。 耗时 1，剩余 2。",
+            "救援车按当前装载方案出发，最终安排开始结算。 耗时 1，剩余 1。许岚的承诺已兑现：风暴前向城外交付设备或核心"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -117,6 +117,7 @@ export function supplyChoices(s: SupplyState): string[] {
   if (!s.tools) actions.push('find_tools')
   if (s.known.includes('shelter') && !s.team) actions.push('ask_team')
   if (!s.known.includes('vehicle')) actions.push('inspect_vehicle')
+  if (s.known.includes('vehicle') && s.tools && s.cargo === 'none') actions.unshift('split_core')
   if (!s.repaired && s.tools && s.known.includes('shelter')) actions.unshift('repair')
   if (s.cargo === 'none') actions.push('load_device')
   actions.push('depart')

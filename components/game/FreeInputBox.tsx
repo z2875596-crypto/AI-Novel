@@ -25,7 +25,7 @@ export default function FreeInputBox({ onSubmit }: Props) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       handleSubmit()
     }
@@ -35,7 +35,8 @@ export default function FreeInputBox({ onSubmit }: Props) {
     <div className="flex gap-2">
       <input
         type="text"
-        placeholder="或者自由输入你的行动… (Enter 确认)"
+        aria-label="角色行动"
+        placeholder="例如：询问对方为什么反对这个方案"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -48,6 +49,7 @@ export default function FreeInputBox({ onSubmit }: Props) {
         }}
       />
       <button
+        aria-label="尝试此行动"
         onClick={handleSubmit}
         disabled={!value.trim() || isStreaming}
         className="px-4 py-3 rounded-xl text-sm font-medium transition-all hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"

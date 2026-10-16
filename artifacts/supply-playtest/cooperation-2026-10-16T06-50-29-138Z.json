@@ -1,0 +1,147 @@
+{
+  "model": "deepseek-flash",
+  "scenario": "cooperation",
+  "records": [
+    {
+      "turn": 0,
+      "action": "开始故事",
+      "elapsedMs": 8915,
+      "data": {
+        "narrative": "你蹲在排水泵旁，手指探进格栅缝隙，触到一团湿软的纤维——堵了，但只是诊断，你没碰它。周宁站在身后，你只说了一句：“泵体堵了，得用工具。”他点头，没动。许岚从门口探进半个身子：“城外那批人等水，车能准时走吗？”你没答，只看向陈默。他靠着墙，声音很轻：“留守的人也得有水。”你站起来，手在裤腿上蹭了蹭。两套设备都在，车只能带一套。你还没决定装哪套、留哪套，也没让任何人去拿工具或登车。泵还是堵着，水没退。你只是把堵点看清了，别的都还没动。\n\n【行动裁定】补给站两套设备，车辆只能带一套；风暴还有6个时间单位，排水设施疑似故障。三方等待你协调。尚未调查储水、车辆或故障细节，不能提前揭露调查结果。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 6,
+          "known": [],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": []
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": "调查居民储水",
+      "elapsedMs": 3106,
+      "data": {
+        "narrative": "你蹲在居民区角落掀开储水盖，手电光里水面晃了晃，离底只剩一掌深。你合上盖子时，许岚从车边走来：“够撑到明天吗？”你摇头：“只够一天，不能把回程送水当成已经有的水。”陈默在几步外听见，皱眉看了眼留守的老人，没说话。周宁站在净水设备旁，正拿布擦手上的灰，闻言只点了下头。你站起身，心里清楚：排水泵还堵着，工具没到手，谁也不能靠等来换安全。你朝周宁走过去，想先问清拆核心腾座位的路子——这是眼下唯一能往前推的一步。\n\n【行动裁定】居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": []
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 5,
+          "known": [
+            "water"
+          ],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "action": "诊断排水设施",
+      "elapsedMs": 3280,
+      "data": {
+        "narrative": "你蹲在排水口旁，指尖探入铁栅缝隙，触到一团湿冷的纤维碎屑。周宁举着手电凑近，光柱里浮着细小的尘粒。“堵了，”他直起身，把手电往你手里一塞，“得用长柄钩子才行，站里没有。”你注意到他说话时目光扫过那辆车的方向——他没提别的，只补了一句：“先别动泵，硬转会把叶轮咬死。”许岚在门口停住脚步，没有进来，只问了一句：“城外的人今天能等到水吗？”你还没答，她已经转身走回货架那边，开始清点纸箱上的封条。陈默从里间探出头，看了周宁一眼，又缩回去，把门轻轻带上。手电光里，那团碎屑安静地贴在栅条上，像一句没说出口的话。\n\n【行动裁定】排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。",
+        "statusDelta": {},
+        "ending": null,
+        "clues": [],
+        "memoryHint": "",
+        "supply": {
+          "social": {
+            "knowledge": {
+              "xu": [],
+              "chen": [],
+              "zhou": [
+                "shelter"
+              ]
+            },
+            "trust": {
+              "xu": "neutral",
+              "chen": "neutral",
+              "zhou": "neutral"
+            },
+            "promises": [],
+            "exposed": false
+          },
+          "version": 1,
+          "time": 4,
+          "known": [
+            "water",
+            "shelter"
+          ],
+          "tools": false,
+          "team": false,
+          "residents": false,
+          "repaired": false,
+          "cargo": "none",
+          "evacuated": false,
+          "hiddenRisk": false,
+          "departed": false,
+          "log": [
+            "居民储水可维持一天；不能把未来回送的承诺当成已有水源。 耗时 1，剩余 5。",
+            "排水泵堵塞。找到工具后，周宁可与玩家维修，耗时 2；有额外协助时耗时 1。 耗时 1，剩余 4。"
+          ]
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "action": "寻找维修工具",
+      "elapsedMs": 10136,
+      "error": {
+        "type": "error",
+        "message": "行动未完成，时间与资源未改变。请重试。"
+      }
+    }
+  ]
+}

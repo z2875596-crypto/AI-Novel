@@ -3,6 +3,8 @@ import type { NPC } from '@/types/world'
 
 export interface StoryScenario {
   title: string
+  participantRole?: string
+  experience?: string
   hook: string
   setting: string
   goal: string
@@ -14,6 +16,8 @@ export interface StoryScenario {
 export const STORY_CATALOG: Record<GenreKey, StoryScenario> = {
   apocalypse: {
     title: '最后的补给站',
+    participantRole: '临时撤离协调者',
+    experience: '调查现场、争取合作，在有限时间里承担安排的后果。',
     hook: '净水设备只能带走一套。留下的人，可能撑不过这场风暴。',
     setting: '灾变后的城市即将遭遇风暴。补给站有两套净水设备，但撤离车辆只能装下一套。救援队需要一套救助城外幸存者，留守居民也需要一套维持饮水。另一套必须留在站内。站内避难设施尚需修复，无法保证留守者安全。',
     goal: '在风暴抵达前找到撤离或留守方案，决定净水设备的归属。',
@@ -26,6 +30,8 @@ export const STORY_CATALOG: Record<GenreKey, StoryScenario> = {
   },
   mystery: {
     title: '末班车证词',
+    participantRole: '卷入失物事件的旅客',
+    experience: '交叉核实证词，找到药物，再决定如何对待隐瞒真相的人。',
     hook: '三份证词互相矛盾。你该相信谁，又愿意揭穿谁？',
     setting: '夜班列车即将到站，一只装有救命药物的手提箱失踪。固定真相：乘务员何青为阻止误领，将箱子转存到乘务室，却因害怕担责隐瞒。乘客宋遥以为箱子被偷，陆川在替何青掩饰。宋遥的取药凭证、乘务室转存记录、陆川目击的搬箱时间能交叉验证。不得改变这些事实或临时制造替罪者。',
     goal: '在列车到站前核实证词，找到药物，并决定如何处理隐瞒真相的人。',
@@ -38,6 +44,8 @@ export const STORY_CATALOG: Record<GenreKey, StoryScenario> = {
   },
   ancient: {
     title: '灯下密信',
+    participantRole: '介入求援事件的过路人',
+    experience: '寻找密信与求援依据，影响守城官与灾民之间的信任。',
     hook: '城门即将关闭。找回密信之后，你真的敢把它交出去吗？',
     setting: '古代边城灯会前夕，一封记载城外灾民求援的密信失踪。官府要求先验证求援身份，城外的人却等不起。固定事实：驿卒沈砚将密信藏在旧驿站，以免未经核验的求援被直接驳回，须经调查才能发现。',
     goal: '在城门关闭前找回密信，查清求援依据，并决定交信或亲自协助救援。',
